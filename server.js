@@ -36,8 +36,10 @@ var server = http.createServer(function(req, res) {
 
     // POST DATA
     if (req.method.toLowerCase() == 'post') {
+        console.log("GOt post");
         processForm(req,res);
         return;
+
     }
     
     // GET DATA
@@ -53,22 +55,14 @@ var server = http.createServer(function(req, res) {
                         handleError(res,err.message, "Failed to get users");
                     }
                     else{
-                        //res.status(200);
+                    
                         res.writeHead(200, {"Content-Type": "application/json"});
                         res.end( JSON.stringify(docs ) );
                         console.log( JSON.stringify(docs));
-                        // responseData = JSON.stringify(data);
-                        // res.write( responseData );
-                        // console.log(docs);
-                        // res.end();
-                        // return;
-                        //res.end();
+                       
                     }
                 })
-                //data = { data: { users: ['Bart','James']}};
-                //responseData = JSON.stringify(data);
-                //res.end(responseData);
-                //console.log("get: ", responseData);
+               
                 break;
 
             case '/languages':
@@ -105,6 +99,8 @@ var server = http.createServer(function(req, res) {
 
 function processForm(req, res) {
 
+        console.log("processing the form");
+        
     // Do the Legwork of processing the incoming form - and put it into the form object
     
     var form = new formidable.IncomingForm();
@@ -117,6 +113,17 @@ function processForm(req, res) {
        
         var data = JSON.stringify({fields: fields});
         console.log(data);
+
+        db.collection('users').insertOne(fields, function(err, result) {
+            if (err)
+                {
+                    handleError(res,err.message, "Failed to post user");
+                }
+                else{
+                    console.log("New User Info Posted to Mongo!");
+                }
+        });
+
 
         res.writeHead(200, { 'content-type': 'text/plain' });
                
