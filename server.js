@@ -2,6 +2,28 @@ var http = require('http');
 var formidable = require("formidable");
 var util = require("util");
 var url = require('url');
+var mongodb = require("mongodb");
+var bodyParser = require("body-parser");
+
+var ObjectID = mongodb.ObjectID;
+                    // this should be set to: process.env.MONGODB_URI
+const MONGODB_URI = 'mongodb://bart:givemedata@ds163360.mlab.com:63360/loomdata';
+
+var db;
+
+// Connect to the database before starting the application server.
+mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
+
+    if (err) {
+        console.log(err);
+        process.exit(1);
+      }
+
+    // Save database object from the callback for reuse.
+    db = database;
+    console.log("Connected to MLAB");
+
+});
 
 
 var server = http.createServer(function(req, res) {
@@ -26,10 +48,27 @@ var server = http.createServer(function(req, res) {
         switch(req.url)
         {
             case '/users':
-                data = { data: { users: ['Bart','James']}};
-                responseData = JSON.stringify(data);
-                res.end(responseData);
-                console.log("get: ", responseData);
+                db.collection('users').find({}).toArray(function(err,docs) {
+                    if(err) {
+                        handleError(res,err.message, "Failed to get users");
+                    }
+                    else{
+                        //res.status(200);
+                        res.writeHead(200, {"Content-Type": "application/json"});
+                        res.end( JSON.stringify(docs ) );
+                        console.log( JSON.stringify(docs));
+                        // responseData = JSON.stringify(data);
+                        // res.write( responseData );
+                        // console.log(docs);
+                        // res.end();
+                        // return;
+                        //res.end();
+                    }
+                })
+                //data = { data: { users: ['Bart','James']}};
+                //responseData = JSON.stringify(data);
+                //res.end(responseData);
+                //console.log("get: ", responseData);
                 break;
 
             case '/languages':
@@ -58,7 +97,7 @@ var server = http.createServer(function(req, res) {
 
     };
 
-    res.end();
+   // res.end();
 
 });
 
