@@ -30,15 +30,30 @@ var server = http.createServer(function(req, res) {
 
     // Cross Origin Headers
     res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
 
     //var queryData = url.parse(req.url, true).query;
 
+    //console.log("In the server: " + req.method);
+
+    // If the req.method == OPTIONS, then this is just the browser "Preflight".. and not the
+    // actual POST, so let's just return  a status of "OK", so that the browser will allow
+    // my CORS request.  FUCK.
+    
+    if (req.method == "OPTIONS")
+    {
+        res.writeHead(200, {"Content-Type": "application/json"});
+        res.end();
+    }
+
     // POST DATA
     if (req.method.toLowerCase() == 'post') {
-        console.log("GOt post");
-        processForm(req,res);
-        return;
+       console.log("GOt post: " );
+       //postMyData(req,res);
+       processForm(req,res);
+       return;
 
     }
     
@@ -49,6 +64,22 @@ var server = http.createServer(function(req, res) {
 
         switch(req.url)
         {
+            case '/courses':
+            db.collection('courses').find({}).toArray(function(err,docs) {
+                if(err) {
+                    handleError(res,err.message, "Failed to get courses");
+                }
+                else{
+                
+                    res.writeHead(200, {"Content-Type": "application/json"});
+                    res.end( JSON.stringify(docs ) );
+                    console.log( JSON.stringify(docs));
+                   
+                }
+            })
+           
+            break;
+
             case '/users':
                 db.collection('users').find({}).toArray(function(err,docs) {
                     if(err) {
@@ -95,24 +126,40 @@ var server = http.createServer(function(req, res) {
 
 });
 
+function postMyData(req,res) {
+    var data = JSON.stringify(req);
+    console.log(data);
+    db.collection('users').insertOne(data, function(err, result) {
+        if (err)
+            {
+                handleError(res,err.message, "Failed to post user");
+            }
+            else{
+                console.log("New User Info Posted to Mongo: "+result);
+            }
+    });
 
+}
 
 function processForm(req, res) {
 
-        console.log("processing the form");
+        console.log("processing the form" + req);
+    
         
     // Do the Legwork of processing the incoming form - and put it into the form object
     
     var form = new formidable.IncomingForm();
 
     form.parse(req, function(err, fields) {
+       
+        console.log(util.inspect({fields: fields}));
 
-        fields.id = 'ABC123';
-       
-        console.log('posted fields: \n');
-       
-        var data = JSON.stringify({fields: fields});
+        console.log('posted fields:' + JSON.stringify(fields));
+        
+        var data = JSON.stringify(util.inspect({fields: fields}));
         console.log(data);
+        //console.log('Request: '+req.body);
+
 
         db.collection('users').insertOne(fields, function(err, result) {
             if (err)
@@ -125,10 +172,10 @@ function processForm(req, res) {
         });
 
 
-        res.writeHead(200, { 'content-type': 'text/plain' });
+        //res.writeHead(200, { 'content-type': 'text/plain' });
                
-        res.end(data);
-
+        //res.end(data);
+        res.end();
     });
 
     
