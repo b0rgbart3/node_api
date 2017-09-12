@@ -41,12 +41,6 @@ var server = http.createServer(function(req, res) {
       // At this point, we have the headers, method, url and body, and can now
       // do whatever we need to in order to respond to this request.
 
-
-  
-    
-    
-    
-    
         // Cross Origin Headers
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
@@ -77,34 +71,32 @@ var server = http.createServer(function(req, res) {
                 let params = JSON.parse(body);
                 console.log("Got authentication Request.");
     
-    
-                // check user credentials and return fake jwt token if valid
-                if (params.username === testUser.username && params.password === testUser.password) {
-                    
-                    // generate a real response to authenticate this user
-                    res.writeHead(200, { 'Content-Type': 'plain/text' });
+                // Scan the db for this user (?)
 
-                    let jwt = { token: 'fake-jwt-token' };
-                    jwt = JSON.stringify(jwt);
+                let foundUser = db.collection('users').findOne(params, function( err, data ) {
 
-                    console.log("jwt_response: " + jwt);
-                    res.end(jwt);
+                    if (err) {
+                        console.log("Error looking for user in DB");
+                        res.writeHead(200, { 'Content-Type': 'plain/text' });
+                        res.end('');
+                    }
+                    else{
+                        console.log("Found USER: " + data);
 
-                    //connection.mockRespond(new Response(
-                    //    new ResponseOptions({ status: 200, body: { token: 'fake-jwt-token' } })
-                   // ));
-                } else {
+                        // generate a real response to authenticate this user
+                        res.writeHead(200, { 'Content-Type': 'plain/text' });
 
-                    // generate a real response to deny this user
-                    res.writeHead(200, { 'Content-Type': 'plain/text' });
-                    res.end('');
+                        let jwt = { token: 'fake-jwt-token' };
+                        jwt = JSON.stringify(jwt);
 
-                    // connection.mockRespond(new Response(
-                    //     new ResponseOptions({ status: 200 })
-                    // ));
-                }
+                        console.log("jwt_response: " + jwt);
+                        res.end(jwt);
 
-                res.end();
+        
+
+                    }
+                });
+                
             }
     
            else {
@@ -179,53 +171,20 @@ var server = http.createServer(function(req, res) {
                     break;
             }
     
-    
         };
-    
-       // res.end();
-
-
-      
 
     });
 
 });
 
 
-function postMyData(req,res) {
-    var data = JSON.stringify(req);
-    console.log(data);
-    db.collection('users').insertOne(data, function(err, result) {
-        if (err)
-            {
-                handleError(res,err.message, "Failed to post user");
-            }
-            else{
-                console.log("New User Info Posted to Mongo: "+result);
-            }
-    });
-
-}
 
 function processForm(req, res, body) {
 
     console.log("processing the form" + body);
     
     let userObject = JSON.parse(body);
-        
-    // Do the Legwork of processing the incoming form - and put it into the form object
     
-    // var form = new formidable.IncomingForm();
-
-    // form.parse(body, function(err, fields) {
-       
-        //console.log(util.inspect({fields: fields}));
-
-       // console.log('posted fields:' + JSON.stringify(fields));
-        
-        //var data = JSON.stringify(util.inspect({fields: fields}));
-       // console.log(data);
-       // console.log('Request: '+data);
 
 
         db.collection('users').insertOne(userObject, function(err, result) {
@@ -238,12 +197,7 @@ function processForm(req, res, body) {
                 }
         });
 
-
-        //res.writeHead(200, { 'content-type': 'text/plain' });
-               
-        //res.end(data);
         res.end();
-  //  });
 
     
 }
