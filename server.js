@@ -5,6 +5,7 @@ var url = require('url');
 var mongodb = require("mongodb");
 var bodyParser = require("body-parser");
 
+
 var ObjectID = mongodb.ObjectID;
                     // this should be set to: process.env.MONGODB_URI
 const MONGODB_URI = 'mongodb://bart:givemedata@ds163360.mlab.com:63360/loomdata';
@@ -27,63 +28,106 @@ mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
 
 
 var server = http.createServer(function(req, res) {
-
-    // Cross Origin Headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", 
-    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-
-    //var queryData = url.parse(req.url, true).query;
-
-    //console.log("In the server: " + req.method);
-
-    // If the req.method == OPTIONS, then this is just the browser "Preflight".. and not the
-    // actual POST, so let's just return  a status of "OK", so that the browser will allow
-    // my CORS request.  FUCK.
+    const  testUser = { username: 'test', password: 'test', firstname: 'test', lastname: 'user' };
     
-    if (req.method == "OPTIONS")
-    {
-        res.writeHead(200, {"Content-Type": "application/json"});
-        res.end();
-    }
+    const { headers, method, url } = req;
+    let body = [];
+    req.on('error', (err) => {
+      console.error(err);
+    }).on('data', (chunk) => {
+      body.push(chunk);
+    }).on('end', () => {
+      body = Buffer.concat(body).toString();
+      // At this point, we have the headers, method, url and body, and can now
+      // do whatever we need to in order to respond to this request.
 
-    // POST DATA
-    if (req.method.toLowerCase() == 'post') {
-       console.log("GOt post: " );
-       //postMyData(req,res);
-       processForm(req,res);
-       return;
 
-    }
+  
     
-    // GET DATA
-    if (req.method.toLocaleLowerCase() == 'get') {
-        let data = {};
-        let responseData;
-
-        switch(req.url)
+    
+    
+    
+        // Cross Origin Headers
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", 
+        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+    
+        //var queryData = url.parse(req.url, true).query;
+    
+        console.log("In the server: " + req.method);
+    
+        // If the req.method == OPTIONS, then this is just the browser "Preflight".. and not the
+        // actual POST, so let's just return  a status of "OK", so that the browser will allow
+        // my CORS request.  FUCK.
+        
+        if (req.method == "OPTIONS")
         {
-            case '/courses':
-            db.collection('courses').find({}).toArray(function(err,docs) {
-                if(err) {
-                    handleError(res,err.message, "Failed to get courses");
-                }
-                else{
-                
-                    res.writeHead(200, {"Content-Type": "application/json"});
-                    res.end( JSON.stringify(docs ) );
-                    console.log( JSON.stringify(docs));
-                   
-                }
-            })
-           
-            break;
+            res.writeHead(200, {"Content-Type": "application/json"});
+            res.end();
+        }
+    
+        // POST DATA
+        if (req.method.toLowerCase() == 'post') {
+    
+            if (req.url.endsWith('/api/authenticate') ) {
+                // get parameters from post request
+                console.log("About to authenticate:\n" + body);
+    
+                let params = JSON.parse(body);
+                console.log("Got authentication Request.");
+    
+    
+                // check user credentials and return fake jwt token if valid
+                if (params.username === testUser.username && params.password === testUser.password) {
+                    
+                    // generate a real response to authenticate this user
+                    res.writeHead(200, { 'Content-Type': 'plain/text' });
 
-            case '/users':
-                db.collection('users').find({}).toArray(function(err,docs) {
+                    let jwt = { token: 'fake-jwt-token' };
+                    jwt = JSON.stringify(jwt);
+
+                    console.log("jwt_response: " + jwt);
+                    res.end(jwt);
+
+                    //connection.mockRespond(new Response(
+                    //    new ResponseOptions({ status: 200, body: { token: 'fake-jwt-token' } })
+                   // ));
+                } else {
+
+                    // generate a real response to deny this user
+                    res.writeHead(200, { 'Content-Type': 'plain/text' });
+                    res.end('');
+
+                    // connection.mockRespond(new Response(
+                    //     new ResponseOptions({ status: 200 })
+                    // ));
+                }
+
+                res.end();
+            }
+    
+           else {
+            console.log("GOt post: " );
+            //postMyData(req,res);
+            processForm(req,res, body);
+            return;
+           }
+    
+    
+        }
+        
+        // GET DATA
+        if (req.method.toLocaleLowerCase() == 'get') {
+            let data = {};
+            let responseData;
+    
+            switch(req.url)
+            {
+                case '/courses':
+                db.collection('courses').find({}).toArray(function(err,docs) {
                     if(err) {
-                        handleError(res,err.message, "Failed to get users");
+                        handleError(res,err.message, "Failed to get courses");
                     }
                     else{
                     
@@ -95,36 +139,58 @@ var server = http.createServer(function(req, res) {
                 })
                
                 break;
+    
+                case '/users':
+                    db.collection('users').find({}).toArray(function(err,docs) {
+                        if(err) {
+                            handleError(res,err.message, "Failed to get users");
+                        }
+                        else{
+                        
+                            res.writeHead(200, {"Content-Type": "application/json"});
+                            res.end( JSON.stringify(docs ) );
+                            console.log( JSON.stringify(docs));
+                           
+                        }
+                    })
+                   
+                    break;
+    
+                case '/languages':
+                    data = {
+                        data: {
+                            languages: [
+                                'English',
+                                'Spanish',
+                                'German',
+                                'Other'
+                            ]
+                        }
+                    };
+                    responseData = JSON.stringify(data);
+                    res.end(responseData);
+                    console.log("get: ", responseData);
+                    break;
+    
+                default: 
+                    console.log("get: got called with no object ref name");
+                    res.end();
+                    
+                    break;
+            }
+    
+    
+        };
+    
+       // res.end();
 
-            case '/languages':
-                data = {
-                    data: {
-                        languages: [
-                            'English',
-                            'Spanish',
-                            'German',
-                            'Other'
-                        ]
-                    }
-                };
-                responseData = JSON.stringify(data);
-                res.end(responseData);
-                console.log("get: ", responseData);
-                break;
 
-            default: 
-                console.log("get: got called with no object ref name");
-                res.end();
-                
-                break;
-        }
+      
 
-
-    };
-
-   // res.end();
+    });
 
 });
+
 
 function postMyData(req,res) {
     var data = JSON.stringify(req);
@@ -141,30 +207,31 @@ function postMyData(req,res) {
 
 }
 
-function processForm(req, res) {
+function processForm(req, res, body) {
 
-        console.log("processing the form" + req);
+    console.log("processing the form" + body);
     
+    let userObject = JSON.parse(body);
         
     // Do the Legwork of processing the incoming form - and put it into the form object
     
-    var form = new formidable.IncomingForm();
+    // var form = new formidable.IncomingForm();
 
-    form.parse(req, function(err, fields) {
+    // form.parse(body, function(err, fields) {
        
-        console.log(util.inspect({fields: fields}));
+        //console.log(util.inspect({fields: fields}));
 
-        console.log('posted fields:' + JSON.stringify(fields));
+       // console.log('posted fields:' + JSON.stringify(fields));
         
-        var data = JSON.stringify(util.inspect({fields: fields}));
-        console.log(data);
-        //console.log('Request: '+req.body);
+        //var data = JSON.stringify(util.inspect({fields: fields}));
+       // console.log(data);
+       // console.log('Request: '+data);
 
 
-        db.collection('users').insertOne(fields, function(err, result) {
+        db.collection('users').insertOne(userObject, function(err, result) {
             if (err)
                 {
-                    handleError(res,err.message, "Failed to post user");
+                    console.log("Failed: "+err.message);
                 }
                 else{
                     console.log("New User Info Posted to Mongo!");
@@ -176,7 +243,7 @@ function processForm(req, res) {
                
         //res.end(data);
         res.end();
-    });
+  //  });
 
     
 }
