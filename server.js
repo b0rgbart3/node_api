@@ -77,12 +77,14 @@ var server = http.createServer(function(req, res) {
 
                     if (err) {
                         console.log("Error looking for user in DB");
-                        res.writeHead(200, { 'Content-Type': 'plain/text' });
+                        res.writeHead(400, { 'Content-Type': 'plain/text' });
                         res.end('');
                     }
                     else{
                         console.log("Found USER: " + data);
 
+                        if (data)
+                        {
                         // generate a real response to authenticate this user
                         res.writeHead(200, { 'Content-Type': 'plain/text' });
 
@@ -91,7 +93,13 @@ var server = http.createServer(function(req, res) {
 
                         console.log("jwt_response: " + jwt);
                         res.end(jwt);
-
+                        }
+                        else
+                        {
+                            console.log("Error looking for user in DB");
+                            res.writeHead(400, { 'Content-Type': 'plain/text' });
+                            res.end(''); 
+                        }
         
 
                     }
