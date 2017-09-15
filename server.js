@@ -4,6 +4,12 @@ var util = require("util");
 var url = require('url');
 var mongodb = require("mongodb");
 var bodyParser = require("body-parser");
+var fs = require('fs');
+var jwt = require('jsonwebtoken');
+var cert = fs.readFileSync('.bsx');
+var certString = cert.toString();
+
+//import jwt from 'jsonwebtoken';
 
 
 var ObjectID = mongodb.ObjectID;
@@ -11,6 +17,9 @@ var ObjectID = mongodb.ObjectID;
 const MONGODB_URI = 'mongodb://bart:givemedata@ds163360.mlab.com:63360/loomdata';
 
 var db;
+
+console.log("MY jwt: "+ jwt);
+
 
 // Connect to the database before starting the application server.
 mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
@@ -29,9 +38,11 @@ mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
 
 var server = http.createServer(function(req, res) {
     const  testUser = { username: 'test', password: 'test', firstname: 'test', lastname: 'user' };
-    
     const { headers, method, url } = req;
     let body = [];
+
+    console.log("After creating server, JWT: "+ jwt);
+
     req.on('error', (err) => {
       console.error(err);
     }).on('data', (chunk) => {
@@ -69,11 +80,18 @@ var server = http.createServer(function(req, res) {
                 console.log("About to authenticate:\n" + body);
     
                 let params = JSON.parse(body);
+                let comparePW = params.password;
+                params.password = "";
+
+
                 console.log("Got authentication Request.");
+                console.log("Params: "+ JSON.stringify(params));
     
                 // Scan the db for this user (?)
 
                 let foundUser = db.collection('users').findOne(params, function( err, data ) {
+
+                    //console.log("MY jwt: "+jwt);
 
                     if (err) {
                         console.log("Error looking for user in DB");
@@ -81,18 +99,42 @@ var server = http.createServer(function(req, res) {
                         res.end('');
                     }
                     else{
-                        console.log("Found USER: " + data);
+                        
 
                         if (data)
                         {
-                        // generate a real response to authenticate this user
-                        res.writeHead(200, { 'Content-Type': 'plain/text' });
+                            // We found a user with the right Username - that's great.
+                            // Now let's compare the JWT
+                            console.log("Data Found: " + JSON.stringify(data) );
 
-                        let jwt = { token: 'fake-jwt-token' };
-                        jwt = JSON.stringify(jwt);
+                            let DBToken = data.token;
+                            console.log("DBToken: "+DBToken);
 
-                        console.log("jwt_response: " + jwt);
-                        res.end(jwt);
+                            let decoded = jwt.verify(DBToken, certString);
+                            
+                            console.log("Decoded: "+JSON.stringify(decoded));
+                            console.log("ComparePW: "+ comparePW);
+                            console.log("Decoded Password: "+decoded.password);
+
+                            if (decoded.password == comparePW)
+                            {
+                                // success!
+                                console.log("success!");
+                                // generate a real response to authenticate this user
+                                res.writeHead(200, { 'Content-Type': 'plain/text' });
+                        
+                                //let jwt = { token: 'fake-jwt-token' };
+                                //jwt = DBToken;
+        
+                                // I'm not quite sure why we're return the JWT here...
+                                console.log("jwt_response: " + DBToken);
+                                let dbTokenObject = { "token": DBToken };
+                                res.end(JSON.stringify(dbTokenObject) );
+
+                            }
+                            
+
+                        
                         }
                         else
                         {
@@ -192,7 +234,10 @@ function processForm(req, res, body) {
     console.log("processing the form" + body);
     
     let userObject = JSON.parse(body);
-    
+    let userPas = userObject.password;
+    let userJWT = jwt.sign({ password: userPas}, certString );
+    userObject.password = "";
+    userObject.token = userJWT;
 
 
         db.collection('users').insertOne(userObject, function(err, result) {
