@@ -4,21 +4,41 @@ var util = require("util");
 var url = require('url');
 var mongodb = require("mongodb");
 var bodyParser = require("body-parser");
+
+
+// JWT stuff
 var fs = require('fs');
 var jwt = require('jsonwebtoken');
 var cert = fs.readFileSync('.bsx');
 var certString = cert.toString();
+var tempPassword;
 
-//import jwt from 'jsonwebtoken';
+var ddw = require('./ddw');
 
+ddw.dosomething();
+
+
+// I'm using SENDGRID -- with a 'free' account - 
+// but this could be replaced with NodeMailer when it's on a live produciton server
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+
+var makeid = function() {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  
+    for (var i = 0; i < 5; i++)
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+  
+    return text;
+  }
 
 var ObjectID = mongodb.ObjectID;
                     // this should be set to: process.env.MONGODB_URI
 const MONGODB_URI = 'mongodb://bart:givemedata@ds163360.mlab.com:63360/loomdata';
 
 var db;
-
-console.log("MY jwt: "+ jwt);
 
 
 // Connect to the database before starting the application server.
@@ -35,13 +55,10 @@ mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
 
 });
 
-
-var server = http.createServer(function(req, res) {
+var myServerCallBack = function(req,res) {
     const  testUser = { username: 'test', password: 'test', firstname: 'test', lastname: 'user' };
     const { headers, method, url } = req;
     let body = [];
-
-    console.log("After creating server, JWT: "+ jwt);
 
     req.on('error', (err) => {
       console.error(err);
@@ -74,158 +91,21 @@ var server = http.createServer(function(req, res) {
     
         // POST DATA
         if (req.method.toLowerCase() == 'post') {
-    
-            if (req.url.endsWith('/api/authenticate') ) {
-                // get parameters from post request
-                console.log("About to authenticate:\n" + body);
-    
-                let params = JSON.parse(body);
-                let comparePW = params.password;
-                params.password = "";
 
+            ddw.processPost(body,req,res,db,jwt,certString);
 
-                console.log("Got authentication Request.");
-                console.log("Params: "+ JSON.stringify(params));
-    
-                // Scan the db for this user (?)
-
-                let foundUser = db.collection('users').findOne(params, function( err, data ) {
-
-                    //console.log("MY jwt: "+jwt);
-
-                    if (err) {
-                        console.log("Error looking for user in DB");
-                        res.writeHead(400, { 'Content-Type': 'plain/text' });
-                        res.end('');
-                    }
-                    else{
-                        
-
-                        if (data)
-                        {
-                            // We found a user with the right Username - that's great.
-                            // Now let's compare the JWT
-                            console.log("Data Found: " + JSON.stringify(data) );
-
-                            let DBToken = data.token;
-                            console.log("DBToken: "+DBToken);
-
-                            let decoded = jwt.verify(DBToken, certString);
-                            
-                            console.log("Decoded: "+JSON.stringify(decoded));
-                            console.log("ComparePW: "+ comparePW);
-                            console.log("Decoded Password: "+decoded.password);
-
-                            if (decoded.password == comparePW)
-                            {
-                                // success!
-                                console.log("success!");
-                                // generate a real response to authenticate this user
-                                res.writeHead(200, { 'Content-Type': 'plain/text' });
-                        
-                                //let jwt = { token: 'fake-jwt-token' };
-                                //jwt = DBToken;
-        
-                                // I'm not quite sure why we're return the JWT here...
-                                console.log("jwt_response: " + DBToken);
-                                let dbTokenObject = { "token": DBToken };
-                                res.end(JSON.stringify(dbTokenObject) );
-
-                            }
-                            
-
-                        
-                        }
-                        else
-                        {
-                            console.log("Error looking for user in DB");
-                            res.writeHead(400, { 'Content-Type': 'plain/text' });
-                            res.end(''); 
-                        }
-        
-
-                    }
-                });
-                
-            }
-    
-           else {
-            console.log("GOt post: " );
-            //postMyData(req,res);
-            processForm(req,res, body);
-            return;
-           }
-    
-    
-        }
-        
+        }        
         // GET DATA
         if (req.method.toLocaleLowerCase() == 'get') {
-            let data = {};
-            let responseData;
-    
-            switch(req.url)
-            {
-                case '/courses':
-                db.collection('courses').find({}).toArray(function(err,docs) {
-                    if(err) {
-                        handleError(res,err.message, "Failed to get courses");
-                    }
-                    else{
-                    
-                        res.writeHead(200, {"Content-Type": "application/json"});
-                        res.end( JSON.stringify(docs ) );
-                        console.log( JSON.stringify(docs));
-                       
-                    }
-                })
-               
-                break;
-    
-                case '/users':
-                    db.collection('users').find({}).toArray(function(err,docs) {
-                        if(err) {
-                            handleError(res,err.message, "Failed to get users");
-                        }
-                        else{
-                        
-                            res.writeHead(200, {"Content-Type": "application/json"});
-                            res.end( JSON.stringify(docs ) );
-                            console.log( JSON.stringify(docs));
-                           
-                        }
-                    })
-                   
-                    break;
-    
-                case '/languages':
-                    data = {
-                        data: {
-                            languages: [
-                                'English',
-                                'Spanish',
-                                'German',
-                                'Other'
-                            ]
-                        }
-                    };
-                    responseData = JSON.stringify(data);
-                    res.end(responseData);
-                    console.log("get: ", responseData);
-                    break;
-    
-                default: 
-                    console.log("get: got called with no object ref name");
-                    res.end();
-                    
-                    break;
-            }
+            processGet(body,req,res);
     
         };
 
     });
+};
 
-});
+
+var server = http.createServer(myServerCallBack);
 
 
 
@@ -259,3 +139,116 @@ var port = 3100;
 server.listen(port);
 console.log("server listening on port " + port);
 
+
+
+
+var processReset = function(body,req,res) {
+    console.log("About to reset a password.");
+    
+                    console.log("request body: "+ body);
+    
+                    //let sentObject = JSON.parse(body);
+                    //let emailInQuestion = sentObject.email;
+    
+                    // Create a temporary random password
+                    tempPassword = makeid();
+    
+                    // Save the temporary password in the database
+                    // let foundUser = db.collection('users').findOne(params, function(err,data){
+    
+                    // });
+    
+                     // Send the user an email with a password reset link in it.
+                     // This is the 'SendGrid' approach...
+    
+                    // const msg= {
+                    //     to: 'bartdority@gmail.com',
+                    //     from: 'b0rgBart3@gmail.com',
+                    //     subject: 'You requested a reset',
+                    //     text: 'Your reset key is: ' + tempPassword,
+                    //     html: '<strong>Your reset key is:</strong>' + tempPassword
+                    // };
+    
+                    // sgMail.send(msg);
+                   
+                    // transporter.sendMail(mailOptions, (error, info) => {
+                    //     if (error) {
+                    //         return console.log(error);
+                    //     }
+                    //     console.log('Message sent: %s', info.messageId);
+                    //     // Preview only available when sending through an Ethereal account
+                    //     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
+    
+                    // });
+};
+
+
+
+var processGet = function(body,req,res) {
+    let data = {};
+    let responseData;
+
+    switch(req.url)
+    {
+        case '/courses':
+        db.collection('courses').find({}).toArray(function(err,docs) {
+            if(err) {
+                handleError(res,err.message, "Failed to get courses");
+            }
+            else{
+            
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end( JSON.stringify(docs ) );
+                console.log( JSON.stringify(docs));
+               
+            }
+        })
+       
+        break;
+
+        case '/users':
+            db.collection('users').find({}).toArray(function(err,docs) {
+                if(err) {
+                    handleError(res,err.message, "Failed to get users");
+                }
+                else{
+                
+                    res.writeHead(200, {"Content-Type": "application/json"});
+                    res.end( JSON.stringify(docs ) );
+                    console.log( JSON.stringify(docs));
+                   
+                }
+            })
+           
+            break;
+
+        case '/languages':
+            data = {
+                data: {
+                    languages: [
+                        'English',
+                        'Spanish',
+                        'German',
+                        'Other'
+                    ]
+                }
+            };
+            responseData = JSON.stringify(data);
+            res.end(responseData);
+            console.log("get: ", responseData);
+            break;
+
+        default: 
+            console.log("get: got called with no object ref name");
+            res.end();
+            
+            break;
+    }
+};
+
+var handleError = function(res,msg,result) {
+    console.log("Error: "+ msg + ", " + result);
+    res.writeHead(400);
+    res.end();
+
+}
