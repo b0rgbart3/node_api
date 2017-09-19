@@ -144,9 +144,10 @@ module.exports = {
 
                         // I'm not quite sure why we're return the JWT here...
                         console.log("jwt_response: " + DBToken);
-                        let dbTokenObject = { "token": DBToken };
-                        res.end(JSON.stringify(dbTokenObject) );
-
+                        //let dbTokenObject = { "token": DBToken };
+                        //res.end(JSON.stringify(dbTokenObject) );
+                        // why not send the whole user object back? - well, it has to be a STRING
+                        res.end( JSON.stringify(data) );
                     }
                     else
                     {

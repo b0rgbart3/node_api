@@ -188,6 +188,21 @@ var processGet = function(body,req,res) {
 
     switch(req.url)
     {
+        case '/classes':
+        db.collection('classes').find({}).toArray(function(err,docs) {
+            if(err) {
+                handleError(res,err.message, "Failed to get classes");
+            }
+            else{
+            
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end( JSON.stringify(docs ) );
+                console.log( JSON.stringify(docs));
+               
+            }
+        })
+       
+        break;
         case '/courses':
         db.collection('courses').find({}).toArray(function(err,docs) {
             if(err) {
