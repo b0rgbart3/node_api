@@ -1,6 +1,5 @@
 var http = require('http');
-var formidable = require("formidable");
-var util = require("util");
+
 var url = require('url');
 var mongodb = require("mongodb");
 var bodyParser = require("body-parser");
@@ -13,10 +12,33 @@ var cert = fs.readFileSync('.bsx');
 var certString = cert.toString();
 var tempPassword;
 
-var ddw = require('./ddw');
+var process_post = require('./process_post');
 
-ddw.dosomething();
+// var nodemailer = require('nodemailer');
 
+// var transporter = nodemailer.createTransport({
+//     service: 'gmail',
+//     auth: {
+//       user: 'doritydesignworks@gmail.com',
+//       pass: '(#T8maIArn[]'
+//     }
+//   });
+//   var mailOptions = {
+//     from: 'doritydesignworks@gmail.com',
+//     to: 'bartdority@gmail.com',
+//     subject: 'Sending Email using Node.js',
+//     type: 'text/html',
+//     text: 'That was easy!',
+//     content: '<h1>That</h1><p>was easy</p>'
+//   };
+
+//   transporter.sendMail(mailOptions, function(error, info){
+//     if (error) {
+//       console.log(error);
+//     } else {
+//       console.log('Email sent: ' + info.response);
+//     }
+//   });
 
 // I'm using SENDGRID -- with a 'free' account - 
 // but this could be replaced with NodeMailer when it's on a live produciton server
@@ -91,8 +113,8 @@ var myServerCallBack = function(req,res) {
     
         // POST DATA
         if (req.method.toLowerCase() == 'post') {
-
-            ddw.processPost(body,req,res,db,jwt,certString);
+            console.log("Calling process_post");
+            process_post.processPost(body,req,res,db,jwt,certString,sgMail);
 
         }        
         // GET DATA
@@ -109,31 +131,7 @@ var server = http.createServer(myServerCallBack);
 
 
 
-function processForm(req, res, body) {
 
-    console.log("processing the form" + body);
-    
-    let userObject = JSON.parse(body);
-    let userPas = userObject.password;
-    let userJWT = jwt.sign({ password: userPas}, certString );
-    userObject.password = "";
-    userObject.token = userJWT;
-
-
-        db.collection('users').insertOne(userObject, function(err, result) {
-            if (err)
-                {
-                    console.log("Failed: "+err.message);
-                }
-                else{
-                    console.log("New User Info Posted to Mongo!");
-                }
-        });
-
-        res.end();
-
-    
-}
 
 var port = 3100;
 server.listen(port);
