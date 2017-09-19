@@ -23,6 +23,9 @@ module.exports = {
               this.postUserToDB(body,req,res,db, jwt, certString, sgMail);
 
               break;
+            case '/api/courses/add':
+                this.postCourseInfo(body,req,res,db);
+                break;
            default:
               break;
        }
@@ -37,6 +40,20 @@ module.exports = {
         return text;
       },
 
+    postCourseInfo: function(body,req,res,db) {
+
+        db.collection('courses').insert(courseObject, function(err,data) {
+            if (err) {
+                console.log("Error entering course info into the DB");
+                res.writeHead(400, { 'Content-Type': 'plain/text' });
+                res.end(err);
+            }
+            else{
+                res.writeHead(200, { 'Content-Type': 'plain/text' });
+                res.end(JSON.stringify(data ) );
+            }
+        })
+    },
     postUserToDB: function(body,req,res,db, jwt,certString, sgMail) {
         let userObject = JSON.parse(body);
         let userPas = userObject.password;

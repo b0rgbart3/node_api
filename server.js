@@ -13,7 +13,7 @@ var certString = cert.toString();
 var tempPassword;
 
 var process_post = require('./process_post');
-
+const querystring = require('querystring');
 // var nodemailer = require('nodemailer');
 
 // var transporter = nodemailer.createTransport({
@@ -186,9 +186,12 @@ var processGet = function(body,req,res) {
     let data = {};
     let responseData;
 
-    switch(req.url)
+    let splitUrl = req.url.split("/");
+    let resource = splitUrl[2];
+
+    switch(resource)
     {
-        case '/classes':
+        case 'classes':
         db.collection('classes').find({}).toArray(function(err,docs) {
             if(err) {
                 handleError(res,err.message, "Failed to get classes");
@@ -203,7 +206,28 @@ var processGet = function(body,req,res) {
         })
        
         break;
-        case '/courses':
+        case 'courses':
+        console.log("Got a request for course info.");
+        let resource_id_query = splitUrl[3];
+
+        if (resource_id_query) {
+            let splitId = splitUrl[3].split(":");
+            let courseid = splitId[1];
+            console.log("Got a request for course id:" + courseid);
+            db.collection('courses').find({"id":courseid}).toArray(function(err,docs) {
+                if(err) {
+                    handleError(res,err.message, "Failed to get courses");
+                }
+                else{
+                
+                    res.writeHead(200, {"Content-Type": "application/json"});
+                    res.end( JSON.stringify(docs ) );
+                    console.log( JSON.stringify(docs));
+                   
+                }
+            });
+         }
+        else {
         db.collection('courses').find({}).toArray(function(err,docs) {
             if(err) {
                 handleError(res,err.message, "Failed to get courses");
@@ -215,11 +239,11 @@ var processGet = function(body,req,res) {
                 console.log( JSON.stringify(docs));
                
             }
-        })
-       
+            })
+        }
         break;
 
-        case '/users':
+        case 'users':
             db.collection('users').find({}).toArray(function(err,docs) {
                 if(err) {
                     handleError(res,err.message, "Failed to get users");
@@ -235,7 +259,7 @@ var processGet = function(body,req,res) {
            
             break;
 
-        case '/languages':
+        case 'languages':
             data = {
                 data: {
                     languages: [
@@ -253,6 +277,7 @@ var processGet = function(body,req,res) {
 
         default: 
             console.log("get: got called with no object ref name");
+            console.log(resource);
             res.end();
             
             break;
