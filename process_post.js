@@ -7,27 +7,28 @@ module.exports = {
        console.log("In processPost method:" + req.url);
        switch(req.url)
        {
-           case '/api/reset':
-              this.processReset(body,req,res);
-              break;
-           case '/api/authenticate':
-              console.log("In the authenticate case.");
-              this.processAuthentication(body,req,res,db,jwt,certString);
-              break;
-           case '/api/users/register':
-              console.log("In the register case.");
-
-               console.log("Body: "+ body);
-               
-
-              this.postUserToDB(body,req,res,db, jwt, certString, sgMail);
-
-              break;
-            case '/api/courses/add':
-                this.postCourseInfo(body,req,res,db);
+            case '/api/reset':
+                this.processReset(body,req,res);
+                break;
+            case '/api/authenticate':
+                console.log("In the authenticate case.");
+                this.processAuthentication(body,req,res,db,jwt,certString);
+                break;
+            case '/api/users/register':
+                console.log("In the register case.");
+                console.log("Body: "+ body);
+                this.postUserToDB(body,req,res,db, jwt, certString, sgMail);
+                break;
+            case '/api/courses/create':
+                console.log("Got the add post.");
+                this.createCourse(body,req,res,db);
+                break;
+            case '/api/courses/update':
+                console.log("Got the add post.");
+                this.updateCourse(body,req,res,db);
                 break;
            default:
-              break;
+                break;
        }
     },
     makeid: function() {
@@ -40,7 +41,10 @@ module.exports = {
         return text;
       },
 
-    postCourseInfo: function(body,req,res,db) {
+    createCourse: function(body,req,res,db) {
+        let courseObject = JSON.parse(body);
+        console.log("In Create Course : Course Object: "+ JSON.stringify(courseObject) ) ;
+        console.log("About to post new course");
 
         db.collection('courses').insert(courseObject, function(err,data) {
             if (err) {
@@ -52,8 +56,31 @@ module.exports = {
                 res.writeHead(200, { 'Content-Type': 'plain/text' });
                 res.end(JSON.stringify(data ) );
             }
-        })
+        });
+      
     },
+
+    updateCourse: function(body,req,res,db) {
+        let courseObject = JSON.parse(body);
+        console.log("In Update Course Info: Course Object: "+ JSON.stringify(courseObject) ) ;
+        console.log("ID of existing course: "+ courseObject.id);
+        console.log("stringified Object: " + JSON.stringify(courseObject));
+
+        db.collection('courses').update({ "id" : courseObject.id }, {"title":courseObject.title,"description":courseObject.description,"id":courseObject.id}, function(err,data) {
+            if (err) {
+                console.log("Error updating course info into the DB");
+                res.writeHead(400, { 'Content-Type': 'plain/text' });
+                res.end(err.message);
+            }
+            else{
+                res.writeHead(200, { 'Content-Type': 'plain/text' });
+                res.end(JSON.stringify(data ) );
+            }
+        });
+        
+    
+    },
+
     postUserToDB: function(body,req,res,db, jwt,certString, sgMail) {
         let userObject = JSON.parse(body);
         let userPas = userObject.password;

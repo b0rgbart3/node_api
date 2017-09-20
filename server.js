@@ -105,23 +105,43 @@ var myServerCallBack = function(req,res) {
         // actual POST, so let's just return  a status of "OK", so that the browser will allow
         // my CORS request.  FUCK.
         
-        if (req.method == "OPTIONS")
-        {
-            res.writeHead(200, {"Content-Type": "application/json"});
-            res.end();
-        }
-    
-        // POST DATA
-        if (req.method.toLowerCase() == 'post') {
-            console.log("Calling process_post");
-            process_post.processPost(body,req,res,db,jwt,certString,sgMail);
+        let crudMethod = req.method.toLowerCase();
 
-        }        
-        // GET DATA
-        if (req.method.toLocaleLowerCase() == 'get') {
-            processGet(body,req,res);
+        switch (crudMethod) {
+            case 'options':
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end();
+                break;
+            case 'post':
+                console.log("Calling process_post");
+                process_post.processPost(body,req,res,db,jwt,certString,sgMail);
+                break;
+            case 'get':
+                processGet(body,req,res);
+                break;
+            case 'delete':
+                processDelete(body,req,res);
+                break;
+            default:
+                break;
+        }
+        // if (req.method == "OPTIONS")
+        // {
+        //     res.writeHead(200, {"Content-Type": "application/json"});
+        //     res.end();
+        // }
     
-        };
+        // // POST DATA
+        // if (req.method.toLowerCase() == 'post') {
+        //     console.log("Calling process_post");
+        //     process_post.processPost(body,req,res,db,jwt,certString,sgMail);
+
+        // }        
+        // // GET DATA
+        // if (req.method.toLocaleLowerCase() == 'get') {
+        //     processGet(body,req,res);
+    
+        // };
 
     });
 };
@@ -137,6 +157,40 @@ var port = 3100;
 server.listen(port);
 console.log("server listening on port " + port);
 
+
+
+var processDelete = function(body,req,res) {
+    let splitUrl = req.url.split("/");
+    let resource = splitUrl[2];
+    let resource_id_query = splitUrl[3];
+    let splitId = splitUrl[3].split(":");
+    let resourceId = splitId[1];
+    let idString = "" + resourceId;
+
+    console.log("About to delete resource#:"+resourceId);
+
+    switch(resource)
+    {
+        case 'courses':
+          console.log("About to delete a course: " + idString);
+          db.collection('courses').remove({"id": resourceId }, function(err,data){
+            if (err) {
+                handleError(res,err.message, "Failed to remove course");
+                res.writeHead(400,{"Content-Type": "application/json"});
+                res.end();
+            }
+            else{
+            
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end();
+               
+            } 
+          });
+        break;
+
+        default:break;
+    }
+};
 
 
 
@@ -203,7 +257,7 @@ var processGet = function(body,req,res) {
                 console.log( JSON.stringify(docs));
                
             }
-        })
+        });
        
         break;
         case 'courses':
