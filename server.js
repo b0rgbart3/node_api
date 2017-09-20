@@ -116,6 +116,10 @@ var myServerCallBack = function(req,res) {
                 console.log("Calling process_post");
                 process_post.processPost(body,req,res,db,jwt,certString,sgMail);
                 break;
+            case 'put':
+                console.log("Received Put request.");
+                processPut(body,req,res,db);
+                break;
             case 'get':
                 processGet(body,req,res);
                 break;
@@ -157,6 +161,62 @@ var port = 3100;
 server.listen(port);
 console.log("server listening on port " + port);
 
+var processPut = function(body,req,res,db) {
+    console.log("Processing the put, req.url="+req.url);
+    switch(req.url)
+    {
+         case '/api/classes/create':
+            createClass(body,req,res,db);
+            break;
+        case '/api/classes/update':
+            console.log("Calling update method.");
+            updateClass(body,req,res,db);
+        default: 
+            break;
+    }
+};  
+
+var createClass = function(body,req,res,db) {
+    let classObject = JSON.parse(body);
+    console.log("In Create Class : Class Object: "+ JSON.stringify(classObject) ) ;
+    console.log("About to post new class");
+
+    db.collection('classes').insert(classObject, function(err,data) {
+        if (err) {
+            console.log("Error entering course info into the DB");
+            res.writeHead(400, { 'Content-Type': 'plain/text' });
+            res.end(err);
+        }
+        else{
+            res.writeHead(200, { 'Content-Type': 'plain/text' });
+            res.end(JSON.stringify(data ) );
+        }
+    });
+  
+};
+
+var updateClass = function(body,req,res,db) {
+    let classObject = JSON.parse(body);
+    console.log("In Update Class Info: Class Object: "+ JSON.stringify(classObject) ) ;
+    console.log("ID of existing course: "+ classObject.id);
+    console.log("stringified Object: " + JSON.stringify(classObject));
+
+    db.collection('classes').update({ "id" : classObject.id },
+       {"title":classObject.title,"description":classObject.description,"id":classObject.id}, 
+       function(err,data) {
+        if (err) {
+            console.log("Error updating course info into the DB");
+            res.writeHead(400, { 'Content-Type': 'plain/text' });
+            res.end(err.message);
+        }
+        else{
+            res.writeHead(200, { 'Content-Type': 'plain/text' });
+            res.end(JSON.stringify(data ) );
+        }
+    });
+    
+
+};
 
 
 var processDelete = function(body,req,res) {
