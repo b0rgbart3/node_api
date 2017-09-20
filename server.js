@@ -231,6 +231,23 @@ var processDelete = function(body,req,res) {
 
     switch(resource)
     {
+        case 'classes':
+        console.log("About to delete a class: " + idString);
+        db.collection('classes').remove({"id": resourceId }, function(err,data){
+            if (err) {
+                handleError(res,err.message, "Failed to remove course");
+                res.writeHead(400,{"Content-Type": "application/json"});
+                res.end();
+            }
+            else{
+            
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end();
+               
+            } 
+          });
+            break;
+
         case 'courses':
           console.log("About to delete a course: " + idString);
           db.collection('courses').remove({"id": resourceId }, function(err,data){
