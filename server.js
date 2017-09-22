@@ -267,6 +267,21 @@ var processDelete = function(body,req,res) {
             } 
           });
         break;
+        
+        case 'users':
+            db.collection('users').remove({"id": resourceId }, function(err,data){
+            if (err) {
+                handleError(res,err.message, "Failed to remove user");
+                res.writeHead(400,{"Content-Type": "application/json"});
+                res.end();
+            }
+            else{
+            
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end();
+               
+            } 
+          });
 
         default:break;
     }

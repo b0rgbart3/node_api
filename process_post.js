@@ -100,7 +100,7 @@ module.exports = {
 
         //console.log(dbObject);
 
-        //db.collection('users').insert(body, function( err, data ) {
+
         db.collection('users').insert(userObject, function( err, data ) {    
             if (err) {
                 console.log("Error entering user in DB");
@@ -109,10 +109,9 @@ module.exports = {
             }
             else{
                 console.log("Succeeded in entering user in DB");
-                // We created a user account - so now we'll send them an email
-                // to make sure they're legit.
+              
                 let activationLink = "localhost:4200/users/activation";
-                //let verification = makeid();
+               
                 let htmlString = "Welcome to the Reclaiming Loom.<br><br>Verify your <a href='localhost:4200/verify'>account</a> with this verification code: "+userObject.verificationID;
 
                 const msg= {
@@ -138,7 +137,7 @@ module.exports = {
     },
 
 
-    processAuthentication:function(body, req, res, db, jwt, certString) {
+    processAuthentication: function(body, req, res, db, jwt, certString) {
 
         // let params = JSON.parse(body);
         // let comparePW = params.password;
