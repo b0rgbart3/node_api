@@ -203,7 +203,8 @@ var updateClass = function(body,req,res,db) {
     console.log("stringified Object: " + JSON.stringify(classObject));
 
     db.collection('classes').update({ "id" : classObject.id },
-       {"title":classObject.title,"description":classObject.description,"id":classObject.id, "start":classObject.start, "end":classObject.end}, 
+       {"title":classObject.title,"description":classObject.description,"course":classObject.course, 
+       "id":classObject.id, "start":classObject.start, "end":classObject.end}, 
        function(err,data) {
         if (err) {
             console.log("Error updating course info into the DB");
