@@ -66,7 +66,12 @@ module.exports = {
         console.log("ID of existing course: "+ courseObject.id);
         console.log("stringified Object: " + JSON.stringify(courseObject));
 
-        db.collection('courses').update({ "id" : courseObject.id }, {"title":courseObject.title,"description":courseObject.description,"id":courseObject.id}, function(err,data) {
+        // Convert sections array to a sections object
+        let sectionsObject = {};
+        
+
+        db.collection('courses').update({ "id" : courseObject.id }, {"title":courseObject.title,
+        "description":courseObject.description,"id":courseObject.id,"sections":courseObject.sections}, function(err,data) {
             if (err) {
                 console.log("Error updating course info into the DB");
                 res.writeHead(400, { 'Content-Type': 'plain/text' });
