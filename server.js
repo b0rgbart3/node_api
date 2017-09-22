@@ -113,11 +113,11 @@ var myServerCallBack = function(req,res) {
                 res.end();
                 break;
             case 'post':
-                console.log("Calling process_post");
+                // console.log("Calling process_post");
                 process_post.processPost(body,req,res,db,jwt,certString,sgMail);
                 break;
             case 'put':
-                console.log("Received Put request.");
+                // console.log("Received Put request.");
                 processPut(body,req,res,db);
                 break;
             case 'get':
@@ -162,7 +162,7 @@ server.listen(port);
 console.log("server listening on port " + port);
 
 var processPut = function(body,req,res,db) {
-    console.log("Processing the put, req.url="+req.url);
+    // console.log("Processing the put, req.url="+req.url);
     switch(req.url)
     {
          case '/api/classes/create':
@@ -178,8 +178,8 @@ var processPut = function(body,req,res,db) {
 
 var createClass = function(body,req,res,db) {
     let classObject = JSON.parse(body);
-    console.log("In Create Class : Class Object: "+ JSON.stringify(classObject) ) ;
-    console.log("About to post new class");
+     console.log("In Create Class : Class Object: "+ JSON.stringify(classObject) ) ;
+    // console.log("About to post new class");
 
     db.collection('classes').insert(classObject, function(err,data) {
         if (err) {
@@ -188,6 +188,7 @@ var createClass = function(body,req,res,db) {
             res.end(err);
         }
         else{
+            console.log("Wrote: "+JSON.stringify(data));
             res.writeHead(200, { 'Content-Type': 'plain/text' });
             res.end(JSON.stringify(data ) );
         }
@@ -202,7 +203,7 @@ var updateClass = function(body,req,res,db) {
     console.log("stringified Object: " + JSON.stringify(classObject));
 
     db.collection('classes').update({ "id" : classObject.id },
-       {"title":classObject.title,"description":classObject.description,"id":classObject.id}, 
+       {"title":classObject.title,"description":classObject.description,"id":classObject.id, "start":classObject.start, "end":classObject.end}, 
        function(err,data) {
         if (err) {
             console.log("Error updating course info into the DB");
@@ -211,6 +212,7 @@ var updateClass = function(body,req,res,db) {
         }
         else{
             res.writeHead(200, { 'Content-Type': 'plain/text' });
+            console.log("Wrote: "+JSON.stringify(data));
             res.end(JSON.stringify(data ) );
         }
     });
@@ -227,12 +229,12 @@ var processDelete = function(body,req,res) {
     let resourceId = splitId[1];
     let idString = "" + resourceId;
 
-    console.log("About to delete resource#:"+resourceId);
+    //console.log("About to delete resource#:"+resourceId);
 
     switch(resource)
     {
         case 'classes':
-        console.log("About to delete a class: " + idString);
+        // console.log("About to delete a class: " + idString);
         db.collection('classes').remove({"id": resourceId }, function(err,data){
             if (err) {
                 handleError(res,err.message, "Failed to remove course");
@@ -249,7 +251,7 @@ var processDelete = function(body,req,res) {
             break;
 
         case 'courses':
-          console.log("About to delete a course: " + idString);
+          // console.log("About to delete a course: " + idString);
           db.collection('courses').remove({"id": resourceId }, function(err,data){
             if (err) {
                 handleError(res,err.message, "Failed to remove course");
@@ -274,7 +276,7 @@ var processDelete = function(body,req,res) {
 var processReset = function(body,req,res) {
     console.log("About to reset a password.");
     
-                    console.log("request body: "+ body);
+                    // console.log("request body: "+ body);
     
                     //let sentObject = JSON.parse(body);
                     //let emailInQuestion = sentObject.email;
@@ -331,20 +333,20 @@ var processGet = function(body,req,res) {
             
                 res.writeHead(200, {"Content-Type": "application/json"});
                 res.end( JSON.stringify(docs ) );
-                console.log( JSON.stringify(docs));
+                // console.log( JSON.stringify(docs));
                
             }
         });
        
         break;
         case 'courses':
-        console.log("Got a request for course info.");
+        // console.log("Got a request for course info.");
         let resource_id_query = splitUrl[3];
 
         if (resource_id_query) {
             let splitId = splitUrl[3].split(":");
             let courseid = splitId[1];
-            console.log("Got a request for course id:" + courseid);
+            // console.log("Got a request for course id:" + courseid);
             db.collection('courses').find({"id":courseid}).toArray(function(err,docs) {
                 if(err) {
                     handleError(res,err.message, "Failed to get courses");
@@ -353,7 +355,7 @@ var processGet = function(body,req,res) {
                 
                     res.writeHead(200, {"Content-Type": "application/json"});
                     res.end( JSON.stringify(docs ) );
-                    console.log( JSON.stringify(docs));
+                    // console.log( JSON.stringify(docs));
                    
                 }
             });
@@ -367,7 +369,7 @@ var processGet = function(body,req,res) {
             
                 res.writeHead(200, {"Content-Type": "application/json"});
                 res.end( JSON.stringify(docs ) );
-                console.log( JSON.stringify(docs));
+                // console.log( JSON.stringify(docs));
                
             }
             })
@@ -383,7 +385,7 @@ var processGet = function(body,req,res) {
                 
                     res.writeHead(200, {"Content-Type": "application/json"});
                     res.end( JSON.stringify(docs ) );
-                    console.log( JSON.stringify(docs));
+                    // console.log( JSON.stringify(docs));
                    
                 }
             })
@@ -403,12 +405,12 @@ var processGet = function(body,req,res) {
             };
             responseData = JSON.stringify(data);
             res.end(responseData);
-            console.log("get: ", responseData);
+            // console.log("get: ", responseData);
             break;
 
         default: 
-            console.log("get: got called with no object ref name");
-            console.log(resource);
+           // console.log("get: got called with no object ref name");
+           // console.log(resource);
             res.end();
             
             break;
