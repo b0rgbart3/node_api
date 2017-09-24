@@ -388,11 +388,32 @@ var processGet = function(body,req,res) {
                 // console.log( JSON.stringify(docs));
                
             }
-            })
+            });
         }
         break;
 
         case 'users':
+            let user_id_query = splitUrl[3];
+        
+            if (user_id_query) {
+                let splitId = splitUrl[3].split(":");
+                let userid = splitId[1];
+
+                db.collection('users').find({"id":userid}).toArray(function(err,docs) {
+                    if(err) {
+                        handleError(res,err.message, "Failed to get User");
+                    }
+                    else{
+                    
+                        res.writeHead(200, {"Content-Type": "application/json"});
+                        res.end( JSON.stringify(docs ) );
+                        // console.log( JSON.stringify(docs));
+                       
+                    }
+                });
+            }
+            else
+            {
             db.collection('users').find({}).toArray(function(err,docs) {
                 if(err) {
                     handleError(res,err.message, "Failed to get users");
@@ -404,8 +425,8 @@ var processGet = function(body,req,res) {
                     // console.log( JSON.stringify(docs));
                    
                 }
-            })
-           
+            });
+            }
             break;
 
         case 'languages':

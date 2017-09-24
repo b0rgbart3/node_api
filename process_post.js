@@ -19,6 +19,11 @@ module.exports = {
                 console.log("Body: "+ body);
                 this.postUserToDB(body,req,res,db, jwt, certString, sgMail);
                 break;
+            case '/api/users/update':
+                console.log("In the register case.");
+                console.log("Body: "+ body);
+                this.updateUser(body,req,res,db, jwt, certString, sgMail);
+                break;
             case '/api/courses/create':
                 console.log("Got the add post.");
                 this.createCourse(body,req,res,db);
@@ -67,7 +72,7 @@ module.exports = {
         console.log("stringified Object: " + JSON.stringify(courseObject));
 
         // Convert sections array to a sections object
-        let sectionsObject = {};
+        // let sectionsObject = {};
         
 
         db.collection('courses').update({ "id" : courseObject.id }, {"title":courseObject.title,
@@ -86,11 +91,31 @@ module.exports = {
     
     },
 
+    updateUser: function(body,req,res,db, jwt,certString, sgMail) {
+        let userObject = JSON.parse(body);
+        let userPas = userObject.password;
+        let userJWT = jwt.sign({ password: userPas}, certString );
+
+        db.collection('users').update({ "id" : userObject.id }, {"username":userObject.username,
+        "firstname":userObject.firstname,"lastname":userObject.lastname,"password":userObject.password, "id":userObject.id,
+            "token":userObject.token, "user_type":userObject.user_type, "verified":userObject.verified }, function(err,data) {
+            if (err) {
+                console.log("Error updating course info into the DB");
+                res.writeHead(400, { 'Content-Type': 'plain/text' });
+                res.end(err.message);
+            }
+            else{
+                res.writeHead(200, { 'Content-Type': 'plain/text' });
+                res.end(JSON.stringify(data ) );
+            }
+        });
+    },
+
     postUserToDB: function(body,req,res,db, jwt,certString, sgMail) {
         let userObject = JSON.parse(body);
         let userPas = userObject.password;
         let userJWT = jwt.sign({ password: userPas}, certString );
-        userObject.verified = false;
+        userObject.verified = 'false';
 
         // For production - we can put this back in to remove the passwords
         //userObject.password = "";
