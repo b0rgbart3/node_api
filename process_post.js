@@ -95,10 +95,12 @@ module.exports = {
         let userObject = JSON.parse(body);
         let userPas = userObject.password;
         let userJWT = jwt.sign({ password: userPas}, certString );
+        console.log("Just before DB UPDATE POST:");
+        console.log( JSON.stringify(userObject) );
 
         db.collection('users').update({ "id" : userObject.id }, {"username":userObject.username,
-        "firstname":userObject.firstname,"lastname":userObject.lastname,"password":userObject.password, "id":userObject.id,
-            "token":userObject.token, "user_type":userObject.user_type, "verified":userObject.verified }, function(err,data) {
+        "firstname":userObject.firstname,"lastname":userObject.lastname,"password":userObject.password, "email":userObject.email, "id":userObject.id,
+            "token":userObject.token, "user_type":userObject.user_type, "verified":userObject.verified}, function(err,data) {
             if (err) {
                 console.log("Error updating course info into the DB");
                 res.writeHead(400, { 'Content-Type': 'plain/text' });
