@@ -32,6 +32,10 @@ module.exports = {
                 console.log("Got the add post.");
                 this.updateCourse(body,req,res,db);
                 break;
+            case '/api/assets/upload':
+                console.log("Got the upload post.");
+                this.uploadAsset(body,req,res,db);
+                break;
            default:
                 break;
        }
@@ -63,6 +67,18 @@ module.exports = {
             }
         });
       
+    },
+
+    uploadAsset(body,req,res,db) {
+        console.log("About to upload the asset.");
+       // console.log(JSON.stringify(body ) );
+
+        var tempPath = req.files.file.path;
+        targetPath = path.resolve('./uploads/' + req.files.file.name);
+        fs.rename(tempPath, targetPath, function(err) {
+            if (err) throw err;
+            console.log("Upload completed!");
+        });
     },
 
     updateCourse: function(body,req,res,db) {

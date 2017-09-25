@@ -11,9 +11,14 @@ var jwt = require('jsonwebtoken');
 var cert = fs.readFileSync('.bsx');
 var certString = cert.toString();
 var tempPassword;
+var path = require('path'),
+fs = require('fs');
 
 var process_post = require('./process_post');
 const querystring = require('querystring');
+
+var express = require('express');
+var app = express();
 // var nodemailer = require('nodemailer');
 
 // var transporter = nodemailer.createTransport({
@@ -113,7 +118,7 @@ var myServerCallBack = function(req,res) {
                 res.end();
                 break;
             case 'post':
-                // console.log("Calling process_post");
+                 console.log("Calling process_post");
                 process_post.processPost(body,req,res,db,jwt,certString,sgMail);
                 break;
             case 'put':
