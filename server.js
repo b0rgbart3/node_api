@@ -13,12 +13,160 @@ var certString = cert.toString();
 var tempPassword;
 var path = require('path'),
 fs = require('fs');
+var logger = require('./logger');
+var url = require('url');
+
 
 var process_post = require('./process_post');
 const querystring = require('querystring');
 
 var express = require('express');
 var app = express();
+app.use(logger);
+// create application/json parser
+var jsonParser = bodyParser.json();
+
+// create application/x-www-form-urlencoded parser
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
+
+
+var getResources = function(resource,req,res,next) {
+
+
+    // console.log("Query" + JSON.stringify( req.query) );
+    // console.log("Query id: " + req.query.id);
+    dbQuery = {};
+
+    if (req.query.id && req.query.id != 0)
+    {
+        dbQuery = {'id':req.query.id };
+    }
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+    db.collection(resource).find(dbQuery).toArray(function(err,docs) {
+        if(err) { handleError(res,err.message, "Failed to get" + resource); }
+        else{
+            res.writeHead(200, {"Content-Type": "application/json"});
+            res.end( JSON.stringify(docs ) );
+           // console.log( JSON.stringify(docs));
+        }
+    });
+};
+
+var deleteResource = function(resource,req,res,next) {
+
+    let resourceId = req.query.id;
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+    db.collection(resource).remove({"id": resourceId }, function(err,data){
+        if (err) {
+            handleError(res,err.message, "Failed to remove resource:" + resource + ":" + resourceId);
+            res.writeHead(400,{"Content-Type": "application/json"});
+            res.end();
+        }
+        else{
+        
+            res.writeHead(200, {"Content-Type": "application/json"});
+            res.end();
+           
+        } 
+      });
+};
+
+var putResource = function(resource, req,res,next) {
+    let resourceObject = req.body;
+
+    // console.log("Query" + req.query );
+    // console.log("Query id: " + req.query.id);
+    // dbQuery = {};
+    // console.log(JSON.stringify(resourceObject));
+
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+
+    if (req.query.id && req.query.id != 0)
+    {
+        dbQuery = {'id':req.query.id };
+        delete resourceObject._id;
+
+        try {
+         //  console.log("ID: "+ resourceObject._id);
+            // if ( resourceObject._id && ( typeof(resourceObject._id) === 'string' ) ) {
+            //     log('Fixing id')
+            //     resourceObject._id = mongodb.ObjectID.createFromHexString(resourceObject._id)
+            //   }
+        db.collection(resource).replaceOne({ "id" : resourceObject.id },
+           resourceObject);
+           res.sendStatus(200);
+           res.end();
+        } catch (e) {
+            console.log("Error entering resource into the DB");
+            //res.setHeader( 'Content-Type', 'plain/text');
+            res.sendStatus(450);
+            res.end(e.message);
+        }
+           
+        
+       // res.setHeader('Content-Type', 'plain/text' );
+    
+ 
+    } else {
+        console.log ( 'Inserting Resource into DB ' );
+        db.collection(resource).insert(resourceObject, function(err,data) {
+            if (err) {
+                console.log("Error entering resource into the DB");
+                res.writeHead(400, { 'Content-Type': 'plain/text' });
+                res.end(err);
+            }
+            else{
+                console.log("Wrote: "+JSON.stringify(data));
+                res.writeHead(200, { 'Content-Type': 'plain/text' });
+                res.end(JSON.stringify(data ) );
+            }
+        });
+    }
+  
+};
+var returnSuccess = function( req,res,next) {
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+    res.writeHead(200, { 'Content-Type': 'plain/text' });
+    res.end();
+};
+
+app.get('/api/classes', function(req,res,next) { getResources('classes',req,res,next);});
+app.get('/api/courses', function(req,res,next) { getResources('courses',req,res,next);});
+app.get('/api/users', function(req,res,next) { getResources('users',req,res,next);});
+app.get('/api/assets', function(req,res,next) { getResources('assets',req,res,next);});
+
+app.options("/*", function(req, res, next){
+    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+    res.sendStatus(200);
+  });
+
+app.put('/api/classes', jsonParser, function(req,res,next) { putResource('classes', req, res, next);});
+app.put('/api/courses', jsonParser, function(req,res,next) { putResource('courses', req, res, next);});
+app.put('/api/users', jsonParser, function(req,res,next) { putResource('users', req, res, next);});
+
+app.delete('/api/classes', jsonParser, function(req,res,next) { deleteResource('classes', req,res,next);});
+app.delete('/api/courses', jsonParser, function(req,res,next) { deleteResource('courses', req,res,next);});
+app.delete('/api/users', jsonParser, function(req,res,next) { deleteResource('users', req,res,next);});
+
+
+var port = 3100;
+app.listen(port);
+
 // var nodemailer = require('nodemailer');
 
 // var transporter = nodemailer.createTransport({
@@ -156,15 +304,15 @@ var myServerCallBack = function(req,res) {
 };
 
 
-var server = http.createServer(myServerCallBack);
+//var server = http.createServer(myServerCallBack);
 
 
 
 
 
-var port = 3100;
-server.listen(port);
-console.log("server listening on port " + port);
+
+//server.listen(port);
+//console.log("server listening on port " + port);
 
 var processPut = function(body,req,res,db) {
     // console.log("Processing the put, req.url="+req.url);
