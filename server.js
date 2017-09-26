@@ -15,19 +15,46 @@ var path = require('path'),
 fs = require('fs');
 var logger = require('./logger');
 var url = require('url');
+var multer  = require('multer');
 
 
-var process_post = require('./process_post');
+// var process_post = require('./process_post');
 const querystring = require('querystring');
 
 var express = require('express');
 var app = express();
+
+app.use(function(req, res, next) { //allow cross origin requests
+    res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
+    res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Credentials", true);
+    next();
+});
+
+
 app.use(logger);
 // create application/json parser
 var jsonParser = bodyParser.json();
 
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
+
+var storage = multer.diskStorage({ //multers disk storage settings
+    destination: function (req, file, cb) {
+        cb(null, './uploads/');
+    },
+    filename: function (req, file, cb) {
+        var datetimestamp = Date.now();
+        cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]);
+    }
+});
+
+var upload = multer({ //multer settings
+    storage: storage
+}).single('file');
+
+// var upload = multer( { dest: 'uploads/' });
 
 
 var getResources = function(resource,req,res,next) {
@@ -77,63 +104,89 @@ var deleteResource = function(resource,req,res,next) {
       });
 };
 
-var putResource = function(resource, req,res,next) {
-    let resourceObject = req.body;
+// var postAsset=function(req,res,next) {
 
-    // console.log("Query" + req.query );
-    // console.log("Query id: " + req.query.id);
-    // dbQuery = {};
-    // console.log(JSON.stringify(resourceObject));
+//     res.setHeader('Access-Control-Allow-Origin', '*');
+//     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+//     res.setHeader("Access-Control-Allow-Headers", 
+//     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+
+//     console.log("In post Asset: ");
+
+//     var file = __dirname + "/uploads/" + req.files.file.name;
+//     fs.readFile( req.files.file.path, function (err, data) {
+//          fs.writeFile(file, data, function (err) {
+//           if( err ){
+//                console.log( err );
+//           }else{
+//                 response = {
+//                     message:'File uploaded successfully',
+//                     filename:req.files.file.name
+//                };
+//            }
+//            console.log( response );
+//            res.end( JSON.stringify( response ) );
+//         });
+//     });
+// };
+
+// var putResource = function(resource, req,res,next) {
+//     let resourceObject = req.body;
+
+//     // console.log("Query" + req.query );
+//     // console.log("Query id: " + req.query.id);
+//     // dbQuery = {};
+//     // console.log(JSON.stringify(resourceObject));
 
 
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", 
-    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+//     res.setHeader('Access-Control-Allow-Origin', '*');
+//     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+//     res.setHeader("Access-Control-Allow-Headers", 
+//     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
 
-    if (req.query.id && req.query.id != 0)
-    {
-        dbQuery = {'id':req.query.id };
-        delete resourceObject._id;
+//     if (req.query.id && req.query.id != 0)
+//     {
+//         dbQuery = {'id':req.query.id };
+//         delete resourceObject._id;
 
-        try {
-         //  console.log("ID: "+ resourceObject._id);
-            // if ( resourceObject._id && ( typeof(resourceObject._id) === 'string' ) ) {
-            //     log('Fixing id')
-            //     resourceObject._id = mongodb.ObjectID.createFromHexString(resourceObject._id)
-            //   }
-        db.collection(resource).replaceOne({ "id" : resourceObject.id },
-           resourceObject);
-           res.sendStatus(200);
-           res.end();
-        } catch (e) {
-            console.log("Error entering resource into the DB");
-            //res.setHeader( 'Content-Type', 'plain/text');
-            res.sendStatus(450);
-            res.end(e.message);
-        }
+//         try {
+//          //  console.log("ID: "+ resourceObject._id);
+//             // if ( resourceObject._id && ( typeof(resourceObject._id) === 'string' ) ) {
+//             //     log('Fixing id')
+//             //     resourceObject._id = mongodb.ObjectID.createFromHexString(resourceObject._id)
+//             //   }
+//         db.collection(resource).replaceOne({ "id" : resourceObject.id },
+//            resourceObject);
+//            res.sendStatus(200);
+//            res.end();
+//         } catch (e) {
+//             console.log("Error entering resource into the DB");
+//             //res.setHeader( 'Content-Type', 'plain/text');
+//             res.sendStatus(450);
+//             res.end(e.message);
+//         }
            
         
-       // res.setHeader('Content-Type', 'plain/text' );
+//        // res.setHeader('Content-Type', 'plain/text' );
     
  
-    } else {
-        console.log ( 'Inserting Resource into DB ' );
-        db.collection(resource).insert(resourceObject, function(err,data) {
-            if (err) {
-                console.log("Error entering resource into the DB");
-                res.writeHead(400, { 'Content-Type': 'plain/text' });
-                res.end(err);
-            }
-            else{
-                console.log("Wrote: "+JSON.stringify(data));
-                res.writeHead(200, { 'Content-Type': 'plain/text' });
-                res.end(JSON.stringify(data ) );
-            }
-        });
-    }
+//     } else {
+//         console.log ( 'Inserting Resource into DB ' );
+//         db.collection(resource).insert(resourceObject, function(err,data) {
+//             if (err) {
+//                 console.log("Error entering resource into the DB");
+//                 res.writeHead(400, { 'Content-Type': 'plain/text' });
+//                 res.end(err);
+//             }
+//             else{
+//                 console.log("Wrote: "+JSON.stringify(data));
+//                 res.writeHead(200, { 'Content-Type': 'plain/text' });
+//                 res.end(JSON.stringify(data ) );
+//             }
+//         });
+//     }
   
-};
+// };
 var returnSuccess = function( req,res,next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
@@ -148,9 +201,15 @@ app.get('/api/courses', function(req,res,next) { getResources('courses',req,res,
 app.get('/api/users', function(req,res,next) { getResources('users',req,res,next);});
 app.get('/api/assets', function(req,res,next) { getResources('assets',req,res,next);});
 
+app.options('/api/assets', function(req, res, next){
+    res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+    res.sendStatus(200);
+  });
 app.options("/*", function(req, res, next){
     res.header('Access-Control-Allow-Origin', '*');
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
     res.sendStatus(200);
   });
@@ -158,6 +217,21 @@ app.options("/*", function(req, res, next){
 app.put('/api/classes', jsonParser, function(req,res,next) { putResource('classes', req, res, next);});
 app.put('/api/courses', jsonParser, function(req,res,next) { putResource('courses', req, res, next);});
 app.put('/api/users', jsonParser, function(req,res,next) { putResource('users', req, res, next);});
+// app.post('/api/assets', jsonParser, function(req,res,next) { postAsset(req,res,next);});
+
+// var upload = multer({ dest: '/tmp/'});
+
+app.post('/api/assets', function(req, res) {
+    upload(req,res,function(err){
+        console.log(req.file);
+        if(err){
+             res.json({error_code:1,err_desc:err});
+             return;
+        }
+         res.json({error_code:0,err_desc:null});
+    });
+});
+
 
 app.delete('/api/classes', jsonParser, function(req,res,next) { deleteResource('classes', req,res,next);});
 app.delete('/api/courses', jsonParser, function(req,res,next) { deleteResource('courses', req,res,next);});
@@ -230,58 +304,58 @@ mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
 
 });
 
-var myServerCallBack = function(req,res) {
-    const  testUser = { username: 'test', password: 'test', firstname: 'test', lastname: 'user' };
-    const { headers, method, url } = req;
-    let body = [];
+// var myServerCallBack = function(req,res) {
+//     const  testUser = { username: 'test', password: 'test', firstname: 'test', lastname: 'user' };
+//     const { headers, method, url } = req;
+//     let body = [];
 
-    req.on('error', (err) => {
-      console.error(err);
-    }).on('data', (chunk) => {
-      body.push(chunk);
-    }).on('end', () => {
-      body = Buffer.concat(body).toString();
-      // At this point, we have the headers, method, url and body, and can now
-      // do whatever we need to in order to respond to this request.
+//     req.on('error', (err) => {
+//       console.error(err);
+//     }).on('data', (chunk) => {
+//       body.push(chunk);
+//     }).on('end', () => {
+//       body = Buffer.concat(body).toString();
+//       // At this point, we have the headers, method, url and body, and can now
+//       // do whatever we need to in order to respond to this request.
 
-        // Cross Origin Headers
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", 
-        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+//         // Cross Origin Headers
+//         res.setHeader('Access-Control-Allow-Origin', '*');
+//         res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+//         res.setHeader("Access-Control-Allow-Headers", 
+//         "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
     
-        //var queryData = url.parse(req.url, true).query;
+//         //var queryData = url.parse(req.url, true).query;
     
-        console.log("In the server: " + req.method);
+//         console.log("In the server: " + req.method);
     
-        // If the req.method == OPTIONS, then this is just the browser "Preflight".. and not the
-        // actual POST, so let's just return  a status of "OK", so that the browser will allow
-        // my CORS request.  FUCK.
+//         // If the req.method == OPTIONS, then this is just the browser "Preflight".. and not the
+//         // actual POST, so let's just return  a status of "OK", so that the browser will allow
+//         // my CORS request.  FUCK.
         
-        let crudMethod = req.method.toLowerCase();
+//         let crudMethod = req.method.toLowerCase();
 
-        switch (crudMethod) {
-            case 'options':
-                res.writeHead(200, {"Content-Type": "application/json"});
-                res.end();
-                break;
-            case 'post':
-                 console.log("Calling process_post");
-                process_post.processPost(body,req,res,db,jwt,certString,sgMail);
-                break;
-            case 'put':
-                // console.log("Received Put request.");
-                processPut(body,req,res,db);
-                break;
-            case 'get':
-                processGet(body,req,res);
-                break;
-            case 'delete':
-                processDelete(body,req,res);
-                break;
-            default:
-                break;
-        }
+//         switch (crudMethod) {
+//             case 'options':
+//                 res.writeHead(200, {"Content-Type": "application/json"});
+//                 res.end();
+//                 break;
+//             case 'post':
+//                  console.log("Calling process_post");
+//                 process_post.processPost(body,req,res,db,jwt,certString,sgMail);
+//                 break;
+//             case 'put':
+//                 // console.log("Received Put request.");
+//                 processPut(body,req,res,db);
+//                 break;
+//             case 'get':
+//                 processGet(body,req,res);
+//                 break;
+//             case 'delete':
+//                 processDelete(body,req,res);
+//                 break;
+//             default:
+//                 break;
+//         }
         // if (req.method == "OPTIONS")
         // {
         //     res.writeHead(200, {"Content-Type": "application/json"});
@@ -300,8 +374,8 @@ var myServerCallBack = function(req,res) {
     
         // };
 
-    });
-};
+//     });
+// };
 
 
 //var server = http.createServer(myServerCallBack);
