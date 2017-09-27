@@ -8,14 +8,16 @@ var bodyParser = require("body-parser");
 // JWT stuff
 var fs = require('fs');
 var jwt = require('jsonwebtoken');
-var cert = fs.readFileSync('.bsx');
-var certString = cert.toString();
+
 var tempPassword;
 var path = require('path'),
 fs = require('fs');
 var logger = require('./logger');
 var url = require('url');
 var multer  = require('multer');
+
+var cert = fs.readFileSync('.bsx');
+var certString = cert.toString();
 
 
 // var process_post = require('./process_post');
@@ -42,7 +44,18 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 var storage = multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
-        cb(null, './uploads/');
+        let userId = req.query.userid;
+        console.log("Query: " + JSON.stringify(req.query) );
+
+        console.log("Got a Query UserID: " + userId);
+        console.log("Request URL" + req.url );
+
+        var destinationDir = './uploads/' + userId;
+        if (!fs.existsSync(destinationDir)) {
+            fs.mkdirSync(destinationDir);
+        }
+        // put the assets in a subfolder of the Users ID #
+        cb(null, destinationDir);
     },
     filename: function (req, file, cb) {
         var datetimestamp = Date.now();
@@ -130,63 +143,103 @@ var deleteResource = function(resource,req,res,next) {
 //     });
 // };
 
-// var putResource = function(resource, req,res,next) {
-//     let resourceObject = req.body;
+// I made this seperate from putResource because Users need the JWT
+var makeid= function() {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  
+    for (var i = 0; i < 5; i++)
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+  
+    return text;
+  };
 
-//     // console.log("Query" + req.query );
-//     // console.log("Query id: " + req.query.id);
-//     // dbQuery = {};
-//     // console.log(JSON.stringify(resourceObject));
+var putUser = function(req,res,next) {
+    let resourceObject = req.body;
+    console.log("PUTTING THE USER");
+    let userPas = resourceObject.password;
+    let userJWT = jwt.sign({ password: userPas}, certString );
+    resourceObject.verified = 'false';
+    resourceObject.token = userJWT;
+    let verificationID = makeid();
+    resourceObject.verificationID = verificationID;
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
 
+    if (req.query.id && req.query.id != 0)
+    {
+        dbQuery = {'id':req.query.id };
+        delete resourceObject._id;
+        try {
+        db.collection('users').replaceOne({ "id" : resourceObject.id },
+           resourceObject);
+           res.sendStatus(200);
+           res.end();
+        } catch (e) {
+            console.log("Error entering resource into the DB");
+            res.sendStatus(450);
+            res.end(e.message);
+        } 
+    } else {
+        console.log ( 'Inserting Resource into DB ' );
+        db.collection('users').insert(resourceObject, function(err,data) {
+            if (err) {
+                console.log("Error entering resource into the DB");
+                res.writeHead(400, { 'Content-Type': 'plain/text' });
+                res.end(err);
+            }
+            else{
+                console.log("Wrote: "+JSON.stringify(data));
+                res.writeHead(200, { 'Content-Type': 'plain/text' });
+                res.end(JSON.stringify(data ) );
+            }
+        });
+    }
+}
+var putResource = function(resource, req,res,next) {
+    let resourceObject = req.body;
 
-//     res.setHeader('Access-Control-Allow-Origin', '*');
-//     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-//     res.setHeader("Access-Control-Allow-Headers", 
-//     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
 
-//     if (req.query.id && req.query.id != 0)
-//     {
-//         dbQuery = {'id':req.query.id };
-//         delete resourceObject._id;
+    if (req.query.id && req.query.id != 0)
+    {
+        dbQuery = {'id':req.query.id };
+        delete resourceObject._id;
 
-//         try {
-//          //  console.log("ID: "+ resourceObject._id);
-//             // if ( resourceObject._id && ( typeof(resourceObject._id) === 'string' ) ) {
-//             //     log('Fixing id')
-//             //     resourceObject._id = mongodb.ObjectID.createFromHexString(resourceObject._id)
-//             //   }
-//         db.collection(resource).replaceOne({ "id" : resourceObject.id },
-//            resourceObject);
-//            res.sendStatus(200);
-//            res.end();
-//         } catch (e) {
-//             console.log("Error entering resource into the DB");
-//             //res.setHeader( 'Content-Type', 'plain/text');
-//             res.sendStatus(450);
-//             res.end(e.message);
-//         }
-           
-        
-//        // res.setHeader('Content-Type', 'plain/text' );
+        try {
+        db.collection(resource).replaceOne({ "id" : resourceObject.id },
+           resourceObject);
+           res.sendStatus(200);
+           res.end();
+        } catch (e) {
+            console.log("Error entering resource into the DB");
+            res.sendStatus(450);
+            res.end(e.message);
+        }
     
  
-//     } else {
-//         console.log ( 'Inserting Resource into DB ' );
-//         db.collection(resource).insert(resourceObject, function(err,data) {
-//             if (err) {
-//                 console.log("Error entering resource into the DB");
-//                 res.writeHead(400, { 'Content-Type': 'plain/text' });
-//                 res.end(err);
-//             }
-//             else{
-//                 console.log("Wrote: "+JSON.stringify(data));
-//                 res.writeHead(200, { 'Content-Type': 'plain/text' });
-//                 res.end(JSON.stringify(data ) );
-//             }
-//         });
-//     }
+    } else {
+        console.log ( 'Inserting Resource into DB ' );
+        db.collection(resource).insert(resourceObject, function(err,data) {
+            if (err) {
+                console.log("Error entering resource into the DB");
+                res.writeHead(400, { 'Content-Type': 'plain/text' });
+                res.end(err);
+            }
+            else{
+                console.log("Wrote: "+JSON.stringify(data));
+                res.writeHead(200, { 'Content-Type': 'plain/text' });
+                res.end(JSON.stringify(data ) );
+            }
+        });
+    }
   
-// };
+};
 var returnSuccess = function( req,res,next) {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
@@ -216,10 +269,13 @@ app.options("/*", function(req, res, next){
 
 app.put('/api/classes', jsonParser, function(req,res,next) { putResource('classes', req, res, next);});
 app.put('/api/courses', jsonParser, function(req,res,next) { putResource('courses', req, res, next);});
-app.put('/api/users', jsonParser, function(req,res,next) { putResource('users', req, res, next);});
+app.put('/api/users', jsonParser, function(req,res,next) { putUser( req, res, next);});
 // app.post('/api/assets', jsonParser, function(req,res,next) { postAsset(req,res,next);});
 
 // var upload = multer({ dest: '/tmp/'});
+app.post('/api/authenticate', jsonParser, function(req,res,next) {
+    processAuthentication( req, res, next);
+});
 
 app.post('/api/assets', function(req, res) {
     upload(req,res,function(err){
@@ -687,3 +743,88 @@ var handleError = function(res,msg,result) {
     res.end();
 
 }
+
+var processAuthentication = function(req, res, next) {
+    let userObject = req.body;
+
+    console.log("Processing the Authentication.");
+    console.log("userObject: "+ JSON.stringify(userObject));
+    var cert = fs.readFileSync('.bsx');
+    var certString = cert.toString();
+        
+    let userPas = userObject.password;
+    console.log("userPas: "+ userPas);
+
+    let comparePW = userPas;
+    let userJWT = jwt.sign({ password: userPas}, certString );
+    let queryObject = { "username":userObject.username};
+
+    // console.log("DB: ");
+    // console.log(db);
+
+    let foundUser = db.collection('users').findOne(queryObject, function( err, data ) {
+    
+                //console.log("MY jwt: "+jwt);
+    
+                if (err) {
+                    console.log("Error looking for user in DB");
+                    res.writeHead(400, { 'Content-Type': 'plain/text' });
+                    res.end('');
+                }
+                else{
+                    
+    
+                    if (data)
+                    {
+                        // We found a user with the right Username - that's great.
+                        // Now let's compare the JWT
+                        console.log("Data Found: " + JSON.stringify(data) );
+    
+                        let DBToken = data.token;
+                        console.log("DBToken: "+DBToken);
+    
+                        let decoded = jwt.verify(DBToken, certString);
+                        
+                        console.log("Decoded: "+JSON.stringify(decoded));
+                        console.log("ComparePW: "+ comparePW);
+                        console.log("Decoded Password: "+decoded.password);
+    
+                        if (decoded.password == comparePW)
+                        {
+                            // success!
+                            console.log("success!");
+                            // generate a real response to authenticate this user
+                            res.writeHead(200, { 'Content-Type': 'plain/text' });
+                    
+                            //let jwt = { token: 'fake-jwt-token' };
+                            //jwt = DBToken;
+    
+                            // I'm not quite sure why we're return the JWT here...
+                            console.log("jwt_response: " + DBToken);
+                            //let dbTokenObject = { "token": DBToken };
+                            //res.end(JSON.stringify(dbTokenObject) );
+                            // why not send the whole user object back? - well, it has to be a STRING
+                            res.end( JSON.stringify(data) );
+                        }
+                        else
+                        {
+                            console.log("Error looking for user in DB");
+                            res.writeHead(400, { 'Content-Type': 'plain/text' });
+                            res.end('');  
+                        }
+                        
+    
+                    
+                    }
+                    else
+                    {
+                        console.log("Error looking for user in DB");
+                        res.writeHead(400, { 'Content-Type': 'plain/text' });
+                        res.end(''); 
+                    }
+    
+    
+                }
+            });
+        };    
+
