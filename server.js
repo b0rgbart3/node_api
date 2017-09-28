@@ -1,9 +1,8 @@
 var http = require('http');
-
 var url = require('url');
 var mongodb = require("mongodb");
 var bodyParser = require("body-parser");
-
+var formidable = require("formidable");
 
 // JWT stuff
 var fs = require('fs');
@@ -50,7 +49,7 @@ var storage = multer.diskStorage({ //multers disk storage settings
         console.log("Got a Query UserID: " + userId);
         console.log("Request URL" + req.url );
 
-        var destinationDir = './uploads/' + userId;
+        var destinationDir = './public/uploads/' + userId;
         if (!fs.existsSync(destinationDir)) {
             fs.mkdirSync(destinationDir);
         }
@@ -63,8 +62,39 @@ var storage = multer.diskStorage({ //multers disk storage settings
     }
 });
 
+var storeAvatar = multer.diskStorage({ //multers disk storage settings
+    destination: function (req, file, cb) {
+        let userId = req.query.userid;
+        console.log("Query: " + JSON.stringify(req.query) );
+        console.log("Got a Query UserID: " + userId);
+        console.log("Request URL" + req.url );
+
+        var destinationDir = './public/avatars/' + userId;
+        if (!fs.existsSync(destinationDir)) {
+            fs.mkdirSync(destinationDir);
+        }
+        // put the assets in a subfolder of the Users ID #
+        cb(null, destinationDir);
+    },
+    filename: function (req, file, cb) {
+        var datetimestamp = Date.now();
+        // var splitName = file.originalname.split('.');
+        // var originalExtension = splitName[1];
+       // cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]);
+       var newfilename = 'avatar-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
+       cb(null, newfilename); 
+        
+       
+    }
+});
+
+
 var upload = multer({ //multer settings
     storage: storage
+}).single('file');
+
+var uploadAvatar = multer({ //multer settings
+    storage: storeAvatar
 }).single('file');
 
 // var upload = multer( { dest: 'uploads/' });
@@ -75,6 +105,8 @@ var getResources = function(resource,req,res,next) {
 
     // console.log("Query" + JSON.stringify( req.query) );
     // console.log("Query id: " + req.query.id);
+    console.log("Getting resource " + resource);
+
     dbQuery = {};
 
     if (req.query.id && req.query.id != 0)
@@ -117,31 +149,7 @@ var deleteResource = function(resource,req,res,next) {
       });
 };
 
-// var postAsset=function(req,res,next) {
 
-//     res.setHeader('Access-Control-Allow-Origin', '*');
-//     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-//     res.setHeader("Access-Control-Allow-Headers", 
-//     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-
-//     console.log("In post Asset: ");
-
-//     var file = __dirname + "/uploads/" + req.files.file.name;
-//     fs.readFile( req.files.file.path, function (err, data) {
-//          fs.writeFile(file, data, function (err) {
-//           if( err ){
-//                console.log( err );
-//           }else{
-//                 response = {
-//                     message:'File uploaded successfully',
-//                     filename:req.files.file.name
-//                };
-//            }
-//            console.log( response );
-//            res.end( JSON.stringify( response ) );
-//         });
-//     });
-// };
 
 // I made this seperate from putResource because Users need the JWT
 var makeid= function() {
@@ -198,6 +206,30 @@ var putUser = function(req,res,next) {
         });
     }
 }
+
+// var processAvatar = function(req,res,next) {
+//     let avatarFile = req.body;
+
+//     console.log("processing avatar:");
+//     console.log(avatarFile);
+
+//     var oldpath = avatarFile.path;
+//     var newpath = './avatars/' + avatarFile.name;
+//     fs.rename(oldpath, newpath, function (err) {
+//     if (err) throw err;
+//     // res.write('File uploaded and moved!');
+//     // res.end();
+//     }); 
+
+//     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+//     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+//     res.setHeader("Access-Control-Allow-Headers", 
+//     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+
+//     res.writeHead(200, { 'Content-Type': 'plain/text' });
+//     res.end();
+// }
+
 var putResource = function(resource, req,res,next) {
     let resourceObject = req.body;
 
@@ -249,10 +281,18 @@ var returnSuccess = function( req,res,next) {
     res.end();
 };
 
+
+
+
 app.get('/api/classes', function(req,res,next) { getResources('classes',req,res,next);});
 app.get('/api/courses', function(req,res,next) { getResources('courses',req,res,next);});
 app.get('/api/users', function(req,res,next) { getResources('users',req,res,next);});
 app.get('/api/assets', function(req,res,next) { getResources('assets',req,res,next);});
+app.get('/api/avatars*', function(req,res,next) { 
+    console.log("About to call get resources.");
+    getResources('avatars',req,res,next);});
+
+
 
 app.options('/api/assets', function(req, res, next){
     res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
@@ -260,8 +300,14 @@ app.options('/api/assets', function(req, res, next){
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
     res.sendStatus(200);
   });
+app.options('/api/avatar', function(req, res, next){
+    res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+    res.sendStatus(200);
+  });
 app.options("/*", function(req, res, next){
-    res.header('Access-Control-Allow-Origin', '*');
+    res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
     res.sendStatus(200);
@@ -270,14 +316,11 @@ app.options("/*", function(req, res, next){
 app.put('/api/classes', jsonParser, function(req,res,next) { putResource('classes', req, res, next);});
 app.put('/api/courses', jsonParser, function(req,res,next) { putResource('courses', req, res, next);});
 app.put('/api/users', jsonParser, function(req,res,next) { putUser( req, res, next);});
-// app.post('/api/assets', jsonParser, function(req,res,next) { postAsset(req,res,next);});
-
-// var upload = multer({ dest: '/tmp/'});
 app.post('/api/authenticate', jsonParser, function(req,res,next) {
     processAuthentication( req, res, next);
 });
 
-app.post('/api/assets', function(req, res) {
+app.post('/api/assets', function(req, res, next) {
     upload(req,res,function(err){
         console.log(req.file);
         if(err){
@@ -288,14 +331,43 @@ app.post('/api/assets', function(req, res) {
     });
 });
 
+app.post('/api/avatar', jsonParser, function(req,res,next) {
+    uploadAvatar(req,res,function(err){
+        console.log("The uploaded file: " + JSON.stringify(req.file ) );
+   
+        // Let's store the recently updated filename in the db so we can remember it.
+        let userId = req.query.userid;
+        db.collection('avatars').insert({'user':userId.toString(), 'filename': req.file.filename}, function(err,data) {
+            if (err) {
+                console.log("Error saving avatar filename in DB");
+                res.writeHead(400, { 'Content-Type': 'plain/text' });
+                res.end(err);
+            }
+
+        });
+
+        if(err){
+             res.json({error_code:1,err_desc:err});
+             return;
+        }
+         res.json({error_code:0,err_desc:null});
+    });
+})
 
 app.delete('/api/classes', jsonParser, function(req,res,next) { deleteResource('classes', req,res,next);});
 app.delete('/api/courses', jsonParser, function(req,res,next) { deleteResource('courses', req,res,next);});
 app.delete('/api/users', jsonParser, function(req,res,next) { deleteResource('users', req,res,next);});
 
 
+var path = require('path');
+
+app.use(express.static('public'));
+
+
 var port = 3100;
 app.listen(port);
+
+
 
 // var nodemailer = require('nodemailer');
 
