@@ -233,6 +233,8 @@ var putUser = function(req,res,next) {
 var putResource = function(resource, req,res,next) {
     let resourceObject = req.body;
 
+    console.log("Putting resource: "+ resource);
+    console.log("Putting object: "+ JSON.stringify( resourceObject ) );
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
@@ -244,8 +246,8 @@ var putResource = function(resource, req,res,next) {
         delete resourceObject._id;
 
         try {
-        db.collection(resource).replaceOne({ "id" : resourceObject.id },
-           resourceObject);
+        db.collection(resource).update({ "id" : resourceObject.id },
+           resourceObject, {upsert: true});
            res.sendStatus(200);
            res.end();
         } catch (e) {
@@ -255,21 +257,22 @@ var putResource = function(resource, req,res,next) {
         }
     
  
-    } else {
-        console.log ( 'Inserting Resource into DB ' );
-        db.collection(resource).insert(resourceObject, function(err,data) {
-            if (err) {
-                console.log("Error entering resource into the DB");
-                res.writeHead(400, { 'Content-Type': 'plain/text' });
-                res.end(err);
-            }
-            else{
-                console.log("Wrote: "+JSON.stringify(data));
-                res.writeHead(200, { 'Content-Type': 'plain/text' });
-                res.end(JSON.stringify(data ) );
-            }
-        });
     }
+    //  else {
+    //     console.log ( 'Inserting Resource into DB ' );
+    //     db.collection(resource).insert(resourceObject, function(err,data) {
+    //         if (err) {
+    //             console.log("Error entering resource into the DB");
+    //             res.writeHead(400, { 'Content-Type': 'plain/text' });
+    //             res.end(err);
+    //         }
+    //         else{
+    //             console.log("Wrote: "+JSON.stringify(data));
+    //             res.writeHead(200, { 'Content-Type': 'plain/text' });
+    //             res.end(JSON.stringify(data ) );
+    //         }
+    //     });
+    // }
   
 };
 var returnSuccess = function( req,res,next) {
@@ -286,14 +289,22 @@ var returnSuccess = function( req,res,next) {
 
 app.get('/api/classes', function(req,res,next) { getResources('classes',req,res,next);});
 app.get('/api/courses', function(req,res,next) { getResources('courses',req,res,next);});
+app.get('/api/usersettings', function(req,res,next) { getResources('usersettings',req,res,next);});
 app.get('/api/users', function(req,res,next) { getResources('users',req,res,next);});
 app.get('/api/assets', function(req,res,next) { getResources('assets',req,res,next);});
+
+
 app.get('/api/avatars*', function(req,res,next) { 
     console.log("About to call get resources.");
     getResources('avatars',req,res,next);});
 
 
-
+app.options('/api/usersettings', function(req, res, next){
+    res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
+    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+    res.sendStatus(200);
+  });
 app.options('/api/assets', function(req, res, next){
     res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
@@ -315,6 +326,7 @@ app.options("/*", function(req, res, next){
 
 app.put('/api/classes', jsonParser, function(req,res,next) { putResource('classes', req, res, next);});
 app.put('/api/courses', jsonParser, function(req,res,next) { putResource('courses', req, res, next);});
+app.put('/api/usersettings', jsonParser, function(req,res,next) { putResource('usersettings', req, res, next);});
 app.put('/api/users', jsonParser, function(req,res,next) { putUser( req, res, next);});
 app.post('/api/authenticate', jsonParser, function(req,res,next) {
     processAuthentication( req, res, next);
@@ -337,7 +349,8 @@ app.post('/api/avatar', jsonParser, function(req,res,next) {
    
         // Let's store the recently updated filename in the db so we can remember it.
         let userId = req.query.userid;
-        db.collection('avatars').insert({'user':userId.toString(), 'filename': req.file.filename}, function(err,data) {
+
+        db.collection('avatars').update({'user':userId.toString()}, { 'user':userId.toString(), 'filename': req.file.filename}, function(err,data) {
             if (err) {
                 console.log("Error saving avatar filename in DB");
                 res.writeHead(400, { 'Content-Type': 'plain/text' });
