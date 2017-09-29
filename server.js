@@ -81,7 +81,7 @@ var storeAvatar = multer.diskStorage({ //multers disk storage settings
         // var splitName = file.originalname.split('.');
         // var originalExtension = splitName[1];
        // cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]);
-       var newfilename = 'avatar-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
+       var newfilename = 'avatar.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
        cb(null, newfilename); 
         
        
@@ -112,6 +112,8 @@ var getResources = function(resource,req,res,next) {
     if (req.query.id && req.query.id != 0)
     {
         dbQuery = {'id':req.query.id };
+        console.log("dbQuery == " + JSON.stringify(dbQuery) );
+
     }
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
@@ -350,7 +352,7 @@ app.post('/api/avatar', jsonParser, function(req,res,next) {
         // Let's store the recently updated filename in the db so we can remember it.
         let userId = req.query.userid;
 
-        db.collection('avatars').update({'user':userId.toString()}, { 'user':userId.toString(), 'filename': req.file.filename}, function(err,data) {
+        db.collection('avatars').update({'id':userId.toString()}, { 'id':userId.toString(), 'filename': req.file.filename}, {upsert:true}, function(err,data) {
             if (err) {
                 console.log("Error saving avatar filename in DB");
                 res.writeHead(400, { 'Content-Type': 'plain/text' });
