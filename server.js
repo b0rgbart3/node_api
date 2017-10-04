@@ -88,6 +88,24 @@ var storeAvatar = multer.diskStorage({ //multers disk storage settings
     }
 });
 
+var storeCourseImage= multer.diskStorage({ //multers disk storage settings
+    destination: function (req, file, cb) {
+        let id = req.query.id;
+
+        var destinationDir = './public/courseimages/' + id;
+        if (!fs.existsSync(destinationDir)) {
+            fs.mkdirSync(destinationDir);
+        }
+        // put the courseimage in a subfolder of the Course ID #
+        cb(null, destinationDir);
+    },
+    filename: function (req, file, cb) {
+        // var datetimestamp = Date.now();
+       // var newfilename = datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
+       cb(null, file.originalname);   
+       
+    }
+});
 
 var upload = multer({ //multer settings
     storage: storage
@@ -95,6 +113,10 @@ var upload = multer({ //multer settings
 
 var uploadAvatar = multer({ //multer settings
     storage: storeAvatar
+}).single('file');
+
+var uploadCourseImage = multer({ //multer settings
+    storage: storeCourseImage
 }).single('file');
 
 // var upload = multer( { dest: 'uploads/' });
@@ -209,28 +231,7 @@ var putUser = function(req,res,next) {
     }
 }
 
-// var processAvatar = function(req,res,next) {
-//     let avatarFile = req.body;
 
-//     console.log("processing avatar:");
-//     console.log(avatarFile);
-
-//     var oldpath = avatarFile.path;
-//     var newpath = './avatars/' + avatarFile.name;
-//     fs.rename(oldpath, newpath, function (err) {
-//     if (err) throw err;
-//     // res.write('File uploaded and moved!');
-//     // res.end();
-//     }); 
-
-//     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
-//     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-//     res.setHeader("Access-Control-Allow-Headers", 
-//     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-
-//     res.writeHead(200, { 'Content-Type': 'plain/text' });
-//     res.end();
-// }
 
 var putResource = function(resource, req,res,next) {
     let resourceObject = req.body;
@@ -300,7 +301,11 @@ app.get('/api/avatars*', function(req,res,next) {
     console.log("About to call get resources.");
     getResources('avatars',req,res,next);});
 
+app.get('/api/courseimages*', function(req,res,next) { 
+        console.log("About to call get resources.");
+        getResources('courseimages',req,res,next);});
 
+        
 app.options('/api/usersettings', function(req, res, next){
     res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
@@ -367,7 +372,31 @@ app.post('/api/avatar', jsonParser, function(req,res,next) {
         }
          res.json({error_code:0,err_desc:null});
     });
+});
+app.post('/api/courseimages', jsonParser, function(req,res,next) {
+    uploadCourseImage(req,res,function(err){
+        console.log("The uploaded file: " + JSON.stringify(req.file ) );
+   
+        // Let's store the recently updated filename in the db so we can remember it.
+        // let id = req.query.id;
+
+        // db.collection('courseimages').update({'id':id.toString()}, { 'id':id.toString(), 'filename': req.file.filename}, {upsert:true}, function(err,data) {
+        //     if (err) {
+        //         console.log("Error saving courseimage filename in DB");
+        //         res.writeHead(400, { 'Content-Type': 'plain/text' });
+        //         res.end(err);
+        //     }
+
+        // });
+
+        if(err){
+             res.json({error_code:1,err_desc:err});
+             return;
+        }
+         res.json({error_code:0,err_desc:null});
+    });
 })
+
 
 app.delete('/api/classes', jsonParser, function(req,res,next) { deleteResource('classes', req,res,next);});
 app.delete('/api/courses', jsonParser, function(req,res,next) { deleteResource('courses', req,res,next);});
