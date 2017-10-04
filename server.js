@@ -14,6 +14,7 @@ fs = require('fs');
 var logger = require('./logger');
 var url = require('url');
 var multer  = require('multer');
+var easyimg = require('easyimage');
 
 var cert = fs.readFileSync('.bsx');
 var certString = cert.toString();
@@ -377,6 +378,18 @@ app.post('/api/courseimages', jsonParser, function(req,res,next) {
     uploadCourseImage(req,res,function(err){
         console.log("The uploaded file: " + JSON.stringify(req.file ) );
    
+        var dest = req.file.destination;
+        // easyimg.convert({ src: req.file.path, dst: dest+'test.jpg', type:'jpg' });
+        // easyimg.rescrop( {
+        //     src:req.file.path, dst: dest+'/'+'test.jpg', type:'jpg', width:500, height:500, cropwidth:128, cropheight:128, x:0, y:0 
+        // }).then(
+        //     function(image) {
+        //        console.log('Resized and cropped: ' + image.width + ' x ' + image.height);
+        //     },
+        //     function (err) {
+        //       console.log(err);
+        //     }
+        //   );
         // Let's store the recently updated filename in the db so we can remember it.
         // let id = req.query.id;
 
