@@ -286,7 +286,7 @@ var putResource = function(resource, req,res,next) {
 
     console.log("Putting resource: "+ resource);
     console.log("Putting object: "+ JSON.stringify( resourceObject ) );
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
@@ -344,6 +344,7 @@ app.get('/api/usersettings', function(req,res,next) { getResources('usersettings
 app.get('/api/users', function(req,res,next) { getResources('users',req,res,next);});
 app.get('/api/assets', function(req,res,next) { getResources('assets',req,res,next);});
 app.get('/api/materials', function(req,res,next) { getResources('materials',req,res,next);});
+app.get('/api/classregistrations', function(req,res,next) { getResources('classregistrations',req,res,next);});
 
 app.get('/api/avatars*', function(req,res,next) { 
     console.log("About to call get resources.");
@@ -353,6 +354,15 @@ app.get('/api/courseimages*', function(req,res,next) {
         console.log("About to call get resources.");
         getResources('courseimages',req,res,next);});
 
+app.get('/api/classregistrations*', function(req,res,next) { 
+            console.log("About to call get classregistrations.");
+            getResources('courseimages',req,res,next);});
+
+app.options('/api/users', function(req, res, next){
+    returnSuccess( req, res, next ); });
+
+app.options('/api/classes', function(req, res, next){
+        returnSuccess( req, res, next ); });
 
 app.options('/api/materials', function(req, res, next){
     returnSuccess( req, res, next );
@@ -362,6 +372,9 @@ app.options('/api/materialimages', function(req, res, next){
     returnSuccess( req, res, next );
 });
 app.options('/api/materialfiles', function(req, res, next){
+    returnSuccess( req, res, next );
+});
+app.options('/api/classregistrations', function(req, res, next){
     returnSuccess( req, res, next );
 });
 
@@ -397,6 +410,7 @@ app.put('/api/materials', jsonParser, function(req,res,next) { putResource('mate
 
 
 app.put('/api/users', jsonParser, function(req,res,next) { putUser( req, res, next);});
+app.put('/api/classregistrations', jsonParser, function(req,res,next) { putResource('classregistrations', req, res, next);});
 app.post('/api/authenticate', jsonParser, function(req,res,next) {
     processAuthentication( req, res, next);
 });
