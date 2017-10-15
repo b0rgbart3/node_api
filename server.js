@@ -167,7 +167,31 @@ var uploadMaterialFile = multer({ //multer settings
 }).single('file');
 
 
-// var upload = multer( { dest: 'uploads/' });
+
+
+var getResourcesWithAltKey = function(resource, altkey, req,res,next) {
+    
+        console.log("Getting resource with Alt Key " + resource);
+    
+        dbQuery = {};
+    
+        if (req.query.id && req.query.id != 0)
+        {
+            dbQuery = { altkey : req.query.id };    
+        }
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", 
+        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+        db.collection(resource).find(dbQuery).toArray(function(err,docs) {
+            if(err) { handleError(res,err.message, "Failed to get" + resource); }
+            else{
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end( JSON.stringify(docs ) );
+               // console.log( JSON.stringify(docs));
+            }
+        });
+    };
 
 
 var getResources = function(resource,req,res,next) {
@@ -182,7 +206,7 @@ var getResources = function(resource,req,res,next) {
     if (req.query.id && req.query.id != 0)
     {
         dbQuery = {'id':req.query.id };
-        console.log("dbQuery == " + JSON.stringify(dbQuery) );
+        // console.log("dbQuery == " + JSON.stringify(dbQuery) );
 
     }
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -236,7 +260,7 @@ var makeid= function() {
 
 var putUser = function(req,res,next) {
     let resourceObject = req.body;
-    console.log("PUTTING THE USER");
+    // console.log("PUTTING THE USER");
     let userPas = resourceObject.password;
     let userJWT = jwt.sign({ password: userPas}, certString );
     resourceObject.verified = 'false';
@@ -263,7 +287,7 @@ var putUser = function(req,res,next) {
             res.end(e.message);
         } 
     } else {
-        console.log ( 'Inserting Resource into DB ' );
+        // console.log ( 'Inserting Resource into DB ' );
         db.collection('users').insert(resourceObject, function(err,data) {
             if (err) {
                 console.log("Error entering resource into the DB");
@@ -271,7 +295,7 @@ var putUser = function(req,res,next) {
                 res.end(err);
             }
             else{
-                console.log("Wrote: "+JSON.stringify(data));
+                // console.log("Wrote: "+JSON.stringify(data));
                 res.writeHead(200, { 'Content-Type': 'plain/text' });
                 res.end(JSON.stringify(data ) );
             }
@@ -284,8 +308,8 @@ var putUser = function(req,res,next) {
 var putResource = function(resource, req,res,next) {
     let resourceObject = req.body;
 
-    console.log("Putting resource: "+ resource);
-    console.log("Putting object: "+ JSON.stringify( resourceObject ) );
+    // console.log("Putting resource: "+ resource);
+    // console.log("Putting object: "+ JSON.stringify( resourceObject ) );
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
@@ -343,19 +367,20 @@ app.get('/api/courses', function(req,res,next) { getResources('courses',req,res,
 app.get('/api/usersettings', function(req,res,next) { getResources('usersettings',req,res,next);});
 app.get('/api/users', function(req,res,next) { getResources('users',req,res,next);});
 app.get('/api/assets', function(req,res,next) { getResources('assets',req,res,next);});
-app.get('/api/materials', function(req,res,next) { getResources('materials',req,res,next);});
+app.get('/api/material', function(req,res,next) { getResources('materials',req,res,next);});
+app.get('/api/materials', function(req,res,next) { getResourcesWithAltKey('materials', 'course_id', req,res,next);});
 app.get('/api/classregistrations', function(req,res,next) { getResources('classregistrations',req,res,next);});
 
 app.get('/api/avatars*', function(req,res,next) { 
-    console.log("About to call get resources.");
+    console.log("About to call get avatars.");
     getResources('avatars',req,res,next);});
 
 app.get('/api/courseimages*', function(req,res,next) { 
-        console.log("About to call get resources.");
+        // console.log("About to call get resources.");
         getResources('courseimages',req,res,next);});
 
 app.get('/api/classregistrations*', function(req,res,next) { 
-            console.log("About to call get classregistrations.");
+           // console.log("About to call get classregistrations.");
             getResources('courseimages',req,res,next);});
 
 app.options('/api/users', function(req, res, next){
@@ -428,7 +453,7 @@ app.post('/api/assets', function(req, res, next) {
 
 app.post('/api/avatar', jsonParser, function(req,res,next) {
     uploadAvatar(req,res,function(err){
-        console.log("The uploaded file: " + JSON.stringify(req.file ) );
+        // console.log("The uploaded file: " + JSON.stringify(req.file ) );
    
         // Let's store the recently updated filename in the db so we can remember it.
         let userId = req.query.userid;
@@ -452,7 +477,7 @@ app.post('/api/avatar', jsonParser, function(req,res,next) {
 
 app.post('/api/courseimages', jsonParser, function(req,res,next) {
     uploadCourseImage(req,res,function(err){
-        console.log("The uploaded file: " + JSON.stringify(req.file ) );
+      //  console.log("The uploaded file: " + JSON.stringify(req.file ) );
    
         var dest = req.file.destination;
 
@@ -466,7 +491,7 @@ app.post('/api/courseimages', jsonParser, function(req,res,next) {
 
 app.post('/api/materialimages', jsonParser, function(req,res,next) {
     uploadMaterialImage(req,res,function(err){
-        console.log("The uploaded file: " + JSON.stringify(req.file ) );
+       // console.log("The uploaded file: " + JSON.stringify(req.file ) );
    
         var dest = req.file.destination;
 
@@ -480,7 +505,7 @@ app.post('/api/materialimages', jsonParser, function(req,res,next) {
 
 app.post('/api/materialfiles', jsonParser, function(req,res,next) {
     uploadMaterialFile(req,res,function(err){
-        console.log("The uploaded file: " + JSON.stringify(req.file ) );
+      //  console.log("The uploaded file: " + JSON.stringify(req.file ) );
    
         var dest = req.file.destination;
 
