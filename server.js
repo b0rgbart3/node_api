@@ -198,6 +198,55 @@ var getResourcesWithAltKey = function(resource, altkey, req,res,next) {
         });
     };
 
+var getStudents = function (req,res,next) {
+    console.log("Getting Students Only");
+    dbQuery = {};
+    
+        if (req.query.id && req.query.id != 0)
+        {
+            dbQuery = {'enrollments.class_id': req.query.id, 'enrollments.roles':'student' };
+            // console.log("dbQuery == " + JSON.stringify(dbQuery) );
+        }
+        console.log("My db query: " + JSON.stringify(dbQuery) );
+
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", 
+        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+        db.collection('users').find(dbQuery).toArray(function(err,docs) {
+            if(err) { handleError(res,err.message, "Failed to get" + resource); }
+            else{
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end( JSON.stringify(docs ) );
+                // console.log( JSON.stringify(docs));
+            }
+        });
+};
+
+var getInstructors = function (req,res,next) {
+    console.log("Getting Instructors Only");
+    dbQuery = {};
+    
+        if (req.query.id && req.query.id != 0)
+        {
+            dbQuery = {'enrollments.class_id': req.query.id, 'enrollments.roles':'instructor' };
+            // console.log("dbQuery == " + JSON.stringify(dbQuery) );
+        }
+        console.log("My db query: " + JSON.stringify(dbQuery) );
+
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", 
+        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+        db.collection('users').find(dbQuery).toArray(function(err,docs) {
+            if(err) { handleError(res,err.message, "Failed to get" + resource); }
+            else{
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end( JSON.stringify(docs ) );
+               // console.log( JSON.stringify(docs));
+            }
+        });
+};
 
 var getResources = function(resource,req,res,next) {
 
@@ -375,6 +424,8 @@ app.get('/api/assets', function(req,res,next) { getResources('assets',req,res,ne
 app.get('/api/material', function(req,res,next) { getResources('materials',req,res,next);});
 app.get('/api/materials', function(req,res,next) { getResourcesWithAltKey('materials', 'course_id', req,res,next);});
 app.get('/api/classregistrations', function(req,res,next) { getResources('classregistrations',req,res,next);});
+app.get('/api/instructors',  function(req,res,next) { getInstructors(req,res,next);});
+app.get('/api/students',  function(req,res,next) { getStudents(req,res,next);});
 
 app.get('/api/avatars*', function(req,res,next) { 
     console.log("About to call get avatars.");
