@@ -18,13 +18,16 @@ var easyimg = require('easyimage');
 
 var cert = fs.readFileSync('.bsx');
 var certString = cert.toString();
-
+const AVATAR_PATH = 'http://localhost:3100/avatars/';
 
 // var process_post = require('./process_post');
 const querystring = require('querystring');
 
 var express = require('express');
 var app = express();
+gm = require('gm').subClass({imageMagick: true});
+
+//var MAU = require('./modify-and-upload');
 
 app.use(function(req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
@@ -42,13 +45,15 @@ var jsonParser = bodyParser.json();
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
+app.use(urlencodedParser);
+
 var storage = multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
         let userId = req.query.userid;
-        console.log("Query: " + JSON.stringify(req.query) );
+        // console.log("Query: " + JSON.stringify(req.query) );
 
-        console.log("Got a Query UserID: " + userId);
-        console.log("Request URL" + req.url );
+        // console.log("Got a Query UserID: " + userId);
+        // console.log("Request URL" + req.url );
 
         var destinationDir = './public/uploads/' + userId;
         if (!fs.existsSync(destinationDir)) {
@@ -66,9 +71,9 @@ var storage = multer.diskStorage({ //multers disk storage settings
 var storeAvatar = multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
         let userId = req.query.userid;
-        console.log("Query: " + JSON.stringify(req.query) );
-        console.log("Got a Query UserID: " + userId);
-        console.log("Request URL" + req.url );
+        // console.log("Query: " + JSON.stringify(req.query) );
+        // console.log("Got a Query UserID: " + userId);
+        // console.log("Request URL" + req.url );
 
         var destinationDir = './public/avatars/' + userId;
         if (!fs.existsSync(destinationDir)) {
@@ -82,8 +87,8 @@ var storeAvatar = multer.diskStorage({ //multers disk storage settings
         // var splitName = file.originalname.split('.');
         // var originalExtension = splitName[1];
        // cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]);
-       var newfilename = 'avatar.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
-       cb(null, newfilename); 
+      // var newfilename = 'avatar.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
+       cb(null, file.originalname); 
         
        
     }
@@ -451,21 +456,58 @@ app.post('/api/assets', function(req, res, next) {
     });
 });
 
-app.post('/api/avatar', jsonParser, function(req,res,next) {
+app.post('/api/avatar', urlencodedParser, function(req,res,next) {
+    // cropAvatar(req,res);
+    
     uploadAvatar(req,res,function(err){
         // console.log("The uploaded file: " + JSON.stringify(req.file ) );
    
         // Let's store the recently updated filename in the db so we can remember it.
-        let userId = req.query.userid;
+       let userId = req.query.userid;
+       let filename = req.file.filename;
+       let avatar_URL = AVATAR_PATH + userId + '/' + filename;
+       let processingPath = './public/avatars/' + userId + '/' + filename;
+       //let square = 'png:' + AVATAR_PATH + userId + '/' + 'test.png';
 
-        db.collection('avatars').update({'id':userId.toString()}, { 'id':userId.toString(), 'filename': req.file.filename}, {upsert:true}, function(err,data) {
-            if (err) {
-                console.log("Error saving avatar filename in DB");
-                res.writeHead(400, { 'Content-Type': 'plain/text' });
-                res.end(err);
-            }
+       console.log("JUST SAVED: " + avatar_URL);
 
-        });
+       gm(processingPath)
+       .resize(500, 500 + '^')
+       .gravity('center')
+       .extent(500, 500)
+       .write(processingPath, function (err) {
+           if (err) console.log(err);
+         if (!err) console.log('done');
+       });
+    //    gm(avatar_URL)
+    //    .resize(175, 175 + '^')
+    //    .gravity('center')
+    //    .extent(175, 175)
+    //    .write(square, function (err){
+    //     //  if (that.callback && typeof(that.callback) === 'function'){
+    //     //    that.callback(err, that.publicPathOfThumb);
+    //     //  }
+    //    }); 
+
+       // cropAvatar(avatar_URL);
+        // db.collection('avatars').update({'id':userId.toString()}, { 'id':userId.toString(), 'filename': req.file.filename}, {upsert:true}, function(err,data) {
+        //     if (err) {
+        //         console.log("Error saving avatar filename in DB");
+        //         res.writeHead(400, { 'Content-Type': 'plain/text' });
+        //         res.end(err);
+        //     }
+
+       // });
+
+    //    var mau = new MAU(avatar_URL, function(err, newImagePath){
+    //     if(err){ res.render('index', { 
+    //       status: 'Error uploading' }); 
+    //     }
+    //     res.render('index', {
+    //       status: 'Finished uploading',
+    //       newImage: newImagePath
+    //     });
+    //  });
 
         if(err){
              res.json({error_code:1,err_desc:err});
@@ -473,7 +515,21 @@ app.post('/api/avatar', jsonParser, function(req,res,next) {
         }
          res.json({error_code:0,err_desc:null});
     });
+
+    
 });
+
+var cropAvatar = function (avatar_URL) {
+    
+    easyimg.info(avatar_URL).then(
+        function(file) {
+          console.log(file);
+        }, function (err) {
+          console.log(err);
+        }
+      );
+
+};
 
 app.post('/api/courseimages', jsonParser, function(req,res,next) {
     uploadCourseImage(req,res,function(err){
