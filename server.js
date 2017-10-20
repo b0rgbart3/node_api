@@ -231,6 +231,8 @@ var getInstructors = function (req,res,next) {
         {
             dbQuery = {'enrollments.class_id': req.query.id, 'enrollments.roles':'instructor' };
             // console.log("dbQuery == " + JSON.stringify(dbQuery) );
+        } else {
+            dbQuery = {'user_type':'instructor'};
         }
         console.log("My db query: " + JSON.stringify(dbQuery) );
 
