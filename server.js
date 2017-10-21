@@ -227,13 +227,13 @@ var getInstructors = function (req,res,next) {
     console.log("Getting Instructors Only");
     dbQuery = {};
     
-        if (req.query.id && req.query.id != 0)
-        {
-            dbQuery = {'enrollments.class_id': req.query.id, 'enrollments.roles':'instructor' };
+        // if (req.query.id && req.query.id != 0)
+        // {
+           // dbQuery = {'enrollments.class_id': req.query.id, 'enrollments.roles':'instructor' };
             // console.log("dbQuery == " + JSON.stringify(dbQuery) );
-        } else {
+  
             dbQuery = {'user_type':'instructor'};
-        }
+  
         console.log("My db query: " + JSON.stringify(dbQuery) );
 
         res.setHeader('Access-Control-Allow-Origin', '*');
