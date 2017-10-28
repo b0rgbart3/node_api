@@ -3,7 +3,7 @@ var url = require('url');
 var mongodb = require("mongodb");
 var bodyParser = require("body-parser");
 var formidable = require("formidable");
-
+var sortBy = require('lodash').sortBy;
 // JWT stuff
 var fs = require('fs');
 var jwt = require('jsonwebtoken');
@@ -26,6 +26,9 @@ const querystring = require('querystring');
 var express = require('express');
 var app = express();
 gm = require('gm').subClass({imageMagick: true});
+
+// Chatroom Logins
+var chatroom = [];
 
 //var MAU = require('./modify-and-upload');
 
@@ -71,9 +74,6 @@ var storage = multer.diskStorage({ //multers disk storage settings
 var storeAvatar = multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
         let userId = req.query.userid;
-        // console.log("Query: " + JSON.stringify(req.query) );
-        // console.log("Got a Query UserID: " + userId);
-        // console.log("Request URL" + req.url );
 
         var destinationDir = './public/avatars/' + userId;
         if (!fs.existsSync(destinationDir)) {
@@ -84,10 +84,6 @@ var storeAvatar = multer.diskStorage({ //multers disk storage settings
     },
     filename: function (req, file, cb) {
         var datetimestamp = Date.now();
-        // var splitName = file.originalname.split('.');
-        // var originalExtension = splitName[1];
-       // cb(null, file.fieldname + '-' + datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]);
-      // var newfilename = 'avatar.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
        cb(null, file.originalname); 
         
        
@@ -232,7 +228,7 @@ var getInstructors = function (req,res,next) {
            // dbQuery = {'enrollments.class_id': req.query.id, 'enrollments.roles':'instructor' };
             // console.log("dbQuery == " + JSON.stringify(dbQuery) );
   
-            dbQuery = {'user_type':'instructor'};
+            dbQuery = {instructor : true};
   
         console.log("My db query: " + JSON.stringify(dbQuery) );
 
@@ -250,21 +246,37 @@ var getInstructors = function (req,res,next) {
         });
 };
 
+var getWhosIn = function(req,res,next) {
+    let whosIn = [];
+    console.log('Finding out whos in the chatroom: ');
+    if (req.query.id && req.query.id != 0)
+    {
+        whosIn = chatroom[req.query.id];
+
+    } 
+    if (!whosIn) { whosIn = []};
+    console.log('Whosin: ' + whosIn);
+    let whosInObject = { userIDs : whosIn };
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+    res.writeHead(200, {"Content-Type": "application/json"});
+
+    res.end( JSON.stringify(whosInObject) );
+};
+
 var getResources = function(resource,req,res,next) {
 
-
-    // console.log("Query" + JSON.stringify( req.query) );
-    // console.log("Query id: " + req.query.id);
     console.log("Getting resource " + resource);
-
     dbQuery = {};
 
     if (req.query.id && req.query.id != 0)
     {
         dbQuery = {'id':req.query.id };
-        // console.log("dbQuery == " + JSON.stringify(dbQuery) );
 
-    }
+    } 
+    
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
@@ -273,8 +285,16 @@ var getResources = function(resource,req,res,next) {
         if(err) { handleError(res,err.message, "Failed to get" + resource); }
         else{
             res.writeHead(200, {"Content-Type": "application/json"});
-            res.end( JSON.stringify(docs ) );
-           // console.log( JSON.stringify(docs));
+
+            let stringyDocs = JSON.stringify(docs);
+
+            var reverseChronology = [];
+            if (resource === 'threads') {
+                reverseChronology = sortBy( docs, 'post_date' ).reverse();
+                docs = reverseChronology;
+                res.end( JSON.stringify(docs) );
+            } else {
+            res.end( JSON.stringify(docs ) ); }
         }
     });
 };
@@ -313,6 +333,22 @@ var makeid= function() {
   
     return text;
   };
+
+var chatLogin = function(req,res,next) {
+    let user = req.body.user;
+    let classID = req.body.classID;
+    
+    if (!chatroom[classID]) { chatroom[classID] = []; }
+    if (!chatroom[classID].includes(user)) {
+    chatroom[classID].push(user); }
+    console.log('User '+user+', entered chatroom: '+ classID);
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+    res.writeHead(200, {"Content-Type": "application/json"});
+    res.end();
+};
 
 var putUser = function(req,res,next) {
     let resourceObject = req.body;
@@ -364,8 +400,8 @@ var putUser = function(req,res,next) {
 var putResource = function(resource, req,res,next) {
     let resourceObject = req.body;
 
-    // console.log("Putting resource: "+ resource);
-    // console.log("Putting object: "+ JSON.stringify( resourceObject ) );
+    console.log("Putting resource: "+ resource);
+    console.log("Putting object: "+ JSON.stringify( resourceObject ) );
     res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
@@ -389,21 +425,7 @@ var putResource = function(resource, req,res,next) {
     
  
     }
-    //  else {
-    //     console.log ( 'Inserting Resource into DB ' );
-    //     db.collection(resource).insert(resourceObject, function(err,data) {
-    //         if (err) {
-    //             console.log("Error entering resource into the DB");
-    //             res.writeHead(400, { 'Content-Type': 'plain/text' });
-    //             res.end(err);
-    //         }
-    //         else{
-    //             console.log("Wrote: "+JSON.stringify(data));
-    //             res.writeHead(200, { 'Content-Type': 'plain/text' });
-    //             res.end(JSON.stringify(data ) );
-    //         }
-    //     });
-    // }
+
   
 };
 var returnSuccess = function( req,res,next) {
@@ -428,6 +450,8 @@ app.get('/api/materials', function(req,res,next) { getResourcesWithAltKey('mater
 app.get('/api/classregistrations', function(req,res,next) { getResources('classregistrations',req,res,next);});
 app.get('/api/instructors',  function(req,res,next) { getInstructors(req,res,next);});
 app.get('/api/students',  function(req,res,next) { getStudents(req,res,next);});
+app.get('/api/threads', function(req,res,next) { getResources('threads',req,res,next);});
+app.get('/api/chats/whosin', function(req,res,next) { getWhosIn(req,res,next);});
 
 app.get('/api/avatars*', function(req,res,next) { 
     console.log("About to call get avatars.");
@@ -448,8 +472,7 @@ app.options('/api/classes', function(req, res, next){
         returnSuccess( req, res, next ); });
 
 app.options('/api/materials', function(req, res, next){
-    returnSuccess( req, res, next );
-});
+    returnSuccess( req, res, next ); });
 
 app.options('/api/materialimages', function(req, res, next){
     returnSuccess( req, res, next );
@@ -460,6 +483,16 @@ app.options('/api/materialfiles', function(req, res, next){
 app.options('/api/classregistrations', function(req, res, next){
     returnSuccess( req, res, next );
 });
+app.options('/api/threads', function(req, res, next){
+    returnSuccess( req, res, next ); });
+
+app.options('/api/chats/enter', function(req, res, next){
+    console.log('chatroom entry was requested.');
+        returnSuccess( req, res, next ); });
+
+app.options('/api/chats/whosin*', function(req, res, next){
+    console.log('chatroom whos in was requested.');
+        returnSuccess( req, res, next ); });
 
 app.options('/api/usersettings', function(req, res, next){
     res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
@@ -479,6 +512,7 @@ app.options('/api/avatar', function(req, res, next){
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
     res.sendStatus(200);
   });
+
 app.options("/*", function(req, res, next){
     res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
@@ -490,13 +524,21 @@ app.put('/api/classes', jsonParser, function(req,res,next) { putResource('classe
 app.put('/api/courses', jsonParser, function(req,res,next) { putResource('courses', req, res, next);});
 app.put('/api/usersettings', jsonParser, function(req,res,next) { putResource('usersettings', req, res, next);});
 app.put('/api/materials', jsonParser, function(req,res,next) { putResource('materials', req, res, next);});
-
+app.put('/api/threads', jsonParser, function(req,res,next) { putResource('threads', req, res, next);});
 
 app.put('/api/users', jsonParser, function(req,res,next) { putUser( req, res, next);});
 app.put('/api/classregistrations', jsonParser, function(req,res,next) { putResource('classregistrations', req, res, next);});
+
+app.put('/api/chats/enter', jsonParser, function(req,res,next) {
+    console.log('Got a chatroom entry request');
+    chatLogin( req, res, next);});
+
+
 app.post('/api/authenticate', jsonParser, function(req,res,next) {
     processAuthentication( req, res, next);
 });
+
+
 
 app.post('/api/assets', function(req, res, next) {
     upload(req,res,function(err){
@@ -631,6 +673,7 @@ app.delete('/api/classes', jsonParser, function(req,res,next) { deleteResource('
 app.delete('/api/courses', jsonParser, function(req,res,next) { deleteResource('courses', req,res,next);});
 app.delete('/api/users', jsonParser, function(req,res,next) { deleteResource('users', req,res,next);});
 app.delete('/api/materials', jsonParser, function(req,res,next) { deleteResource('materials', req,res,next);});
+app.delete('/api/threads', jsonParser, function(req,res,next) { deleteResource('threads', req,res,next);});
 
 var path = require('path');
 
