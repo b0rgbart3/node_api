@@ -170,34 +170,10 @@ var uploadMaterialFile = multer({ //multer settings
 
 
 
-var getResourcesWithAltKey = function(resource, altkey, req,res,next) {
-    
-        console.log("Getting resource with Alt Key " + resource);
-    
-        dbQuery = {};
-    
-        if (req.query.id && req.query.id != 0)
-        {
-            dbQuery = { altkey : req.query.id };    
-        }
-        res.setHeader('Access-Control-Allow-Origin', '*');
-        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", 
-        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-        db.collection(resource).find(dbQuery).toArray(function(err,docs) {
-            if(err) { handleError(res,err.message, "Failed to get" + resource); }
-            else{
-                res.writeHead(200, {"Content-Type": "application/json"});
-                res.end( JSON.stringify(docs ) );
-               // console.log( JSON.stringify(docs));
-            }
-        });
-    };
 
 var getStudents = function (req,res,next) {
     console.log("Getting Students Only");
     dbQuery = {};
-    
         if (req.query.id && req.query.id != 0)
         {
             dbQuery = {'enrollments.class_id': req.query.id, 'enrollments.roles':'student' };
@@ -445,8 +421,8 @@ app.get('/api/courses', function(req,res,next) { getResources('courses',req,res,
 app.get('/api/usersettings', function(req,res,next) { getResources('usersettings',req,res,next);});
 app.get('/api/users', function(req,res,next) { getResources('users',req,res,next);});
 app.get('/api/assets', function(req,res,next) { getResources('assets',req,res,next);});
-app.get('/api/material', function(req,res,next) { getResources('materials',req,res,next);});
-app.get('/api/materials', function(req,res,next) { getResourcesWithAltKey('materials', 'course_id', req,res,next);});
+// app.get('/api/material', function(req,res,next) { getResources('materials',req,res,next);});
+app.get('/api/materials', function(req,res,next) { getResources('materials', req,res,next);});
 app.get('/api/classregistrations', function(req,res,next) { getResources('classregistrations',req,res,next);});
 app.get('/api/instructors',  function(req,res,next) { getInstructors(req,res,next);});
 app.get('/api/students',  function(req,res,next) { getStudents(req,res,next);});
