@@ -1,4 +1,5 @@
 var http = require('http');
+var https = require('https');
 var url = require('url');
 var mongodb = require("mongodb");
 var bodyParser = require("body-parser");
@@ -16,16 +17,47 @@ var url = require('url');
 var multer  = require('multer');
 var easyimg = require('easyimage');
 
-var cert = fs.readFileSync('.bsx');
-var certString = cert.toString();
-const AVATAR_PATH = 'http://localhost:3100/avatars/';
+var cert;
+var certString;
+var server;
 
-// var process_post = require('./process_post');
+let ssl_options = {};
+
+let ORIGIN_BASEPATH = "";
+let AVATAR_PATH = "";
+
+let LOCAL = true;
+
+if (LOCAL) { 
+    ORIGIN_BASEPATH = "http://localhost:4200";
+    AVATAR_PATH = 'http://localhost:3100/avatars/';
+}
+else {
+    cert = fs.readFileSync('.bsx');
+    certString = cert.toString();
+    ORIGIN_BASEPATH = "https://ddworks.org";
+    AVATAR_PATH = 'https://ddwork.org:3100/avatars/';
+    let ssl_options = {
+        key:fs.readFileSync('./ssl/privkey.pem'),
+        cert:fs.readFileSync('./ssl/allchange.pem')
+    };
+}
+
+
+
+
+
 const querystring = require('querystring');
 
 var express = require('express');
 var app = express();
 gm = require('gm').subClass({imageMagick: true});
+
+if (LOCAL) {
+    server = http.createServer(app);
+} else {
+    server = https.createServer(ssl_options,app);
+}
 
 // Chatroom Logins
 var chatroom = [];
@@ -34,7 +66,7 @@ var chatroom = [];
 
 app.use(function(req, res, next) { //allow cross origin requests
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
-    res.header("Access-Control-Allow-Origin", "http://localhost:4200");
+    res.header("Access-Control-Allow-Origin", ORIGIN_BASEPATH);
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Credentials", true);
     next();
@@ -242,6 +274,18 @@ var getWhosIn = function(req,res,next) {
     res.end( JSON.stringify(whosInObject) );
 };
 
+var getUserByEmail = function( req, res, next ) {
+    if (req.query.email && req.query.email != "") {
+        dbQuery = {'email':req.query.email };
+        db.collection('users').find(dbQuery).toArray(function(err,docs) {
+            if(err) { handleError(res,err.message, "Failed to get user by email"); }
+            else {
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end( JSON.stringify(docs) );
+            }
+        });
+    }
+}
 var getResources = function(resource,req,res,next) {
 
     console.log("Getting resource " + resource);
@@ -378,7 +422,7 @@ var putResource = function(resource, req,res,next) {
 
     console.log("Putting resource: "+ resource);
     console.log("Putting object: "+ JSON.stringify( resourceObject ) );
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
@@ -405,7 +449,7 @@ var putResource = function(resource, req,res,next) {
   
 };
 var returnSuccess = function( req,res,next) {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:4200');
+    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
@@ -415,6 +459,10 @@ var returnSuccess = function( req,res,next) {
 
 
 
+app.get('/api/finduser*', function(req,res,next) {
+  console.log('finding user by email.');
+  getUserByEmail(req,res,next);
+});
 
 app.get('/api/classes', function(req,res,next) { getResources('classes',req,res,next);});
 app.get('/api/courses', function(req,res,next) { getResources('courses',req,res,next);});
@@ -440,6 +488,9 @@ app.get('/api/courseimages*', function(req,res,next) {
 app.get('/api/classregistrations*', function(req,res,next) { 
            // console.log("About to call get classregistrations.");
             getResources('courseimages',req,res,next);});
+
+app.options('/api/finduser', function(req, res, next){
+    returnSuccess( req, res, next ); });
 
 app.options('/api/users', function(req, res, next){
     returnSuccess( req, res, next ); });
@@ -471,26 +522,26 @@ app.options('/api/chats/whosin*', function(req, res, next){
         returnSuccess( req, res, next ); });
 
 app.options('/api/usersettings', function(req, res, next){
-    res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+    res.header('Access-Control-Allow-Origin',  ORIGIN_BASEPATH );
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
     res.sendStatus(200);
   });
 app.options('/api/assets', function(req, res, next){
-    res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+    res.header('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
     res.sendStatus(200);
   });
 app.options('/api/avatar', function(req, res, next){
-    res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+    res.header('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
     res.sendStatus(200);
   });
 
 app.options("/*", function(req, res, next){
-    res.header('Access-Control-Allow-Origin', 'http://localhost:4200');
+    res.header('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
     res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
     res.sendStatus(200);
@@ -657,7 +708,8 @@ app.use(express.static('public'));
 
 
 var port = 3100;
-app.listen(port);
+//app.listen(port);
+server.listen(port,() => console.log('PORT :: ' + port));
 
 
 
