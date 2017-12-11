@@ -27,14 +27,16 @@ let ORIGIN_BASEPATH = "";
 let AVATAR_PATH = "";
 
 let LOCAL = true;
+cert = fs.readFileSync('.bsx');
+certString = cert.toString();
 
 if (LOCAL) { 
     ORIGIN_BASEPATH = "http://localhost:4200";
     AVATAR_PATH = 'http://localhost:3100/avatars/';
 }
 else {
-    cert = fs.readFileSync('.bsx');
-    certString = cert.toString();
+    
+    
     ORIGIN_BASEPATH = "https://ddworks.org";
     AVATAR_PATH = 'https://ddwork.org:3100/avatars/';
     let ssl_options = {
@@ -199,15 +201,59 @@ var uploadMaterialFile = multer({ //multer settings
     storage: storeMaterialFile
 }).single('file');
 
+var getInstructorClasses = function (req,res,next) {
+    console.log("Getting Classes for a specific instructor");
+    dbQuery = {};
+    if (req.query.id && req.query.id != 0)
+    {
+        dbQuery = {'instructors.user_id': req.query.id };
+       
+    }
+
+    res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", 
+        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+        db.collection('classes').find(dbQuery).toArray(function(err,docs) {
+            if(err) { handleError(res,err.message, "Failed to get" + resource); }
+            else{
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end( JSON.stringify(docs ) );
+                // console.log( JSON.stringify(docs));
+            }
+        });
+};
 
 
+var getStudentClasses = function (req,res,next) {
+    console.log("Getting Classes for a specific student");
+    dbQuery = {};
+    if (req.query.id && req.query.id != 0)
+    {
+        dbQuery = {'students.user_id': req.query.id };
+       
+    }
 
+    res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", 
+        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+        db.collection('classes').find(dbQuery).toArray(function(err,docs) {
+            if(err) { handleError(res,err.message, "Failed to get" + resource); }
+            else{
+                res.writeHead(200, {"Content-Type": "application/json"});
+                res.end( JSON.stringify(docs ) );
+                // console.log( JSON.stringify(docs));
+            }
+        });
+};
 
 var getStudents = function (req,res,next) {
     console.log("Getting Students Only");
     dbQuery = {};
         if (req.query.id && req.query.id != 0)
         {
+            // ruh roh - what is this enrollments business?  Is this outdated?
             dbQuery = {'enrollments.class_id': req.query.id, 'enrollments.roles':'student' };
             // console.log("dbQuery == " + JSON.stringify(dbQuery) );
         }
@@ -285,6 +331,20 @@ var getUserByEmail = function( req, res, next ) {
             }
         });
     }
+}
+
+var getCourseImages = function(req,res,next) {
+    console.log("Getting courseimage");
+
+    /* Here is an instance where I am creating a unique method for this particular resource.
+       -- it's because it's for course images -- which we need in other components -- 
+       so we're accessing the image URL as a standalone request.  (but it's not it's own collection).
+       
+       Wondering right now why this is necessary - because all of the course data should have alread
+       been loaded in when the course object was loaded in.
+       */
+
+    
 }
 var getResources = function(resource,req,res,next) {
 
@@ -464,7 +524,10 @@ app.get('/api/finduser*', function(req,res,next) {
   getUserByEmail(req,res,next);
 });
 
+
 app.get('/api/classes', function(req,res,next) { getResources('classes',req,res,next);});
+app.get('/api/studentClasses', function(req,res,next) { getStudentClasses( req, res, next); });
+app.get('/api/instructorClasses', function(req,res,next) { getInstructorClasses( req, res, next); });
 app.get('/api/courses', function(req,res,next) { getResources('courses',req,res,next);});
 app.get('/api/usersettings', function(req,res,next) { getResources('usersettings',req,res,next);});
 app.get('/api/users', function(req,res,next) { getResources('users',req,res,next);});
@@ -482,12 +545,24 @@ app.get('/api/avatars*', function(req,res,next) {
     getResources('avatars',req,res,next);});
 
 app.get('/api/courseimages*', function(req,res,next) { 
-        // console.log("About to call get resources.");
-        getResources('courseimages',req,res,next);});
+        console.log("About to call get resources -- for courseimages.");
+        getCourseImages(req,res,next);});
 
 app.get('/api/classregistrations*', function(req,res,next) { 
            // console.log("About to call get classregistrations.");
-            getResources('courseimages',req,res,next);});
+            getResources('classregistrations',req,res,next);});
+
+
+app.options('/api/courseimages', function(req, res, next){
+    returnSuccess( req, res, next ); });
+
+app.options('/api/studentClasses', function(req, res, next){
+    console.log('Got options for studentClasses');
+    returnSuccess( req, res, next ); });
+
+app.options('/api/instructorClasses', function(req, res, next){
+        console.log('Got options for instructorClasses');
+        returnSuccess( req, res, next ); });
 
 app.options('/api/finduser', function(req, res, next){
     returnSuccess( req, res, next ); });
@@ -549,7 +624,7 @@ app.options("/*", function(req, res, next){
 
 app.put('/api/classes', jsonParser, function(req,res,next) { putResource('classes', req, res, next);});
 app.put('/api/courses', jsonParser, function(req,res,next) { putResource('courses', req, res, next);});
-app.put('/api/usersettings', jsonParser, function(req,res,next) { putResource('usersettings', req, res, next);});
+app.put('/api/usersettings', jsonParser, function(req,res,next) { putResource('users', req, res, next);});
 app.put('/api/materials', jsonParser, function(req,res,next) { putResource('materials', req, res, next);});
 app.put('/api/threads', jsonParser, function(req,res,next) { putResource('threads', req, res, next);});
 
