@@ -37,7 +37,7 @@ if (LOCAL) {
 else {
     
     
-    ORIGIN_BASEPATH = "https://ddworks.org";
+    ORIGIN_BASEPATH = "https://ddworks.org/dist/";
     AVATAR_PATH = 'https://ddwork.org:3100/avatars/';
     let ssl_options = {
         key:fs.readFileSync('./ssl/privkey.pem'),
@@ -162,6 +162,26 @@ var storeMaterialImage= multer.diskStorage({ //multers disk storage settings
     }
 });
 
+var storeBookImage= multer.diskStorage({ //multers disk storage settings
+    destination: function (req, file, cb) {
+        let id = req.query.id;
+
+        var destinationDir = './public/bookimages/' + id;
+        if (!fs.existsSync(destinationDir)) {
+            fs.mkdirSync(destinationDir);
+        }
+        // put the courseimage in a subfolder of the Course ID #
+        cb(null, destinationDir);
+    },
+    filename: function (req, file, cb) {
+        // var datetimestamp = Date.now();
+       // var newfilename = datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
+       cb(null, file.originalname);   
+       
+    }
+});
+
+
 var storeMaterialFile = multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
         let id = req.query.id;
@@ -195,6 +215,10 @@ var uploadCourseImage = multer({ //multer settings
 
 var uploadMaterialImage = multer({ //multer settings
     storage: storeMaterialImage
+}).single('file');
+
+var uploadBookImage = multer({ //multer settings
+    storage: storeBookImage
 }).single('file');
 
 var uploadMaterialFile = multer({ //multer settings
@@ -382,6 +406,7 @@ var getResources = function(resource,req,res,next) {
 var deleteResource = function(resource,req,res,next) {
 
     let resourceId = req.query.id;
+    console.log('Removing ' + resource + ', with id of of: ' + resourceId);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
@@ -393,8 +418,8 @@ var deleteResource = function(resource,req,res,next) {
             res.end();
         }
         else{
-        
-            res.writeHead(200, {"Content-Type": "application/json"});
+            console.log('Successfully removed ' + resource + ' id: ' + resourceId );
+            res.writeHead(200, { 'Content-Type': 'plain/text' });
             res.end();
            
         } 
@@ -525,6 +550,7 @@ app.get('/api/finduser*', function(req,res,next) {
 });
 
 
+app.get('/api/books', function(req,res,next) { getResources('books',req,res,next);});
 app.get('/api/classes', function(req,res,next) { getResources('classes',req,res,next);});
 app.get('/api/studentClasses', function(req,res,next) { getStudentClasses( req, res, next); });
 app.get('/api/instructorClasses', function(req,res,next) { getInstructorClasses( req, res, next); });
@@ -553,6 +579,12 @@ app.get('/api/classregistrations*', function(req,res,next) {
             getResources('classregistrations',req,res,next);});
 
 
+app.options('/api/books', function(req, res, next){
+                returnSuccess( req, res, next ); });
+app.options('/api/bookimages', function(req, res, next){
+    returnSuccess( req, res, next );
+});
+                
 app.options('/api/courseimages', function(req, res, next){
     returnSuccess( req, res, next ); });
 
@@ -570,8 +602,13 @@ app.options('/api/finduser', function(req, res, next){
 app.options('/api/users', function(req, res, next){
     returnSuccess( req, res, next ); });
 
+app.options('/api/courses', function(req, res, next){
+    console.log('About to put course info...');
+        returnSuccess( req, res, next ); });
+
 app.options('/api/classes', function(req, res, next){
         returnSuccess( req, res, next ); });
+
 
 app.options('/api/materials', function(req, res, next){
     returnSuccess( req, res, next ); });
@@ -622,6 +659,7 @@ app.options("/*", function(req, res, next){
     res.sendStatus(200);
   });
 
+app.put('/api/books', jsonParser, function(req,res,next) { putResource('books', req, res, next);});  
 app.put('/api/classes', jsonParser, function(req,res,next) { putResource('classes', req, res, next);});
 app.put('/api/courses', jsonParser, function(req,res,next) { putResource('courses', req, res, next);});
 app.put('/api/usersettings', jsonParser, function(req,res,next) { putResource('users', req, res, next);});
@@ -742,6 +780,22 @@ app.post('/api/courseimages', jsonParser, function(req,res,next) {
     });
 });
 
+app.post('/api/bookimages', jsonParser, function(req,res,next) {
+    uploadBookImage(req,res,function(err){
+        console.log("The uploaded file: " + JSON.stringify(req.file ) );
+   
+        var dest = req.file.destination;
+
+        if(err){
+            console.log('not able to post image.');
+             res.json({error_code:1,err_desc:err});
+             return;
+        }
+         res.json({error_code:0,err_desc:null});
+    });
+});
+
+
 app.post('/api/materialimages', jsonParser, function(req,res,next) {
     uploadMaterialImage(req,res,function(err){
        // console.log("The uploaded file: " + JSON.stringify(req.file ) );
@@ -770,7 +824,7 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
     });
 });
 
-
+app.delete('/api/books', jsonParser, function(req,res,next) { deleteResource('books', req,res,next);});
 app.delete('/api/classes', jsonParser, function(req,res,next) { deleteResource('classes', req,res,next);});
 app.delete('/api/courses', jsonParser, function(req,res,next) { deleteResource('courses', req,res,next);});
 app.delete('/api/users', jsonParser, function(req,res,next) { deleteResource('users', req,res,next);});
