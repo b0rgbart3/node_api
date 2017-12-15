@@ -38,7 +38,7 @@ else {
     
     
     ORIGIN_BASEPATH = "https://ddworks.org/dist/";
-    AVATAR_PATH = 'https://ddwork.org:3100/avatars/';
+    AVATAR_PATH = 'https://ddwork.org:8000/avatars/';
     let ssl_options = {
         key:fs.readFileSync('./ssl/privkey.pem'),
         cert:fs.readFileSync('./ssl/allchange.pem')
@@ -181,6 +181,43 @@ var storeBookImage= multer.diskStorage({ //multers disk storage settings
     }
 });
 
+var storeDocImage= multer.diskStorage({ //multers disk storage settings
+    destination: function (req, file, cb) {
+        let id = req.query.id;
+
+        var destinationDir = './public/docimages/' + id;
+        if (!fs.existsSync(destinationDir)) {
+            fs.mkdirSync(destinationDir);
+        }
+        // put the courseimage in a subfolder of the Course ID #
+        cb(null, destinationDir);
+    },
+    filename: function (req, file, cb) {
+        // var datetimestamp = Date.now();
+       // var newfilename = datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
+       cb(null, file.originalname);   
+       
+    }
+});
+
+var storeDocFile = multer.diskStorage({ //multers disk storage settings
+    destination: function (req, file, cb) {
+        let id = req.query.id;
+
+        var destinationDir = './public/docfiles/' + id;
+        if (!fs.existsSync(destinationDir)) {
+            fs.mkdirSync(destinationDir);
+        }
+        // put the courseimage in a subfolder of the Course ID #
+        cb(null, destinationDir);
+    },
+    filename: function (req, file, cb) {
+        // var datetimestamp = Date.now();
+       // var newfilename = datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
+       cb(null, file.originalname);   
+       
+    }
+});
 
 var storeMaterialFile = multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
@@ -221,8 +258,16 @@ var uploadBookImage = multer({ //multer settings
     storage: storeBookImage
 }).single('file');
 
+var uploadDocImage = multer({ //multer settings
+    storage: storeDocImage
+}).single('file');
+
 var uploadMaterialFile = multer({ //multer settings
     storage: storeMaterialFile
+}).single('file');
+
+var uploadDocFile = multer({ //multer settings
+    storage: storeDocFile
 }).single('file');
 
 var getInstructorClasses = function (req,res,next) {
@@ -357,19 +402,19 @@ var getUserByEmail = function( req, res, next ) {
     }
 }
 
-var getCourseImages = function(req,res,next) {
-    console.log("Getting courseimage");
+// var getCourseImages = function(req,res,next) {
+//     console.log("Getting courseimage");
 
-    /* Here is an instance where I am creating a unique method for this particular resource.
-       -- it's because it's for course images -- which we need in other components -- 
-       so we're accessing the image URL as a standalone request.  (but it's not it's own collection).
+//     /* Here is an instance where I am creating a unique method for this particular resource.
+//        -- it's because it's for course images -- which we need in other components -- 
+//        so we're accessing the image URL as a standalone request.  (but it's not it's own collection).
        
-       Wondering right now why this is necessary - because all of the course data should have alread
-       been loaded in when the course object was loaded in.
-       */
+//        Wondering right now why this is necessary - because all of the course data should have alread
+//        been loaded in when the course object was loaded in.
+//        */
 
     
-}
+// }
 var getResources = function(resource,req,res,next) {
 
     console.log("Getting resource " + resource);
@@ -551,6 +596,7 @@ app.get('/api/finduser*', function(req,res,next) {
 
 
 app.get('/api/books', function(req,res,next) { getResources('books',req,res,next);});
+app.get('/api/docs', function(req,res,next) { getResources('docs',req,res,next);});
 app.get('/api/classes', function(req,res,next) { getResources('classes',req,res,next);});
 app.get('/api/studentClasses', function(req,res,next) { getStudentClasses( req, res, next); });
 app.get('/api/instructorClasses', function(req,res,next) { getInstructorClasses( req, res, next); });
@@ -579,6 +625,11 @@ app.get('/api/classregistrations*', function(req,res,next) {
             getResources('classregistrations',req,res,next);});
 
 
+app.options('/api/docs', function(req, res, next){
+    returnSuccess( req, res, next ); });
+app.options('/api/docimages', function(req, res, next){
+returnSuccess( req, res, next );
+});
 app.options('/api/books', function(req, res, next){
                 returnSuccess( req, res, next ); });
 app.options('/api/bookimages', function(req, res, next){
@@ -617,6 +668,9 @@ app.options('/api/materialimages', function(req, res, next){
     returnSuccess( req, res, next );
 });
 app.options('/api/materialfiles', function(req, res, next){
+    returnSuccess( req, res, next );
+});
+app.options('/api/docfiles', function(req, res, next){
     returnSuccess( req, res, next );
 });
 app.options('/api/classregistrations', function(req, res, next){
@@ -659,7 +713,8 @@ app.options("/*", function(req, res, next){
     res.sendStatus(200);
   });
 
-app.put('/api/books', jsonParser, function(req,res,next) { putResource('books', req, res, next);});  
+app.put('/api/books', jsonParser, function(req,res,next) { putResource('books', req, res, next);}); 
+app.put('/api/docs', jsonParser, function(req,res,next) { putResource('docs', req, res, next);});  
 app.put('/api/classes', jsonParser, function(req,res,next) { putResource('classes', req, res, next);});
 app.put('/api/courses', jsonParser, function(req,res,next) { putResource('courses', req, res, next);});
 app.put('/api/usersettings', jsonParser, function(req,res,next) { putResource('users', req, res, next);});
@@ -768,7 +823,7 @@ var cropAvatar = function (avatar_URL) {
 
 app.post('/api/courseimages', jsonParser, function(req,res,next) {
     uploadCourseImage(req,res,function(err){
-      //  console.log("The uploaded file: " + JSON.stringify(req.file ) );
+       console.log("The uploaded file: " + JSON.stringify(req.file ) );
    
         var dest = req.file.destination;
 
@@ -782,6 +837,21 @@ app.post('/api/courseimages', jsonParser, function(req,res,next) {
 
 app.post('/api/bookimages', jsonParser, function(req,res,next) {
     uploadBookImage(req,res,function(err){
+        console.log("The uploaded file: " + JSON.stringify(req.file ) );
+   
+        var dest = req.file.destination;
+
+        if(err){
+            console.log('not able to post image.');
+             res.json({error_code:1,err_desc:err});
+             return;
+        }
+         res.json({error_code:0,err_desc:null});
+    });
+});
+
+app.post('/api/docimages', jsonParser, function(req,res,next) {
+    uploadDocImage(req,res,function(err){
         console.log("The uploaded file: " + JSON.stringify(req.file ) );
    
         var dest = req.file.destination;
@@ -824,7 +894,23 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
     });
 });
 
+app.post('/api/docfiles', jsonParser, function(req,res,next) {
+    uploadDocFile(req,res,function(err){
+      //  console.log("The uploaded file: " + JSON.stringify(req.file ) );
+   
+        var dest = req.file.destination;
+
+        if(err){
+             res.json({error_code:1,err_desc:err});
+             return;
+        }
+         res.json({error_code:0,err_desc:null});
+    });
+});
+
+
 app.delete('/api/books', jsonParser, function(req,res,next) { deleteResource('books', req,res,next);});
+app.delete('/api/docs', jsonParser, function(req,res,next) { deleteResource('docs', req,res,next);});
 app.delete('/api/classes', jsonParser, function(req,res,next) { deleteResource('classes', req,res,next);});
 app.delete('/api/courses', jsonParser, function(req,res,next) { deleteResource('courses', req,res,next);});
 app.delete('/api/users', jsonParser, function(req,res,next) { deleteResource('users', req,res,next);});
@@ -836,6 +922,7 @@ var path = require('path');
 app.use(express.static('public'));
 
 
+//var port = 8000;
 var port = 3100;
 //app.listen(port);
 server.listen(port,() => console.log('PORT :: ' + port));
