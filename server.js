@@ -882,8 +882,7 @@ app.post('/api/materialimages', jsonParser, function(req,res,next) {
 
 app.post('/api/materialfiles', jsonParser, function(req,res,next) {
     uploadMaterialFile(req,res,function(err){
-      //  console.log("The uploaded file: " + JSON.stringify(req.file ) );
-   
+
         var dest = req.file.destination;
 
         if(err){
