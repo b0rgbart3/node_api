@@ -420,11 +420,20 @@ var getResources = function(resource,req,res,next) {
     console.log("Getting resource " + resource);
     dbQuery = {};
 
-    if (req.query.id && req.query.id != 0)
+    // Use the power of queries to get exactly what we want from the Mongo DB Call
+    if (req.query.id && req.query.id !== 0)
     {
         dbQuery = {'id':req.query.id };
-
-    } 
+        if (req.query.type && req.query.type !== '')
+        {
+            dbQuery['type'] = req.query.id;
+        } 
+    } else {
+        if (req.query.type && req.query.type !== '')
+        {
+            dbQuery = {'type':req.query.type };
+        } 
+    }
     
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
