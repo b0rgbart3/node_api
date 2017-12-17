@@ -415,6 +415,53 @@ var getUserByEmail = function( req, res, next ) {
 
     
 // }
+
+
+
+var getAllMaterialsByType = function(req,res,next) {
+
+    console.log("Getting all the materials, organized by type ");
+    dbQuery = {};
+    books = [];
+    docs = [];
+
+    // Use the power of queries to get exactly what we want from the Mongo DB Call
+ 
+    dbQuery1 = { 'type' : 'book' };
+    dbQuery2 = { 'type' : 'PDFdocument' };
+    
+    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+
+
+    db.collection(resource).find(dbQuery1).toArray(function(err,docs) {
+        if(err) { handleError(res,err.message, "Failed to get books" ); }
+        else{
+            books = docs;
+            db.collection(resource).find(dbQuery1).toArray(function(err,docs) {
+                if(err) { handleError(res,err.message, "Failed to get docs" ); }
+                else {
+                    docs = docs;
+
+                    materials = [];
+                    materials['books'] = books;
+                    materials['docs'] = docs;
+                    res.writeHead(200, {"Content-Type": "application/json"});
+                    res.end( JSON.stringify(materials) );
+                }
+            } );
+
+            
+
+             }
+             
+        } );
+    
+}
+
+
 var getResources = function(resource,req,res,next) {
 
     console.log("Getting resource " + resource);
@@ -426,7 +473,7 @@ var getResources = function(resource,req,res,next) {
         dbQuery = {'id':req.query.id };
         if (req.query.type && req.query.type !== '')
         {
-            dbQuery['type'] = req.query.id;
+            dbQuery['type'] = req.query.type;
         } 
     } else {
         if (req.query.type && req.query.type !== '')
@@ -615,6 +662,8 @@ app.get('/api/users', function(req,res,next) { getResources('users',req,res,next
 app.get('/api/assets', function(req,res,next) { getResources('assets',req,res,next);});
 // app.get('/api/material', function(req,res,next) { getResources('materials',req,res,next);});
 app.get('/api/materials', function(req,res,next) { getResources('materials', req,res,next);});
+app.get('/api/allmaterialsbytype', function(req,res,next) { getAllMaterialsByType(req,res,next);});
+
 app.get('/api/classregistrations', function(req,res,next) { getResources('classregistrations',req,res,next);});
 app.get('/api/instructors',  function(req,res,next) { getInstructors(req,res,next);});
 app.get('/api/students',  function(req,res,next) { getStudents(req,res,next);});
@@ -673,6 +722,9 @@ app.options('/api/classes', function(req, res, next){
 app.options('/api/materials', function(req, res, next){
     returnSuccess( req, res, next ); });
 
+app.options('/api/allmaterialsbytype', function(req, res, next){
+    returnSuccess( req, res, next ); });
+        
 app.options('/api/materialimages', function(req, res, next){
     returnSuccess( req, res, next );
 });
