@@ -422,13 +422,13 @@ var getAllMaterialsByType = function(req,res,next) {
 
     console.log("Getting all the materials, organized by type ");
     dbQuery = {};
-    books = [];
-    docs = [];
+    book = [];
+    doc = [];
 
     // Use the power of queries to get exactly what we want from the Mongo DB Call
  
     dbQuery1 = { 'type' : 'book' };
-    dbQuery2 = { 'type' : 'PDFdocument' };
+    dbQuery2 = { 'type' : 'doc' };
     
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
@@ -436,18 +436,18 @@ var getAllMaterialsByType = function(req,res,next) {
     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
 
 
-    db.collection(resource).find(dbQuery1).toArray(function(err,docs) {
+    db.collection(resource).find(dbQuery1).toArray(function(err,doc) {
         if(err) { handleError(res,err.message, "Failed to get books" ); }
         else{
-            books = docs;
+            book = doc;
             db.collection(resource).find(dbQuery1).toArray(function(err,docs) {
                 if(err) { handleError(res,err.message, "Failed to get docs" ); }
                 else {
-                    docs = docs;
+                    doc = doc;
 
                     materials = [];
-                    materials['books'] = books;
-                    materials['docs'] = docs;
+                    materials['book'] = book;
+                    materials['doc'] = doc;
                     res.writeHead(200, {"Content-Type": "application/json"});
                     res.end( JSON.stringify(materials) );
                 }
@@ -482,6 +482,10 @@ var getResources = function(resource,req,res,next) {
         } 
     }
     
+    if (req.query.classID && (req.query.classID != 0) && req.query.sectionNumber) {
+        dbQuery={'classID': req.query.classID, 'sectionNumber': req.query.sectionNumber };
+        console.log('sectionNumber: ' + req.query.sectionNumber);
+    }
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
@@ -651,8 +655,8 @@ app.get('/api/finduser*', function(req,res,next) {
 });
 
 
-app.get('/api/books', function(req,res,next) { getResources('books',req,res,next);});
-app.get('/api/docs', function(req,res,next) { getResources('docs',req,res,next);});
+app.get('/api/book', function(req,res,next) { getResources('book',req,res,next);});
+app.get('/api/doc', function(req,res,next) { getResources('doc',req,res,next);});
 app.get('/api/classes', function(req,res,next) { getResources('classes',req,res,next);});
 app.get('/api/studentClasses', function(req,res,next) { getStudentClasses( req, res, next); });
 app.get('/api/instructorClasses', function(req,res,next) { getInstructorClasses( req, res, next); });
@@ -668,6 +672,7 @@ app.get('/api/classregistrations', function(req,res,next) { getResources('classr
 app.get('/api/instructors',  function(req,res,next) { getInstructors(req,res,next);});
 app.get('/api/students',  function(req,res,next) { getStudents(req,res,next);});
 app.get('/api/threads', function(req,res,next) { getResources('threads',req,res,next);});
+
 app.get('/api/chats/whosin', function(req,res,next) { getWhosIn(req,res,next);});
 
 app.get('/api/avatars*', function(req,res,next) { 
@@ -683,12 +688,12 @@ app.get('/api/classregistrations*', function(req,res,next) {
             getResources('classregistrations',req,res,next);});
 
 
-app.options('/api/docs', function(req, res, next){
+app.options('/api/doc', function(req, res, next){
     returnSuccess( req, res, next ); });
 app.options('/api/docimages', function(req, res, next){
 returnSuccess( req, res, next );
 });
-app.options('/api/books', function(req, res, next){
+app.options('/api/book', function(req, res, next){
                 returnSuccess( req, res, next ); });
 app.options('/api/bookimages', function(req, res, next){
     returnSuccess( req, res, next );
@@ -740,6 +745,7 @@ app.options('/api/classregistrations', function(req, res, next){
 app.options('/api/threads', function(req, res, next){
     returnSuccess( req, res, next ); });
 
+
 app.options('/api/chats/enter', function(req, res, next){
     console.log('chatroom entry was requested.');
         returnSuccess( req, res, next ); });
@@ -774,8 +780,8 @@ app.options("/*", function(req, res, next){
     res.sendStatus(200);
   });
 
-app.put('/api/books', jsonParser, function(req,res,next) { putResource('books', req, res, next);}); 
-app.put('/api/docs', jsonParser, function(req,res,next) { putResource('docs', req, res, next);});  
+app.put('/api/book', jsonParser, function(req,res,next) { putResource('book', req, res, next);}); 
+app.put('/api/doc', jsonParser, function(req,res,next) { putResource('doc', req, res, next);});  
 app.put('/api/classes', jsonParser, function(req,res,next) { putResource('classes', req, res, next);});
 app.put('/api/courses', jsonParser, function(req,res,next) { putResource('courses', req, res, next);});
 app.put('/api/usersettings', jsonParser, function(req,res,next) { putResource('users', req, res, next);});
@@ -969,8 +975,8 @@ app.post('/api/docfiles', jsonParser, function(req,res,next) {
 });
 
 
-app.delete('/api/books', jsonParser, function(req,res,next) { deleteResource('books', req,res,next);});
-app.delete('/api/docs', jsonParser, function(req,res,next) { deleteResource('docs', req,res,next);});
+app.delete('/api/book', jsonParser, function(req,res,next) { deleteResource('book', req,res,next);});
+app.delete('/api/doc', jsonParser, function(req,res,next) { deleteResource('doc', req,res,next);});
 app.delete('/api/classes', jsonParser, function(req,res,next) { deleteResource('classes', req,res,next);});
 app.delete('/api/courses', jsonParser, function(req,res,next) { deleteResource('courses', req,res,next);});
 app.delete('/api/users', jsonParser, function(req,res,next) { deleteResource('users', req,res,next);});
