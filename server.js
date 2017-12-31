@@ -36,9 +36,10 @@ if (LOCAL) {
 }
 else {
     
-    
-    ORIGIN_BASEPATH = "https://ddworks.org/dist/";
-    AVATAR_PATH = 'https://ddwork.org:8000/avatars/';
+    ORIGIN_BASEPATH = "https://young-bastion-45095.herokuapp.com/";
+    AVATAR_PATH = 'https://young-bastion-45095.herokuapp.com/';   
+    // ORIGIN_BASEPATH = "https://ddworks.org/dist/";
+    // AVATAR_PATH = 'https://ddwork.org:8000/avatars/';
     let ssl_options = {
         key:fs.readFileSync('./ssl/privkey.pem'),
         cert:fs.readFileSync('./ssl/allchange.pem')
