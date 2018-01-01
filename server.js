@@ -989,8 +989,8 @@ var path = require('path');
 app.use(express.static('public'));
 
 
-//var port = 8000;
-var port = 3100;
+var port = 8000;
+//var port = 3100;
 //app.listen(port);
 server.listen(port,() => console.log('PORT :: ' + port));
 
