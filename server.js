@@ -36,8 +36,8 @@ if (LOCAL) {
 }
 else {
     
-    ORIGIN_BASEPATH = "https://thawing-reaches-29763.herokuapp.com";
-    AVATAR_PATH = 'https://young-bastion-45095.herokuapp.com';   
+    ORIGIN_BASEPATH = "http://thawing-reaches-29763.herokuapp.com";
+    AVATAR_PATH = 'http://young-bastion-45095.herokuapp.com';   
     // ORIGIN_BASEPATH = "https://ddworks.org/dist/";
     // AVATAR_PATH = 'https://ddwork.org:8000/avatars/';
     let ssl_options = {
