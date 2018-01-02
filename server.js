@@ -681,9 +681,9 @@ app.get('/api/avatars*', function(req,res,next) {
     console.log("About to call get avatars.");
     getResources('avatars',req,res,next);});
 
-app.get('/api/courseimages*', function(req,res,next) { 
-        console.log("About to call get resources -- for courseimages.");
-        getCourseImages(req,res,next);});
+// app.get('/courseimages*', function(req,res,next) { 
+//         console.log("About to call get resources -- for courseimages.");
+//         getCourseImages(req,res,next);});
 
 app.get('/api/classregistrations*', function(req,res,next) { 
            // console.log("About to call get classregistrations.");
@@ -701,8 +701,8 @@ app.options('/api/bookimages', function(req, res, next){
     returnSuccess( req, res, next );
 });
                 
-app.options('/api/courseimages', function(req, res, next){
-    returnSuccess( req, res, next ); });
+// app.options('/courseimages', function(req, res, next){
+//     returnSuccess( req, res, next ); });
 
 app.options('/api/studentClasses', function(req, res, next){
     console.log('Got options for studentClasses');
