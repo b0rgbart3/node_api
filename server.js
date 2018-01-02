@@ -990,7 +990,7 @@ var path = require('path');
 var distDir = __dirname + "/public/";
 var frontDir = __dirname + "/dist/";
 app.use(express.static(distDir));
-app.user(express.static(frontDir));
+app.use(express.static(frontDir));
 
 
 
