@@ -987,7 +987,8 @@ app.delete('/api/threads', jsonParser, function(req,res,next) { deleteResource('
 
 var path = require('path');
 
-app.use(express.static('public'));
+var distDir = __dirname + "/public/";
+app.use(express.static(distDir));
 
 
 //var port = 8000;
