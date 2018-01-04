@@ -26,20 +26,23 @@ let ssl_options = {};
 let ORIGIN_BASEPATH = "";
 let AVATAR_PATH = "";
 
-let LOCAL = false;
+let LOCAL = true;
 cert = fs.readFileSync('.bsx');
 certString = cert.toString();
 
+AVATAR_PATH = 'https://recloom.s3.amazonaws.com/avatars';
+
 if (LOCAL) { 
     ORIGIN_BASEPATH = "http://localhost:4200";
-    AVATAR_PATH = 'http://localhost:3100/avatars/';
+    //AVATAR_PATH = 'http://localhost:3100/avatars/';
+    
 }
 else {
     
- //   ORIGIN_BASEPATH = "https://thawing-reaches-29763.herokuapp.com";
+   ORIGIN_BASEPATH = "https://thawing-reaches-29763.herokuapp.com";
  //   AVATAR_PATH = 'https://young-bastion-45095.herokuapp.com';   
-     ORIGIN_BASEPATH = "https://ddworks.org/dist/";
-     AVATAR_PATH = 'https://ddwork.org:8000/avatars/';
+  //   ORIGIN_BASEPATH = "https://ddworks.org/dist/";
+     // AVATAR_PATH = 'https://ddwork.org:8000/avatars/';
     let ssl_options = {
         key:fs.readFileSync('./ssl/privkey.pem'),
         cert:fs.readFileSync('./ssl/allchange.pem')
@@ -1001,7 +1004,7 @@ app.use(express.static(frontDir));
 //server.listen(port,() => console.log('PORT :: ' + port));
 
 //server.listen(process.env.PORT);
-server.listen();
+server.listen(8000);
 
 // var nodemailer = require('nodemailer');
 
