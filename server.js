@@ -50,7 +50,7 @@ else {
 }
 
 
-
+UPLOAD_PATH = 'https://recloom.s3.amazonaws.com/';
 
 
 const querystring = require('querystring');
@@ -97,7 +97,7 @@ var storage = multer.diskStorage({ //multers disk storage settings
         // console.log("Got a Query UserID: " + userId);
         // console.log("Request URL" + req.url );
 
-        var destinationDir = './public/uploads/' + userId;
+        var destinationDir = UPLOAD_PATH + 'uploads/' + userId;
         if (!fs.existsSync(destinationDir)) {
             fs.mkdirSync(destinationDir);
         }
@@ -114,7 +114,7 @@ var storeAvatar = multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
         let userId = req.query.userid;
 
-        var destinationDir = './public/avatars/' + userId;
+        var destinationDir = UPLOAD_PATH + 'avatars/' + userId;
         if (!fs.existsSync(destinationDir)) {
             fs.mkdirSync(destinationDir);
         }
@@ -133,7 +133,7 @@ var storeCourseImage= multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
         let id = req.query.id;
 
-        var destinationDir = './public/courseimages/' + id;
+        var destinationDir = UPLOAD_PATH + 'courseimages/' + id;
         if (!fs.existsSync(destinationDir)) {
             fs.mkdirSync(destinationDir);
         }
@@ -152,7 +152,7 @@ var storeMaterialImage= multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
         let id = req.query.id;
 
-        var destinationDir = './public/materialimages/' + id;
+        var destinationDir = UPLOAD_PATH + 'materialimages/' + id;
         if (!fs.existsSync(destinationDir)) {
             fs.mkdirSync(destinationDir);
         }
@@ -171,7 +171,7 @@ var storeBookImage= multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
         let id = req.query.id;
 
-        var destinationDir = './public/bookimages/' + id;
+        var destinationDir = UPLOAD_PATH + 'bookimages/' + id;
         if (!fs.existsSync(destinationDir)) {
             fs.mkdirSync(destinationDir);
         }
@@ -190,7 +190,7 @@ var storeDocImage= multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
         let id = req.query.id;
 
-        var destinationDir = './public/docimages/' + id;
+        var destinationDir = UPLOAD_PATH + 'docimages/' + id;
         if (!fs.existsSync(destinationDir)) {
             fs.mkdirSync(destinationDir);
         }
@@ -209,7 +209,7 @@ var storeDocFile = multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
         let id = req.query.id;
 
-        var destinationDir = './public/docfiles/' + id;
+        var destinationDir = UPLOAD_PATH + 'docfiles/' + id;
         if (!fs.existsSync(destinationDir)) {
             fs.mkdirSync(destinationDir);
         }
@@ -228,7 +228,7 @@ var storeMaterialFile = multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
         let id = req.query.id;
 
-        var destinationDir = './public/materialfiles/' + id;
+        var destinationDir = UPLOAD_PATH + 'materialfiles/' + id;
         if (!fs.existsSync(destinationDir)) {
             fs.mkdirSync(destinationDir);
         }
@@ -999,12 +999,12 @@ app.use(express.static(frontDir));
 
 
 //var port = 8000;
-//var port = 3100;
+var port = 3100;
 //app.listen(port);
 //server.listen(port,() => console.log('PORT :: ' + port));
 
 //server.listen(process.env.PORT);
-server.listen(8000);
+server.listen(port);
 
 // var nodemailer = require('nodemailer');
 
