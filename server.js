@@ -1158,13 +1158,17 @@ app.use(express.static(frontDir));
 
 
 
-var port = 8000;
-//var port = 3100;
+// var port = 8000;
+
+// LOCAL PORT
+// var port = 3100;
+// server.listen(port);
 //app.listen(port);
 //server.listen(port,() => console.log('PORT :: ' + port));
 
-//server.listen(process.env.PORT);
-server.listen(port);
+// LIVE PORT
+server.listen(process.env.PORT);
+
 
 // var nodemailer = require('nodemailer');
 
