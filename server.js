@@ -26,7 +26,7 @@ let ssl_options = {};
 let ORIGIN_BASEPATH = "";
 let AVATAR_PATH = "";
 
-let LOCAL = true;
+let LOCAL = false;
 cert = fs.readFileSync('.bsx');
 certString = cert.toString();
 
