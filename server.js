@@ -1158,8 +1158,8 @@ app.use(express.static(frontDir));
 
 
 
-//var port = 8000;
-var port = 3100;
+var port = 8000;
+//var port = 3100;
 //app.listen(port);
 //server.listen(port,() => console.log('PORT :: ' + port));
 
