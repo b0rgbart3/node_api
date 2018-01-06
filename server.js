@@ -88,14 +88,15 @@ var chatroom = [];
 
 app.use(function(req, res, next) { //allow cross origin requests
 
-    var whitelist = ['localhost:4200', 'https://thawing-reaches-29763.herokuapp.com']
-    var host = req.get('host');
+    res.setHeader('Access-Control-Allow-Origin', 'https://thawing-reaches-29763.herokuapp.com');
+    // var whitelist = ['localhost:4200', 'https://thawing-reaches-29763.herokuapp.com']
+    // var host = req.get('host');
 
-    whitelist.forEach(function(val, key){
-        if (host.indexOf(val) > -1){
-          res.setHeader('Access-Control-Allow-Origin', host);
-        }
-      })
+    // whitelist.forEach(function(val, key){
+    //     if (host.indexOf(val) > -1){
+    //       res.setHeader('Access-Control-Allow-Origin', host);
+    //     }
+    //   })
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
 
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
