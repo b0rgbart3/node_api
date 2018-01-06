@@ -88,7 +88,7 @@ var chatroom = [];
 
 app.use(function(req, res, next) { //allow cross origin requests
 
-    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
+    res.setHeader('Access-Control-Allow-Origin', 'https://thawing-reaches-29763.herokuapp.com');
     // var whitelist = ['localhost:4200', 'https://thawing-reaches-29763.herokuapp.com']
     // var host = req.get('host');
 
