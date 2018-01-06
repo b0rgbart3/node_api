@@ -707,6 +707,7 @@ app.options('/api/materialimages', function(req, res, next){
     returnSuccess( req, res, next );
 });
 app.options('/api/materialfiles', function(req, res, next){
+    console.log('Got preflight for materialfiles');
     returnSuccess( req, res, next );
 });
 app.options('/api/docfiles', function(req, res, next){
@@ -898,7 +899,7 @@ var storeMaterialImage = multerS3( {
     metadata: function (req, file, cb) {
         cb(null, {fieldName: file.fieldname});
       },
-      acl: 'public-read-write',
+    acl: 'public-read-write',
     key: function (req, file, cb) {
         // cb(null, Date.now().toString())
         cb(null, 'materialimages/' + req.query.id + '/' + file.originalname); 
@@ -935,7 +936,7 @@ var storeMaterialFile = multerS3( {
     metadata: function (req, file, cb) {
         cb(null, {fieldName: file.fieldname});
       },
-      acl: 'public-read-write',
+    acl: 'public-read-write',
     key: function (req, file, cb) {
         // cb(null, Date.now().toString())
         cb(null, 'materialfiles/' + req.query.id + '/' + file.originalname); 
