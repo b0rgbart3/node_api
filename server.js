@@ -172,24 +172,7 @@ var storeCourseImage= multer.diskStorage({ //multers disk storage settings
     }
 });
 
-// var storeMaterialImage= multer.diskStorage({ //multers disk storage settings
-//     destination: function (req, file, cb) {
-//         let id = req.query.id;
 
-//         var destinationDir = UPLOAD_PATH + 'materialimages/' + id;
-//         if (!fs.existsSync(destinationDir)) {
-//             fs.mkdirSync(destinationDir);
-//         }
-//         // put the courseimage in a subfolder of the Course ID #
-//         cb(null, destinationDir);
-//     },
-//     filename: function (req, file, cb) {
-//         // var datetimestamp = Date.now();
-//        // var newfilename = datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
-//        cb(null, file.originalname);   
-       
-//     }
-// });
 
 var storeBookImage= multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
@@ -231,24 +214,6 @@ var storeDocFile = multer.diskStorage({ //multers disk storage settings
     }
 });
 
-var storeMaterialFile = multer.diskStorage({ //multers disk storage settings
-    destination: function (req, file, cb) {
-        let id = req.query.id;
-
-        var destinationDir = UPLOAD_PATH + 'materialfiles/' + id;
-        if (!fs.existsSync(destinationDir)) {
-            fs.mkdirSync(destinationDir);
-        }
-        // put the courseimage in a subfolder of the Course ID #
-        cb(null, destinationDir);
-    },
-    filename: function (req, file, cb) {
-        // var datetimestamp = Date.now();
-       // var newfilename = datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
-       cb(null, file.originalname);   
-       
-    }
-});
 
 var upload = multer({ //multer settings
     storage: storage
@@ -268,17 +233,15 @@ var uploadBookImage = multer({ //multer settings
     storage: storeBookImage
 }).single('file');
 
-var uploadDocImage = multer({ //multer settings
-    storage: storeDocImage
-}).single('file');
+// var uploadDocImage = multer({ //multer settings
+//     storage: storeDocImage
+// }).single('file');
 
-var uploadMaterialFile = multer({ //multer settings
-    storage: storeMaterialFile
-}).single('file');
 
-var uploadDocFile = multer({ //multer settings
-    storage: storeDocFile
-}).single('file');
+
+// var uploadDocFile = multer({ //multer settings
+//     storage: storeDocFile
+// }).single('file');
 
 var getInstructorClasses = function (req,res,next) {
     console.log("Getting Classes for a specific instructor");
@@ -966,160 +929,22 @@ app.post('/api/materialimages', jsonParser, function(req,res,next) {
 });
 
 
-// var storeMaterialImage= multer.diskStorage({ //multers disk storage settings
-//     destination: function (req, file, cb) {
-//         let id = req.query.id;
-
-//         var destinationDir = UPLOAD_PATH + 'docimages/' + id;
-//         if (!fs.existsSync(destinationDir)) {
-//             fs.mkdirSync(destinationDir);
-//         }
-//         // put the courseimage in a subfolder of the Course ID #
-//         cb(null, destinationDir);
-//     },
-//     filename: function (req, file, cb) {
-//         // var datetimestamp = Date.now();
-//        // var newfilename = datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
-//        cb(null, file.originalname);   
-       
-//     }
-// });
-var storeDocImage= multer.diskStorage({ //multers disk storage settings
-    destination: function (req, file, cb) {
-        let id = req.query.id;
-
-        var destinationDir = UPLOAD_PATH + 'docimages/' + id;
-        if (!fs.existsSync(destinationDir)) {
-            fs.mkdirSync(destinationDir);
-        }
-        // put the courseimage in a subfolder of the Course ID #
-        cb(null, destinationDir);
-    },
-    filename: function (req, file, cb) {
-        // var datetimestamp = Date.now();
-       // var newfilename = datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
-       cb(null, file.originalname);   
-       
+var storeMaterialFile = multerS3( {
+    s3: s3,
+    bucket: 'recloom',
+    metadata: function (req, file, cb) {
+        cb(null, {fieldName: file.fieldname});
+      },
+      acl: 'public-read-write',
+    key: function (req, file, cb) {
+        // cb(null, Date.now().toString())
+        cb(null, 'materialfiles/' + req.query.id + '/' + file.originalname); 
     }
 });
 
-// app.post('/api/docimages', jsonParser, function(req,res,next) {
-//     uploadDocImage(req,res,function(err){
-//         console.log("The uploaded file: " + JSON.stringify(req.file ) );
-   
-//         var dest = req.file.destination;
-
-//         if(err){
-//             console.log('not able to post image.');
-//              res.json({error_code:1,err_desc:err});
-//              return;
-//         }
-//          res.json({error_code:0,err_desc:null});
-//     });
-// });
-
-// This is my attempt to use the Multer S3 package
-// 
-// var uploadMaterialImage = multer({
-//     storage: multerS3({
-//       s3: s3,
-//       bucket: 'recloom',
-//       metadata: function (req, file, cb) {
-//         cb(null, {fieldName: file.fieldname});
-//       },
-//       key: function (req, file, cb) {
-//         cb(null, Date.now().toString())
-//       }
-//     })
-//   });
-
-// 2nd half o the Multer S3 Package attempt:
-
-// app.post('/api/materialimages', uploadMaterialImage.single('photo'), function(req,res,next) {
-    
-//         res.send('Successfully uploaded ' + JSON.stringify(req.file) + ' files!')
-    
-// });
-
-
-// var client = new Upload('recloom', {
-//     aws: {
-//       path: 'images/',
-//       region: 'us-east-1',
-//       acl: 'public-read'
-//     },
-  
-//     cleanup: {
-//       versions: true,
-//       original: false
-//     },
-  
-//     original: {
-//       awsImageAcl: 'public'
-//     },
-  
-//     versions: [{
-//       maxHeight: 1040,
-//       maxWidth: 1040,
-//       format: 'jpg',
-//       suffix: '-large',
-//       quality: 80,
-//       awsImageExpires: 31536000,
-//       awsImageMaxAge: 31536000
-//     },{
-//       maxWidth: 780,
-//       aspect: '3:2!h',
-//       suffix: '-medium'
-//     },{
-//       maxWidth: 320,
-//       aspect: '16:9!h',
-//       suffix: '-small'
-//     },{
-//       maxHeight: 100,
-//       aspect: '1:1',
-//       format: 'png',
-//       suffix: '-thumb1'
-//     },{
-//       maxHeight: 250,
-//       maxWidth: 250,
-//       aspect: '1:1',
-//       suffix: '-thumb2'
-//     }]
-//   });
-
-//   app.post('/api/materialimages', jsonParser, function(req,res,next) {
-//     client.upload(req.file, {}, function(err, versions, meta) {
-//         if (err) { throw err; }
-      
-//         versions.forEach(function(image) {
-//           console.log(image.width, image.height, image.url);
-//           // 1024 760 https://my-bucket.s3.amazonaws.com/path/110ec58a-a0f2-4ac4-8393-c866d813b8d1.jpg
-//         });
-//       });
-//     });
-
-    // app.post('/profile', upload.single('avatar'), function (req, res, next) {
-    //     // req.file is the `avatar` file
-    //     // req.body will hold the text fields, if there were any
-    //   })
-
-// var uploadMaterialImage = multer({ 
-//     storage: storeMaterialImage
-// }).single('file');
-
-// app.post('/api/materialimages', jsonParser, function(req,res,next) {
-//     uploadMaterialImage(req,res,function(err){
-//        // console.log("The uploaded file: " + JSON.stringify(req.file ) );
-   
-//         var dest = req.file.destination;
-
-//         if(err){
-//              res.json({error_code:1,err_desc:err});
-//              return;
-//         }
-//          res.json({error_code:0,err_desc:null});
-//     });
-// });
+var uploadMaterialFile = multer({ //multer settings
+    storage: storeMaterialFile
+}).single('file');
 
 app.post('/api/materialfiles', jsonParser, function(req,res,next) {
     uploadMaterialFile(req,res,function(err){
@@ -1134,19 +959,6 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
     });
 });
 
-app.post('/api/docfiles', jsonParser, function(req,res,next) {
-    uploadDocFile(req,res,function(err){
-      //  console.log("The uploaded file: " + JSON.stringify(req.file ) );
-   
-        var dest = req.file.destination;
-
-        if(err){
-             res.json({error_code:1,err_desc:err});
-             return;
-        }
-         res.json({error_code:0,err_desc:null});
-    });
-});
 
 
 app.delete('/api/book', jsonParser, function(req,res,next) { deleteResource('book', req,res,next);});
