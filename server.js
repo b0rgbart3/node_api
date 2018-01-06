@@ -26,13 +26,13 @@ let ssl_options = {};
 let ORIGIN_BASEPATH = "";
 let AVATAR_PATH = "";
 
-let LOCAL = false;
+let local = false;
 cert = fs.readFileSync('.bsx');
 certString = cert.toString();
 
 AVATAR_PATH = 'https://recloom.s3.amazonaws.com/avatars';
 
-if (LOCAL) { 
+if (local) { 
     ORIGIN_BASEPATH = "http://localhost:4200";
     //AVATAR_PATH = 'http://localhost:3100/avatars/';
     
@@ -48,7 +48,7 @@ else {
         cert:fs.readFileSync('./ssl/allchange.pem')
     };
 }
-ORIGIN_BASEPATH = "https://thawing-reaches-29763.herokuapp.com";
+// ORIGIN_BASEPATH = "https://thawing-reaches-29763.herokuapp.com";
 
 UPLOAD_PATH = 'https://recloom.s3.amazonaws.com/';
 
@@ -59,7 +59,7 @@ var express = require('express');
 var app = express();
 gm = require('gm').subClass({imageMagick: true});
 
-if (LOCAL) {
+if (local) {
     server = http.createServer(app);
 } else {
 //    server = https.createServer(ssl_options,app);
