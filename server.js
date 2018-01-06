@@ -951,13 +951,14 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
     uploadMaterialFile(req,res,function(err){
 
         var dest = req.file.destination;
-        console.log('got post request.');
-
+        console.log('got post request: ' + dest);
+        
         if(err){
             console.log('suffered error');
              res.json({error_code:1,err_desc:err});
              return;
         }
+        returnSuccess();
        // returnSuccess();
 //         res.json({error_code:0,err_desc:null});
     });
