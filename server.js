@@ -958,7 +958,7 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
              res.json({error_code:1,err_desc:err});
              return;
         }
-        returnSuccess();
+       // returnSuccess();
 //         res.json({error_code:0,err_desc:null});
     });
 });
