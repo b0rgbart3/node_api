@@ -945,6 +945,7 @@ var storeMaterialFile = multerS3( {
     s3: s3,
     bucket: 'recloom',
     contentType: staticValue('application/pdf'),
+    contentDisposition: staticValue('inline'),
     metadata: function (req, file, cb) {
         cb(null, {fieldName: file.fieldname });
       },
