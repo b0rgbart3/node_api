@@ -941,11 +941,13 @@ app.post('/api/materialimages', jsonParser, function(req,res,next) {
 // ContentType: 'application/pdf',
 // ContentDisposition: 'inline'
 
+// note: there is a double quote inside two single quotes after the filefieldname
+
 var storeMaterialFile = multerS3( {
     s3: s3,
     bucket: 'recloom',
     contentType: staticValue('application/pdf'),
-    contentDisposition: staticValue('inline'),
+    contentDisposition: staticValue('inline; filename="'+filefieldname+'"'),
     metadata: function (req, file, cb) {
         cb(null, {fieldName: file.fieldname });
       },
