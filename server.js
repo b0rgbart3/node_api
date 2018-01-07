@@ -90,7 +90,7 @@ function staticValue (value) {
       cb(null, value)
     }
   }
-  
+
 //var MAU = require('./modify-and-upload');
 
 app.use(function(req, res, next) { //allow cross origin requests
@@ -716,7 +716,7 @@ app.options('/api/materialimages', function(req, res, next){
 });
 app.options('/api/materialfiles', function(req, res, next){
     console.log('Got preflight for materialfiles');
-    returnSuccess( req, res, next );
+  //  returnSuccess( req, res, next );
 });
 app.options('/api/docfiles', function(req, res, next){
     returnSuccess( req, res, next );
