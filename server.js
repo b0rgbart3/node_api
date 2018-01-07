@@ -931,15 +931,16 @@ app.post('/api/materialimages', jsonParser, function(req,res,next) {
     });
 });
 
+// ContentType: 'application/pdf',
+// ContentDisposition: 'inline'
 
 var storeMaterialFile = multerS3( {
     s3: s3,
     bucket: 'recloom',
-    contentType: 'application/pdf',
-    contentDisposition: 'inline',
+    contentType: function (req, file, cb) {
+        cb( null, { contentType: 'application/pdf'}); },
     metadata: function (req, file, cb) {
-        cb(null, {fieldName: file.fieldname,     ContentType: 'application/pdf',
-        ContentDisposition: 'inline',});
+        cb(null, {fieldName: file.fieldname });
       },
     acl: 'public-read-write',
     key: function (req, file, cb) {
