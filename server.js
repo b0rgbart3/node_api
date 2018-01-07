@@ -84,6 +84,13 @@ region: 'us-west-1'
 // Chatroom Logins
 var chatroom = [];
 
+
+function staticValue (value) {
+    return function (req, file, cb) {
+      cb(null, value)
+    }
+  }
+  
 //var MAU = require('./modify-and-upload');
 
 app.use(function(req, res, next) { //allow cross origin requests
