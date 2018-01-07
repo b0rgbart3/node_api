@@ -716,7 +716,7 @@ app.options('/api/materialimages', function(req, res, next){
 });
 app.options('/api/materialfiles', function(req, res, next){
     console.log('Got preflight for materialfiles');
-  //  returnSuccess( req, res, next );
+    returnSuccess( req, res, next );
 });
 app.options('/api/docfiles', function(req, res, next){
     returnSuccess( req, res, next );
@@ -945,6 +945,7 @@ var storeMaterialFile = multerS3( {
     s3: s3,
     bucket: 'recloom',
     contentType: staticValue('application/pdf'),
+    contentDisposition: staticValue('inline'),
     metadata: function (req, file, cb) {
         cb(null, {fieldName: file.fieldname });
       },
