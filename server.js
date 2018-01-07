@@ -704,12 +704,12 @@ app.options('/api/courses', function(req, res, next){
 app.options('/api/classes', function(req, res, next){
         returnSuccess( req, res, next ); });
 
+app.options('/api/allmaterialsbytype', function(req, res, next){
+            returnSuccess( req, res, next ); });
 
 app.options('/api/materials', function(req, res, next){
     returnSuccess( req, res, next ); });
 
-app.options('/api/allmaterialsbytype', function(req, res, next){
-    returnSuccess( req, res, next ); });
         
 app.options('/api/materialimages', function(req, res, next){
     returnSuccess( req, res, next );
@@ -972,7 +972,7 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
              return;
         }
         res.json({error_code:0,err_desc:null});
-        returnSuccess( req, res, next );
+       // returnSuccess( req, res, next );
        // returnSuccess();
 //         res.json({error_code:0,err_desc:null});
     });
