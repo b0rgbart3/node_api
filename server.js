@@ -937,7 +937,7 @@ app.post('/api/materialimages', jsonParser, function(req,res,next) {
 var storeMaterialFile = multerS3( {
     s3: s3,
     bucket: 'recloom',
-    contentType: 'application/pdf',
+    contentType: staticValue('application/pdf'),
     metadata: function (req, file, cb) {
         cb(null, {fieldName: file.fieldname });
       },
