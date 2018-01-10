@@ -781,7 +781,7 @@ app.post('/api/assets', function(req, res, next) {
 var storeAvatar = multerS3( {
     s3: s3,
     bucket: 'recloom',
-    shouldTransform: staticValue('true'),
+    shouldTransform: staticValue(true),
     metadata: function (req, file, cb) {
         cb(null, {fieldName: file.fieldname});
       },
