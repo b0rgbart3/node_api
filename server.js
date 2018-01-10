@@ -815,7 +815,7 @@ var uploadAvatar = multer({ //multer settings
 }).single('file');
 
 
-app.post('/api/avatar', urlencodedParser, function(req,res,next) {
+app.post('/api/avatars*', urlencodedParser, function(req,res,next) {
     // cropAvatar(req,res);
     
     uploadAvatar(req,res,function(err){
