@@ -142,24 +142,7 @@ var storage = multer.diskStorage({ //multers disk storage settings
     }
 });
 
-var storeAvatar = multer.diskStorage({ //multers disk storage settings
-    destination: function (req, file, cb) {
-        let userId = req.query.userid;
 
-        var destinationDir = UPLOAD_PATH + 'avatars/' + userId;
-        if (!fs.existsSync(destinationDir)) {
-            fs.mkdirSync(destinationDir);
-        }
-        // put the assets in a subfolder of the Users ID #
-        cb(null, destinationDir);
-    },
-    filename: function (req, file, cb) {
-        var datetimestamp = Date.now();
-       cb(null, file.originalname); 
-        
-       
-    }
-});
 
 var storeCourseImage= multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
@@ -227,9 +210,7 @@ var upload = multer({ //multer settings
     storage: storage
 }).single('file');
 
-var uploadAvatar = multer({ //multer settings
-    storage: storeAvatar
-}).single('file');
+
 
 var uploadCourseImage = multer({ //multer settings
     storage: storeCourseImage
@@ -794,6 +775,45 @@ app.post('/api/assets', function(req, res, next) {
          res.json({error_code:0,err_desc:null});
     });
 });
+
+
+var storeAvatar = multerS3( {
+    s3: s3,
+    bucket: 'recloom',
+    metadata: function (req, file, cb) {
+        cb(null, {fieldName: file.fieldname});
+      },
+    acl: 'public-read-write',
+    key: function (req, file, cb) {
+        // cb(null, Date.now().toString())
+        cb(null, 'avatars/' + req.query.id + '/' + file.originalname); 
+    }
+// });
+
+
+
+// multer.diskStorage({ //multers disk storage settings
+//     destination: function (req, file, cb) {
+//         let userId = req.query.userid;
+
+//         var destinationDir = UPLOAD_PATH + 'avatars/' + userId;
+//         if (!fs.existsSync(destinationDir)) {
+//             fs.mkdirSync(destinationDir);
+//         }
+//         // put the assets in a subfolder of the Users ID #
+//         cb(null, destinationDir);
+//     },
+//     filename: function (req, file, cb) {
+//         var datetimestamp = Date.now();
+//        cb(null, file.originalname); 
+        
+       
+//     }
+// });
+var uploadAvatar = multer({ //multer settings
+    storage: storeAvatar
+}).single('file');
+
 
 app.post('/api/avatar', urlencodedParser, function(req,res,next) {
     // cropAvatar(req,res);
