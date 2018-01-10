@@ -790,6 +790,9 @@ var storeAvatar = multerS3( {
         id: 'original',
         key: function(req, file, cb) {
             cb(null, 'avatars/' + req.query.userid + '/' + 'original_' + file.originalname);
+          },
+        transform: function(req, file, cb) {
+            cb(null, sharp().jpg())
         }},
         {
             id: 'thumbnail',
@@ -797,7 +800,10 @@ var storeAvatar = multerS3( {
                 // cb(null, Date.now().toString())
                 cb(null, 'avatars/' + req.query.userid + '/' + file.originalname); 
             
-        }
+            },
+            transform: function (req,file,cb) {
+                cb(null, sharp().crop(100,100).jpg())
+            }
     }]
 
  });
