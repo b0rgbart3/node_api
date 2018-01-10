@@ -786,7 +786,7 @@ var storeAvatar = multerS3( {
     acl: 'public-read-write',
     key: function (req, file, cb) {
         // cb(null, Date.now().toString())
-        cb(null, 'avatars/' + req.query.id + '/' + file.originalname); 
+        cb(null, 'avatars/' + req.query.userid + '/' + file.originalname); 
     }
  });
 
@@ -830,14 +830,14 @@ app.post('/api/avatar', urlencodedParser, function(req,res,next) {
 
        console.log("JUST SAVED: " + avatar_URL);
 
-       gm(processingPath)
-       .resize(500, 500 + '^')
-       .gravity('center')
-       .extent(500, 500)
-       .write(processingPath, function (err) {
-           if (err) console.log(err);
-         if (!err) console.log('done');
-       });
+    //    gm(processingPath)
+    //    .resize(500, 500 + '^')
+    //    .gravity('center')
+    //    .extent(500, 500)
+    //    .write(processingPath, function (err) {
+    //        if (err) console.log(err);
+    //      if (!err) console.log('done');
+    //    });
     //    gm(avatar_URL)
     //    .resize(175, 175 + '^')
     //    .gravity('center')
