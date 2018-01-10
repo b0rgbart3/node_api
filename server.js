@@ -332,7 +332,7 @@ var getInstructors = function (req,res,next) {
            // dbQuery = {'enrollments.class_id': req.query.id, 'enrollments.roles':'instructor' };
             // console.log("dbQuery == " + JSON.stringify(dbQuery) );
   
-            dbQuery = {instructor : true};
+            dbQuery = {'instructor' : true};
   
         console.log("My db query: " + JSON.stringify(dbQuery) );
 
