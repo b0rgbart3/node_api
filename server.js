@@ -788,7 +788,7 @@ var storeAvatar = multerS3( {
         // cb(null, Date.now().toString())
         cb(null, 'avatars/' + req.query.id + '/' + file.originalname); 
     }
-// });
+ });
 
 
 
