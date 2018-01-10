@@ -16,6 +16,7 @@ var logger = require('./logger');
 var url = require('url');
 var multer  = require('multer');
 var easyimg = require('easyimage');
+var im = require('imagemagick');
 
 var cert;
 var certString;
@@ -780,14 +781,25 @@ app.post('/api/assets', function(req, res, next) {
 var storeAvatar = multerS3( {
     s3: s3,
     bucket: 'recloom',
+    shouldTransform: true,
     metadata: function (req, file, cb) {
         cb(null, {fieldName: file.fieldname});
       },
     acl: 'public-read-write',
-    key: function (req, file, cb) {
-        // cb(null, Date.now().toString())
-        cb(null, 'avatars/' + req.query.userid + '/' + file.originalname); 
-    }
+    transforms: [ {
+        id: 'original',
+        key: function(req, file, cb) {
+            cb(null, 'avatars/' + req.query.userid + '/' + 'original_' + file.originalname);
+        }},
+        {
+            id: 'thumbnail',
+            key: function (req, file, cb) {
+                // cb(null, Date.now().toString())
+                cb(null, 'avatars/' + req.query.userid + '/' + file.originalname); 
+            
+        }
+    }]
+
  });
 
 
@@ -818,13 +830,14 @@ var uploadAvatar = multer({ //multer settings
 app.post('/api/avatars*', urlencodedParser, function(req,res,next) {
     // cropAvatar(req,res);
     
+    
     uploadAvatar(req,res,function(err){
         // console.log("The uploaded file: " + JSON.stringify(req.file ) );
    
         // Let's store the recently updated filename in the db so we can remember it.
        let userId = req.query.userid;
        let filename = req.file.filename;
-       let avatar_URL = AVATAR_PATH + userId + '/' + filename;
+       let avatar_URL = AVATAR_PATH + '/' + userId + '/' + filename;
        //let processingPath = './public/avatars/' + userId + '/' + filename;
        //let square = 'png:' + AVATAR_PATH + userId + '/' + 'test.png';
 
@@ -838,15 +851,15 @@ app.post('/api/avatars*', urlencodedParser, function(req,res,next) {
     //        if (err) console.log(err);
     //      if (!err) console.log('done');
     //    });
-       gm(avatar_URL)
-       .resize(175, 175 + '^')
-       .gravity('center')
-       .extent(175, 175)
-       .write(square, function (err){
-        //  if (that.callback && typeof(that.callback) === 'function'){
-        //    that.callback(err, that.publicPathOfThumb);
-        //  }
-       }); 
+    //    gm(avatar_URL)
+    //    .resize(175, 175 + '^')
+    //    .gravity('center')
+    //    .extent(175, 175)
+    //    .write(square, function (err){
+    //     //  if (that.callback && typeof(that.callback) === 'function'){
+    //     //    that.callback(err, that.publicPathOfThumb);
+    //     //  }
+    //    }); 
 
        // cropAvatar(avatar_URL);
         // db.collection('avatars').update({'id':userId.toString()}, { 'id':userId.toString(), 'filename': req.file.filename}, {upsert:true}, function(err,data) {
