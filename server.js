@@ -825,7 +825,7 @@ app.post('/api/avatars*', urlencodedParser, function(req,res,next) {
        let userId = req.query.userid;
        let filename = req.file.filename;
        let avatar_URL = AVATAR_PATH + userId + '/' + filename;
-       let processingPath = './public/avatars/' + userId + '/' + filename;
+       //let processingPath = './public/avatars/' + userId + '/' + filename;
        //let square = 'png:' + AVATAR_PATH + userId + '/' + 'test.png';
 
        console.log("JUST SAVED: " + avatar_URL);
@@ -838,15 +838,15 @@ app.post('/api/avatars*', urlencodedParser, function(req,res,next) {
     //        if (err) console.log(err);
     //      if (!err) console.log('done');
     //    });
-    //    gm(avatar_URL)
-    //    .resize(175, 175 + '^')
-    //    .gravity('center')
-    //    .extent(175, 175)
-    //    .write(square, function (err){
-    //     //  if (that.callback && typeof(that.callback) === 'function'){
-    //     //    that.callback(err, that.publicPathOfThumb);
-    //     //  }
-    //    }); 
+       gm(avatar_URL)
+       .resize(175, 175 + '^')
+       .gravity('center')
+       .extent(175, 175)
+       .write(square, function (err){
+        //  if (that.callback && typeof(that.callback) === 'function'){
+        //    that.callback(err, that.publicPathOfThumb);
+        //  }
+       }); 
 
        // cropAvatar(avatar_URL);
         // db.collection('avatars').update({'id':userId.toString()}, { 'id':userId.toString(), 'filename': req.file.filename}, {upsert:true}, function(err,data) {
