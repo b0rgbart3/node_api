@@ -782,31 +782,19 @@ var storeAvatar = multerS3( {
     s3: s3,
     bucket: 'recloom',
     shouldTransform: true,
-    acl: 'public-read-write',
+   
     transforms: [ {
         id: 'original',
+        acl: 'public-read-write',
         key: function(req, file, cb) {
-            cb(null, 'avatars/' + req.query.userid + '/' + 'original_' + file.originalname);
+            cb(null, 'avatars/' + req.query.userid + '/' + file.originalname);
           },
-          metadata: function (req, file, cb) {
+        metadata: function (req, file, cb) {
             cb(null, {fieldName: file.fieldname});
           },
         transform: function(req, file, cb) {
             cb(null, sharp().jpg())
-        }},
-        {
-            id: 'thumbnail',
-            key: function (req, file, cb) {
-                // cb(null, Date.now().toString())
-                cb(null, 'avatars/' + req.query.userid + '/' + file.originalname); 
-            
-            },
-            metadata: function (req, file, cb) {
-                cb(null, {fieldName: file.fieldname});
-              },
-            transform: function (req,file,cb) {
-                cb(null, sharp().crop(100,100).jpg())
-            }
+        }
     }]
 
  });
