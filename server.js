@@ -786,15 +786,10 @@ var storeAvatar = multerS3( {
     metadata: function (req, file, cb) {
         cb(null, {fieldName: file.fieldname});
       },
-    transforms: [ {
-        id: 'original',
-        key: function(req, file, cb) {
+
+    key: function(req, file, cb) {
             cb(null, 'avatars/' + req.query.userid + '/' + file.originalname);
           },
-        transform: function(req, file, cb) {
-            cb(null, sharp().jpg())
-        }
-    }]
 
  });
 
