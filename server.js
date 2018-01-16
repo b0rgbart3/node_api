@@ -777,6 +777,7 @@ app.post('/api/assets', function(req, res, next) {
     });
 });
 
+// Can I restore this?
 
 var storeAvatar = multerS3( {
     s3: s3,
