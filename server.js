@@ -782,15 +782,14 @@ var storeAvatar = multerS3( {
     s3: s3,
     bucket: 'recloom',
     shouldTransform: true,
-   
+    acl: 'public-read-write',
+    metadata: function (req, file, cb) {
+        cb(null, {fieldName: file.fieldname});
+      },
     transforms: [ {
         id: 'original',
-        acl: 'public-read-write',
         key: function(req, file, cb) {
             cb(null, 'avatars/' + req.query.userid + '/' + file.originalname);
-          },
-        metadata: function (req, file, cb) {
-            cb(null, {fieldName: file.fieldname});
           },
         transform: function(req, file, cb) {
             cb(null, sharp().jpg())
