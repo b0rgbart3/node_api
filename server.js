@@ -786,6 +786,12 @@ var storeAvatar = multerS3( {
     metadata: function (req, file, cb) {
         cb(null, {fieldName: file.fieldname});
       },
+    gm: {                                 // [Optional]: define graphicsmagick options
+        width: 400,                         // doc: http://aheckmann.github.io/gm/docs.html#resize
+        height: 400,
+        options: '!',
+        format: 'jpg'                       // Default: jpg
+    },
 
     key: function(req, file, cb) {
             cb(null, 'avatars/' + req.query.userid + '/' + file.originalname);
