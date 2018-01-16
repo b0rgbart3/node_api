@@ -833,7 +833,7 @@ app.post('/api/avatars*', urlencodedParser, function(req,res,next) {
    
         // Let's store the recently updated filename in the db so we can remember it.
        let userId = req.query.userid;
-       let filename = req.file.filename;
+       let filename = req.file.originalname;
        let avatar_URL = AVATAR_PATH + '/' + userId + '/' + filename;
        //let processingPath = './public/avatars/' + userId + '/' + filename;
        //let square = 'png:' + AVATAR_PATH + userId + '/' + 'test.png';
