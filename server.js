@@ -1538,6 +1538,11 @@ var processAuthentication = function(req, res, next) {
                             // success!
                             console.log("success!");
                             // generate a real response to authenticate this user
+                            res.header('Access-Control-Allow-Origin',  ORIGIN_BASEPATH );
+                            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
+                            res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+
+                            
                             res.writeHead(200, { 'Content-Type': 'plain/text' });
                     
                             //let jwt = { token: 'fake-jwt-token' };
