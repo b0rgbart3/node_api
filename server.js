@@ -49,7 +49,7 @@ else {
         cert:fs.readFileSync('./ssl/allchange.pem')
     };
 }
-ORIGIN_BASEPATH = "https://thawing-reaches-29763.herokuapp.com";
+ORIGIN_BASEPATH = ["https://thawing-reaches-29763.herokuapp.com", "http://localhost:4200"];
 
 UPLOAD_PATH = 'https://recloom.s3.amazonaws.com/';
 
