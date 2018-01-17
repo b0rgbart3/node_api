@@ -27,7 +27,7 @@ let ssl_options = {};
 let ORIGIN_BASEPATH = "";
 let AVATAR_PATH = "";
 
-let local = false;
+let local = true;
 cert = fs.readFileSync('.bsx');
 certString = cert.toString();
 
@@ -49,7 +49,7 @@ else {
         cert:fs.readFileSync('./ssl/allchange.pem')
     };
 }
-ORIGIN_BASEPATH = ["https://thawing-reaches-29763.herokuapp.com", "http://localhost:4200"];
+// ORIGIN_BASEPATH = "https://thawing-reaches-29763.herokuapp.com";
 
 UPLOAD_PATH = 'https://recloom.s3.amazonaws.com/';
 
