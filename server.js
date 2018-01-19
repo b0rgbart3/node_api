@@ -246,7 +246,24 @@ var uploadBookImage = multer({ //multer settings
 //     storage: storeDocFile
 // }).single('file');
 
+var getSeries = function(req,res,next) {
+    dbQuery = {};
+    dbQuery = {'series' : true};
+  
+    console.log("My db query: " + JSON.stringify(dbQuery) );
 
+    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+    db.collection('users').find(dbQuery).toArray(function(err,docs) {
+        if(err) { handleError(res,err.message, "Failed to get" + resource); }
+        else{
+            res.writeHead(200, {"Content-Type": "application/json"});
+            res.end( JSON.stringify(docs ) );
+        }
+    });
+}
 var getStudents = function (req,res,next) {
     console.log("Getting Students Only");
     dbQuery = {};
@@ -553,27 +570,19 @@ app.get('/api/finduser*', function(req,res,next) {
   app.get('/api/usersettings', function(req,res,next) { getResources('usersettings',req,res,next);});
   app.get('/api/users', function(req,res,next) { getResources('users',req,res,next);});
   app.get('/api/assets', function(req,res,next) { getResources('assets',req,res,next);});
-  // app.get('/api/material', function(req,res,next) { getResources('materials',req,res,next);});
   app.get('/api/materials', function(req,res,next) { getResources('materials', req,res,next);});
   app.get('/api/allmaterialsbytype', function(req,res,next) { getAllMaterialsByType(req,res,next);});
-  
   app.get('/api/classregistrations', function(req,res,next) { getResources('classregistrations',req,res,next);});
   app.get('/api/instructors',  function(req,res,next) { getInstructors(req,res,next);});
   app.get('/api/students',  function(req,res,next) { getStudents(req,res,next);});
+  app.get('/api/series', function(req,res,next) { getSeries(req,res,next);});
   app.get('/api/threads', function(req,res,next) { getResources('threads',req,res,next);});
-  
   app.get('/api/chats/whosin', function(req,res,next) { getWhosIn(req,res,next);});
-  
   app.get('/api/avatars*', function(req,res,next) { 
       console.log("About to call get avatars.");
       getResources('avatars',req,res,next);});
   
-  // app.get('/courseimages*', function(req,res,next) { 
-  //         console.log("About to call get resources -- for courseimages.");
-  //         getCourseImages(req,res,next);});
-  
   app.get('/api/classregistrations*', function(req,res,next) { 
-             // console.log("About to call get classregistrations.");
               getResources('classregistrations',req,res,next);});
   
   
@@ -689,11 +698,9 @@ app.options('/courseimages', function(req, res, next){
     returnSuccess( req, res, next ); });
 
 app.options('/api/studentClasses', function(req, res, next){
-    console.log('Got options for studentClasses');
     returnSuccess( req, res, next ); });
 
 app.options('/api/instructorClasses', function(req, res, next){
-        console.log('Got options for instructorClasses');
         returnSuccess( req, res, next ); });
 
 app.options('/api/finduser', function(req, res, next){
@@ -703,7 +710,6 @@ app.options('/api/users', function(req, res, next){
     returnSuccess( req, res, next ); });
 
 app.options('/api/courses', function(req, res, next){
-    console.log('About to put course info...');
         returnSuccess( req, res, next ); });
 
 app.options('/api/classes', function(req, res, next){
@@ -712,15 +718,16 @@ app.options('/api/classes', function(req, res, next){
 app.options('/api/allmaterialsbytype', function(req, res, next){
             returnSuccess( req, res, next ); });
 
+app.options('/api/series', function(req, res, next){
+                returnSuccess( req, res, next ); });
+
 app.options('/api/materials', function(req, res, next){
     returnSuccess( req, res, next ); });
-
-        
+     
 app.options('/api/materialimages', function(req, res, next){
     returnSuccess( req, res, next );
 });
 app.options('/api/materialfiles', function(req, res, next){
-    console.log('Got preflight for materialfiles');
     returnSuccess( req, res, next );
 });
 app.options('/api/docfiles', function(req, res, next){
@@ -732,13 +739,10 @@ app.options('/api/classregistrations', function(req, res, next){
 app.options('/api/threads', function(req, res, next){
     returnSuccess( req, res, next ); });
 
-
 app.options('/api/chats/enter', function(req, res, next){
-    console.log('chatroom entry was requested.');
         returnSuccess( req, res, next ); });
 
 app.options('/api/chats/whosin*', function(req, res, next){
-    console.log('chatroom whos in was requested.');
         returnSuccess( req, res, next ); });
 
 app.options('/api/usersettings', function(req, res, next){
@@ -773,8 +777,8 @@ app.put('/api/classes', jsonParser, function(req,res,next) { putResource('classe
 app.put('/api/courses', jsonParser, function(req,res,next) { putResource('courses', req, res, next);});
 app.put('/api/usersettings', jsonParser, function(req,res,next) { putResource('users', req, res, next);});
 app.put('/api/materials', jsonParser, function(req,res,next) { putResource('materials', req, res, next);});
+app.put('/api/series', jsonParser, function(req,res,next) { putResource('series', req,res,next); });
 app.put('/api/threads', jsonParser, function(req,res,next) { putResource('threads', req, res, next);});
-
 app.put('/api/users', jsonParser, function(req,res,next) { putUser( req, res, next);});
 app.put('/api/classregistrations', jsonParser, function(req,res,next) { putResource('classregistrations', req, res, next);});
 
