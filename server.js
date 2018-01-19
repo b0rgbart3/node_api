@@ -534,7 +534,7 @@ var returnSuccess = function( req,res,next) {
 };
 
 var controllers = require('./controllers');
-controllers.set(app);
+controllers.set(app, db);
 
 // app.get('/api/finduser*', function(req,res,next) {
 //   console.log('finding user by email.');

@@ -1,4 +1,4 @@
-module.exports.set = function(app) {
+module.exports.set = function(app, db) {
 
     app.get('/api/finduser*', function(req,res,next) {
   console.log('finding user by email.');
