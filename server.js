@@ -144,25 +144,38 @@ var storage = multer.diskStorage({ //multers disk storage settings
 });
 
 
-
-var storeCourseImage= multer.diskStorage({ //multers disk storage settings
-    destination: function (req, file, cb) {
-        let id = req.query.id;
-
-        var destinationDir = UPLOAD_PATH + 'courseimages/' + id;
-        if (!fs.existsSync(destinationDir)) {
-            fs.mkdirSync(destinationDir);
-        }
-        // put the courseimage in a subfolder of the Course ID #
-        cb(null, destinationDir);
-    },
-    filename: function (req, file, cb) {
-        // var datetimestamp = Date.now();
-       // var newfilename = datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
-       cb(null, file.originalname);   
-       
+var storeCourseImage = multerS3( {
+    s3: s3,
+    bucket: 'recloom',
+    metadata: function (req, file, cb) {
+        cb(null, {fieldName: file.fieldname });
+      },
+    acl: 'public-read-write',
+    key: function (req, file, cb) {
+        // cb(null, Date.now().toString())
+        cb(null, 'courseimages/' + req.query.id + '/' + file.originalname); 
     }
 });
+
+
+// var storeCourseImage= multer.diskStorage({ //multers disk storage settings
+//     destination: function (req, file, cb) {
+//         let id = req.query.id;
+
+//         var destinationDir = UPLOAD_PATH + 'courseimages/' + id;
+//         if (!fs.existsSync(destinationDir)) {
+//             fs.mkdirSync(destinationDir);
+//         }
+//         // put the courseimage in a subfolder of the Course ID #
+//         cb(null, destinationDir);
+//     },
+//     filename: function (req, file, cb) {
+//         // var datetimestamp = Date.now();
+//        // var newfilename = datetimestamp + '.' + file.originalname.split('.')[file.originalname.split('.').length -1]; 
+//        cb(null, file.originalname);   
+       
+//     }
+// });
 
 
 
