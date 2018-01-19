@@ -675,8 +675,8 @@ app.options('/api/bookimages', function(req, res, next){
     returnSuccess( req, res, next );
 });
                 
-// app.options('/courseimages', function(req, res, next){
-//     returnSuccess( req, res, next ); });
+app.options('/courseimages', function(req, res, next){
+    returnSuccess( req, res, next ); });
 
 app.options('/api/studentClasses', function(req, res, next){
     console.log('Got options for studentClasses');
