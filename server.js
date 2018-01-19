@@ -17,6 +17,7 @@ var url = require('url');
 var multer  = require('multer');
 var easyimg = require('easyimage');
 var im = require('imagemagick');
+var sanitize = require("sanitize-filename");
 
 var cert;
 var certString;
@@ -153,7 +154,7 @@ var storeCourseImage = multerS3( {
     acl: 'public-read-write',
     key: function (req, file, cb) {
         // cb(null, Date.now().toString())
-        cb(null, 'courseimages/' + req.query.id + '/' + file.originalname); 
+        cb(null, 'courseimages/' + req.query.id + '/' +sanitize( file.originalname) ); 
     }
 });
 
@@ -255,7 +256,7 @@ var getInstructorClasses = function (req,res,next) {
        
     }
 
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
         res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", 
         "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
@@ -279,7 +280,7 @@ var getStudentClasses = function (req,res,next) {
        
     }
 
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
         res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", 
         "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
@@ -916,9 +917,9 @@ var cropAvatar = function (avatar_URL) {
 
 app.post('/api/courseimages', jsonParser, function(req,res,next) {
     uploadCourseImage(req,res,function(err){
-       console.log("The uploaded file: " + JSON.stringify(req.file ) );
+       console.log("The uploaded file: " + JSON.stringify( sanitize(req.file) ) );
    
-        var dest = req.file.destination;
+        var dest = sanitize(req.file.destination);
 
         if(err){
              res.json({error_code:1,err_desc:err});
