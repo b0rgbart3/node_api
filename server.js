@@ -248,7 +248,7 @@ var uploadBookImage = multer({ //multer settings
 
 var getSeries = function(req,res,next) {
     dbQuery = {};
-    dbQuery = {'series' : true};
+    //dbQuery = {'series' : true};
   
     console.log("My db query: " + JSON.stringify(dbQuery) );
 
