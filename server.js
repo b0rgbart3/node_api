@@ -256,7 +256,7 @@ var getSeries = function(req,res,next) {
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-    db.collection('users').find(dbQuery).toArray(function(err,docs) {
+    db.collection('series').find(dbQuery).toArray(function(err,docs) {
         if(err) { handleError(res,err.message, "Failed to get" + resource); }
         else{
             res.writeHead(200, {"Content-Type": "application/json"});
