@@ -983,12 +983,12 @@ app.post('/api/materialimages', jsonParser, function(req,res,next) {
         // console.log("The uploaded file: " + JSON.stringify(req.file.originalname ) );
    
         // var dest = req.file.destination;
-        res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
-        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", 
-        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-        res.writeHead(200, { 'Content-Type': 'plain/text' });
-        
+        // res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
+        // res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+        // res.setHeader("Access-Control-Allow-Headers", 
+        // "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+        // res.writeHead(200, { 'Content-Type': 'plain/text' });
+
 
         if(err){
             console.log('not able to post image.');
