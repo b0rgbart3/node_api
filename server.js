@@ -983,6 +983,12 @@ app.post('/api/materialimages', jsonParser, function(req,res,next) {
         // console.log("The uploaded file: " + JSON.stringify(req.file.originalname ) );
    
         // var dest = req.file.destination;
+        res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
+        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+        res.setHeader("Access-Control-Allow-Headers", 
+        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+        res.writeHead(200, { 'Content-Type': 'plain/text' });
+        
 
         if(err){
             console.log('not able to post image.');
@@ -992,7 +998,7 @@ app.post('/api/materialimages', jsonParser, function(req,res,next) {
              return;
         }
          res.json({error_code:0,err_desc:null});
-         returnSuccess( req, res, next );
+         //returnSuccess( req, res, next );
     });
 });
 
@@ -1023,6 +1029,7 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
 
         var dest = req.file.destination;
         console.log('got post request: ' + dest);
+        
         
         if(err){
             console.log('suffered error');
