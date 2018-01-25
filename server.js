@@ -1048,6 +1048,7 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
 
 
 app.post('/api/reset', jsonParser, function(req,res,next) {
+    console.log('Got a Post to reset');
     processReset(req,res, function(err) {
         if (err) {
             console.log('error sending reset');
