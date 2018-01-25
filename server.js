@@ -745,6 +745,9 @@ app.options('/api/chats/enter', function(req, res, next){
 app.options('/api/chats/whosin*', function(req, res, next){
         returnSuccess( req, res, next ); });
 
+app.options('/api/reset', function( req, res, next) {
+    returnSuccess( req, res, next ); });
+
 app.options('/api/usersettings', function(req, res, next){
     res.header('Access-Control-Allow-Origin',  ORIGIN_BASEPATH );
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
@@ -1044,6 +1047,16 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
 });
 
 
+app.post('/api/reset', jsonParser, function(req,res,next) {
+    processReset(req,res, function(err) {
+        if (err) {
+            console.log('error sending reset');
+            res.json({error_code:1,err_desc:err});
+             return;
+        }
+        res.json({error_code:0,err_desc:null});
+    });
+});
 
 app.delete('/api/book', jsonParser, function(req,res,next) { deleteResource('book', req,res,next);});
 app.delete('/api/doc', jsonParser, function(req,res,next) { deleteResource('doc', req,res,next);});
