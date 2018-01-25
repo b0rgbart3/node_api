@@ -27,7 +27,7 @@ let ssl_options = {};
 let ORIGIN_BASEPATH = "";
 let AVATAR_PATH = "";
 
-let local = true;
+let local = false;
 cert = fs.readFileSync('.bsx');
 certString = cert.toString();
 
@@ -472,7 +472,7 @@ var putUser = function(req,res,next) {
     resourceObject.token = userJWT;
     let verificationID = makeid();
     resourceObject.verificationID = verificationID;
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
@@ -1353,7 +1353,6 @@ var processDelete = function(body,req,res) {
 var processReset = function(body,req,res) {
     console.log("About to reset a password.");
     
-                    // console.log("request body: "+ body);
     //
                     //let sentObject = JSON.parse(body);
                     //let emailInQuestion = sentObject.email;
@@ -1369,15 +1368,15 @@ var processReset = function(body,req,res) {
                      // Send the user an email with a password reset link in it.
                      // This is the 'SendGrid' approach...
     
-                    // const msg= {
-                    //     to: 'bartdority@gmail.com',
-                    //     from: 'b0rgBart3@gmail.com',
-                    //     subject: 'You requested a reset',
-                    //     text: 'Your reset key is: ' + tempPassword,
-                    //     html: '<strong>Your reset key is:</strong>' + tempPassword
-                    // };
+                    const msg= {
+                        to: 'bartdority@gmail.com',
+                        from: 'b0rgBart3@gmail.com',
+                        subject: 'You requested a reset',
+                        text: 'Your reset key is: ' + tempPassword,
+                        html: '<strong>Your reset key is:</strong>' + tempPassword
+                    };
     
-                    // sgMail.send(msg);
+                     sgMail.send(msg);
                    
                     // transporter.sendMail(mailOptions, (error, info) => {
                     //     if (error) {
