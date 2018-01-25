@@ -1052,9 +1052,18 @@ app.post('/api/reset', jsonParser, function(req,res,next) {
     processReset(req,res, function(err) {
         if (err) {
             console.log('error sending reset');
+            res.header('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
+            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
+            res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+        
             res.json({error_code:1,err_desc:err});
              return;
         }
+        console.log('No error - back from processReset');
+        res.header('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
+        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
+        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+    
         res.json({error_code:0,err_desc:null});
     });
 });
