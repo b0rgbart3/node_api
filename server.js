@@ -11,12 +11,16 @@ var jwt = require('jsonwebtoken');
 var tempPassword;
 var path = require('path'),
 fs = require('fs');
-var logger = require('./logger');
+
 var url = require('url');
 var multer  = require('multer');
 var easyimg = require('easyimage');
 var im = require('imagemagick');
 var sanitize = require("sanitize-filename");
+
+// My external JS files
+var logger = require('./logger');
+var mailer = require('./sendMail');
 
 var cert;
 var certString;
@@ -95,87 +99,11 @@ function staticValue (value) {
 //var MAU = require('./modify-and-upload');
 
 
-const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-// const SENDGRID_SENDER = process.env.SENDGRID_SENDER;
-const Sendgrid = require('sendgrid')(SENDGRID_API_KEY);
 
-
-var helper = require('sendgrid').mail;
-var from_email = new helper.Email('thewebsite@reclaimingloom.org');
-var to_email = new helper.Email('bartdority@gmail.com');
-var subject = 'Hello World from the SendGrid Node.js Library!';
-var content = new helper.Content('text/plain', 'Hello, Email!');
-var mail = new helper.Mail(from_email, subject, to_email, content);
-
-var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
-var request = sg.emptyRequest({
-  method: 'POST',
-  path: '/v3/mail/send',
-  body: mail.toJSON(),
-});
-
-sg.API(request, function(error, response) {
-  console.log(response.statusCode);
-  console.log(response.body);
-  console.log(response.headers);
-});
-// function sendEmail(
-//     parentCallback,
-//     fromEmail,
-//     toEmails,
-//     subject,
-//     textContent,
-//     htmlContent
-//   ) {
-//     const errorEmails = [];
-//     const successfulEmails = [];
-//      const sg = require('sendgrid');
-//      const async = require('async');
-
-//      sg.setApiKey(process.env.SENDGRID_API_KEY);
-//      async.parallel([
-//       function(callback) {
-//         // Add to emails
-//         for (let i = 0; i < toEmails.length; i += 1) {
-//           // Add from emails
-//           const senderEmail = new helper.Email(fromEmail);
-//           // Add to email
-//           const toEmail = new helper.Email(toEmails[i]);
-//           // HTML Content
-//           const content = new helper.Content('text/html', htmlContent);
-//           const mail = new helper.Mail(senderEmail, subject, toEmail, content);
-//           var request = sg.emptyRequest({
-//             method: 'POST',
-//             path: '/v3/mail/send',
-//             body: mail.toJSON()
-//           });
-//           sg.API(request, function (error, response) {
-//             console.log('SendGrid');
-//             if (error) {
-//               console.log('Error response received');
-//             }
-//             console.log(response.statusCode);
-//             console.log(response.body);
-//             console.log(response.headers);
-//           });
-//         }
-//         // return
-//         callback(null, true);
-//       }
-//     ], function(err, results) {
-//       console.log('Done');
-//     });
-//     parentCallback(null,
-//       {
-//         successfulEmails: successfulEmails,
-//         errorEmails: errorEmails,
-//       }
-//     );
-// }
 
 
 app.use(logger);
-// app.use(sendEmail);
+app.use(mailer);
 
 app.use(function(req, res, next) { //allow cross origin requests
 
