@@ -133,7 +133,7 @@ app.use(function(req, res, next) { //allow cross origin requests
 
 
 app.post('/api/reset', (req, res, next) => {
-    mailer.sendMail();
+    mailer.sendMail(req);
     res.writeHead(200, {"Content-Type": "application/json"});
     res.end();
     next();

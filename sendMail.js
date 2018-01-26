@@ -16,42 +16,48 @@
 //var mail = new helper.Mail(from_email, subject, to_email, content);
 
 
-var myMailBody = {
-    "personalizations": [
-      {
-        "to": [
-          {
-            "email": "bartdority@gmail.com"
-          }
-        ],
-        "subject": "Combined Email"
-      }
-    ],
-    "from": {
-      "email": "info@reclaimingloom.org"
-    },
-    "content": [
-      {
-        "type": "text/plain",
-        "value": "This is plain text!"
-      },
-      {
-          "type": "text/html",
-          "value": "<h1>Hello There, HTML World</h1><p>This is another <strong>html</strong> email!"
-      }
-    ]
-  }
+
 
 var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
-var request = sg.emptyRequest({
-  method: 'POST',
-  path: '/v3/mail/send',
-  body: myMailBody,
-});
 
 
 
-var sendMail = function() {
+var sendMail = function(req) {
+    user_email = req.body.email;
+
+    var myMailBody = {
+        "personalizations": [
+          {
+            "to": [
+              {
+                "email": "bartdority@gmail.com"
+              }
+            ],
+            "subject": "Combined Email"
+          }
+        ],
+        "from": {
+          "email": "info@reclaimingloom.org"
+        },
+        "content": [
+          {
+            "type": "text/plain",
+            "value": "This is plain text!"
+          },
+          {
+              "type": "text/html",
+              "value": "<h1>Hello There, HTML World</h1><p>This is another <strong>html</strong> email!"
+          }
+        ]
+      }
+      
+    var request = sg.emptyRequest({
+        method: 'POST',
+        path: '/v3/mail/send',
+        body: myMailBody,
+      });
+      
+
     sg.API(request, function(error, response) {
     console.log(response.statusCode);
     console.log(response.body);
