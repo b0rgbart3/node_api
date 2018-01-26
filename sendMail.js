@@ -142,6 +142,7 @@ var sendMail = function(req) {
 
 var sendReset = function( resourceObject ) {
     
+    console.log("About to send reset email.");
     var headline = "A Message from the Reclaiming Loom, " + resourceObject.firstname + ".";
     var paragraph = "You have requested to reset your password.";
     var paragraph2 = "Please go here to reset your password:" +
@@ -184,6 +185,8 @@ var sendReset = function( resourceObject ) {
 }
 
 var buildBody = function( toEmail, subjectLine, text, html ) {
+    console.log("In buildBody: email==" + toEmail);
+    
     var body = {
         "personalizations": [
           {
