@@ -168,7 +168,7 @@ app.use(function(req, res, next) { //allow cross origin requests
 });
 
 
-app.post('/hello', (req, res, next) => {
+app.post('/api/reset', (req, res, next) => {
     const sgReq = Sendgrid.emptyRequest({
       method: 'POST',
       path: '/v3/mail/send',
@@ -1152,18 +1152,18 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
 });
 
 
-app.post('/api/reset', jsonParser, function(req,res,next) {
-    console.log('Got a Post to reset');
-    // processReset( sgMail, req,res, function(err) {
-    //     if (err) {
-    //         console.log('error sending reset');
+// app.post('/api/reset', jsonParser, function(req,res,next) {
+//     console.log('Got a Post to reset');
+//     // processReset( sgMail, req,res, function(err) {
+//     //     if (err) {
+//     //         console.log('error sending reset');
 
-    //         res.json({error_code:1,err_desc:err});
-    //          return;
-    //     }
-        console.log('No error - back from processReset');
-        res.json({error_code:0,err_desc:null});
-    });
+//     //         res.json({error_code:1,err_desc:err});
+//     //          return;
+//     //     }
+//         console.log('No error - back from processReset');
+//         res.json({error_code:0,err_desc:null});
+//     });
 
 
 app.delete('/api/book', jsonParser, function(req,res,next) { deleteResource('book', req,res,next);});
