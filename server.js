@@ -165,7 +165,8 @@ app.post('/api/reset', jsonParser, (req, res, next) => {
            const id = docs.id;
            const resourceObject = docs;
            resourceObject.resetKey = makeid();
-
+           req.body.resetKey = resourceObject.resetKey;
+           
            try {
             db.collection('users').update({ "id" : id },
                resourceObject, {upsert: true});
