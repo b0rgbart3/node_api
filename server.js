@@ -1044,17 +1044,17 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
 
 app.post('/api/reset', jsonParser, function(req,res,next) {
     console.log('Got a Post to reset');
-    processReset( sgMail, req,res, function(err) {
-        if (err) {
-            console.log('error sending reset');
+    // processReset( sgMail, req,res, function(err) {
+    //     if (err) {
+    //         console.log('error sending reset');
 
-            res.json({error_code:1,err_desc:err});
-             return;
-        }
+    //         res.json({error_code:1,err_desc:err});
+    //          return;
+    //     }
         console.log('No error - back from processReset');
         res.json({error_code:0,err_desc:null});
     });
-});
+
 
 app.delete('/api/book', jsonParser, function(req,res,next) { deleteResource('book', req,res,next);});
 app.delete('/api/doc', jsonParser, function(req,res,next) { deleteResource('doc', req,res,next);});
@@ -1371,8 +1371,8 @@ var processDelete = function(body,req,res) {
 
 
 
-var processReset = function(mailer, req,res, next) {
-    console.log("About to reset a password.");
+//var processReset = function(mailer, req,res, next) {
+   // console.log("About to reset a password.");
 
     
     //
@@ -1380,7 +1380,7 @@ var processReset = function(mailer, req,res, next) {
                     //let emailInQuestion = sentObject.email;
     
                     // Create a temporary random password
-                    tempPassword = makeid();
+                  //  tempPassword = makeid();
     
                     // Save the temporary password in the database
                     // let foundUser = db.collection('users').findOne(params, function(err,data){
@@ -1390,15 +1390,15 @@ var processReset = function(mailer, req,res, next) {
                      // Send the user an email with a password reset link in it.
                      // This is the 'SendGrid' approach...
     
-                    const msg= {
-                        to: 'bartdority@gmail.com',
-                        from: 'b0rgBart3@gmail.com',
-                        subject: 'You requested a reset',
-                        text: 'Your reset key is: ' + tempPassword,
-                        html: '<strong>Your reset key is:</strong>' + tempPassword
-                    };
+                    // const msg= {
+                    //     to: 'bartdority@gmail.com',
+                    //     from: 'b0rgBart3@gmail.com',
+                    //     subject: 'You requested a reset',
+                    //     text: 'Your reset key is: ' + tempPassword,
+                    //     html: '<strong>Your reset key is:</strong>' + tempPassword
+                    // };
     
-                    mailer.send(msg);
+                    // mailer.send(msg);
 
                     //  res.writeHead('Access-Control-Allow-Origin',  ORIGIN_BASEPATH );
                     // res.writeHead('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
@@ -1418,8 +1418,8 @@ var processReset = function(mailer, req,res, next) {
                     //     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
     
                     // });
-                    next();
-};
+                    //next();
+//};
 
 
 
