@@ -131,6 +131,14 @@ app.use(function(req, res, next) { //allow cross origin requests
     next();
 });
 
+// create application/json parser
+var jsonParser = bodyParser.json();
+
+// create application/x-www-form-urlencoded parser
+var urlencodedParser = bodyParser.urlencoded({ extended: false });
+
+app.use(urlencodedParser);
+
 
 app.post('/api/reset', (req, res, next) => {
     console.log('Got email: ' + JSON.stringify(req) );
@@ -142,13 +150,7 @@ app.post('/api/reset', (req, res, next) => {
 
 
 
-// create application/json parser
-var jsonParser = bodyParser.json();
 
-// create application/x-www-form-urlencoded parser
-var urlencodedParser = bodyParser.urlencoded({ extended: false });
-
-app.use(urlencodedParser);
 
 var storage = multer.diskStorage({ //multers disk storage settings
     destination: function (req, file, cb) {
