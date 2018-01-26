@@ -27,6 +27,9 @@ var sendMail = function(req) {
 
     console.log("In SendMail: email==" + user_email);
 
+    var htmlBody = "<h1 style='color:#333366;'>Helloo, there " + user_email + "!</h1>" +
+     "<p>Now I am including parameters in my emails</p>";
+
     var myMailBody = {
         "personalizations": [
           {
@@ -48,7 +51,7 @@ var sendMail = function(req) {
           },
           {
               "type": "text/html",
-              "value": "<h1 style='color:#334499;'>Hello There, HTML World</h1><p>This is another <strong>html</strong> email!"
+              "value": htmlBody
           }
         ]
       }
