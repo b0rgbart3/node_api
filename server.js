@@ -132,7 +132,7 @@ function staticValue (value) {
 app.use(logger);
 
 
-app.doSomething();
+// app.doSomething();
 
 
 app.use(function(req, res, next) { //allow cross origin requests
