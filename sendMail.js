@@ -24,10 +24,11 @@ var buildHTML= function( contentObject ) {
 var sendWelcome = function( resourceObject ) {
     
     var headline = "Welcome to the Reclaiming Loom, " + resourceObject.firstname + ".";
-    var paragraph = "Your account has been successfully created.  You can now LOG IN to the Loom " +
-    "by going to https://https://thawing-reaches-29763.herokuapp.com/login and entering the " +
+    var paragraph = "Your account has been successfully created.";
+    var paragraph2 = "You can now LOG IN to the Loom " +
+    "by going to https://thawing-reaches-29763.herokuapp.com/#/login and entering the " +
     "credentials you used to create your account.";
-    var paragraph2 = "Thank you for joining the Reclaiming Loom!";
+    var paragraph3 = "Thank you for joining the Reclaiming Loom!";
 
     var welcomeEmail = [
       {
@@ -37,6 +38,10 @@ var sendWelcome = function( resourceObject ) {
         {
            "headline": null,
            "paragraph": paragraph2 
+        },
+        {
+            "headline": null,
+            "paragraph": paragraph3
         }
     ];
     var textBody = buildPlain( welcomeEmail );
@@ -50,7 +55,7 @@ var sendWelcome = function( resourceObject ) {
                 "email": resourceObject.email
               }
             ],
-            "subject": "Combined Email"
+            "subject": "Welcome to the Reclaiming Loom"
           }
         ],
         "from": {
@@ -135,9 +140,81 @@ var sendMail = function(req) {
 }
 
 
+var sendReset = function( resourceObject ) {
+    
+    var headline = "A Message from the Reclaiming Loom, " + resourceObject.firstname + ".";
+    var paragraph = "You have requested to reset your password.";
+    var paragraph2 = "Please go here to reset your password:" +
+    "https://thawing-reaches-29763.herokuapp.com/#/reset and then enter " +
+    " the new password you would like to use for your account.";
+    var paragraph3 = "Thank you.";
+
+    var welcomeEmail = [
+      {
+        "headline": headline,
+        "paragraph": paragraph,
+        }, 
+        {
+           "headline": null,
+           "paragraph": paragraph2 
+        },
+        {
+            "headline": null,
+            "paragraph": paragraph3
+        }
+    ];
+    var textBody = buildPlain( welcomeEmail );
+    var htmlBody = buildHTML( welcomeEmail );
+    var myMailBody = buildBody( resourceObject.email, textBody, htmlBody);
+    
+
+    var request = sg.emptyRequest({
+        method: 'POST',
+        path: '/v3/mail/send',
+        body: myMailBody,
+      });
+      
+    console.log("Sending Welcome Email");
+    
+    sg.API(request, function(error, response) {
+    console.log(response.statusCode);
+    console.log(response.body);
+    console.log(response.headers);
+    });
+}
+
+var buildBody = function( toEmail, text, html ) {
+    var body = {
+        "personalizations": [
+          {
+            "to": [
+              {
+                "email": toEmail
+              }
+            ],
+            "subject": "Welcome to the Reclaiming Loom"
+          }
+        ],
+        "from": {
+          "email": "info@reclaimingloom.org"
+        },
+        "content": [
+          {
+            "type": "text/plain",
+            "value": text
+          },
+          {
+              "type": "text/html",
+              "value": html
+          }
+        ]
+      };
+    return body;
+}
 
 module.exports.sendMail = sendMail;
-
 module.exports.sendWelcome = sendWelcome;
+module.exports.sendReset = sendReset;
+
 
 

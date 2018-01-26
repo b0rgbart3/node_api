@@ -142,7 +142,7 @@ app.use(urlencodedParser);
 
 app.post('/api/reset', jsonParser, (req, res, next) => {
     console.log('Got email: ' + req.body.email );
-    mailer.sendMail(req);
+    mailer.sendReset(req);
     res.writeHead(200, {"Content-Type": "application/json"});
     res.end();
     next();
@@ -544,7 +544,7 @@ var putUser = function(req,res,next) {
                 // Let's send an email to the new user to welcome them to the Loom!
 
                 mailer.sendWelcome(resourceObject);
-                
+
                 res.writeHead(200, { 'Content-Type': 'plain/text' });
                 res.end(JSON.stringify(data ) );
             }
