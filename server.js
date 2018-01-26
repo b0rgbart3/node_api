@@ -826,7 +826,7 @@ app.post('/api/authenticate', jsonParser, function(req,res,next) {
 
 
 
-app.post('/api/assets', function(req, res, next) {
+app.post('/api/assets', jsonParser, function(req, res, next) {
     upload(req,res,function(err){
         console.log(req.file);
         if(err){
