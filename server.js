@@ -155,12 +155,33 @@ app.post('/api/reset', jsonParser, (req, res, next) => {
     // want to send them a reset email.
 
     dbQuery = {'email' : req.body.email };
-    db.collection('users').find(dbQuery).toArray(function(err,docs) {
+
+    db.collection('users').findOne(dbQuery).toArray(function(err,docs) {
         if(err) { handleError(res,err.message, "Didn't find that user" + req.body.email); }
         else{
            // here we found the users email in our system, so we can send them
            // a reset email.
-           mailer.sendReset(req.body);
+           // but first, let's store a JSON key in the db that we can match on the other side
+           const id = docs.id;
+           const resourceObject = docs;
+           resourceObject.resetKey = "This is a reset key";
+
+           try {
+            db.collection('users').update({ "id" : id },
+               resourceObject, {upsert: true});
+               
+               // OK - finally - now we can send the user a reset email
+               mailer.sendReset(req.body);
+
+               res.sendStatus(200);
+               res.end();
+            } catch (e) {
+                console.log("Error entering reset key into the DB");
+                res.sendStatus(450);
+                res.end(e.message);
+            }
+
+           
         }
     });
     
