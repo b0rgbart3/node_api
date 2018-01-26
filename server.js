@@ -1125,7 +1125,7 @@ const msg= {
     html: '<strong>Your reset key is:</strong>' + tempPassword
 };
 
-sgMail.send(msg);
+// sgMail.send(msg);
 
 
 var makeid = function() {
