@@ -109,6 +109,28 @@ app.use(function(req, res, next) { //allow cross origin requests
 });
 
 
+app.post('/api/send', function (req, res, next) {
+
+    async.parallel([
+        function (callback) {
+          sendEmail(
+            callback,
+            'b0rgBart3@gmail.com',
+            ['bartdority@gmail.com'],
+            'first SendGrid Email',
+            'This works!',
+            '<p style="font-size: 32px;">This Works!</p>'
+          );
+        }
+      ], function(err, results) {
+        res.send({
+          success: true,
+          message: 'Emails sent',
+          successfulEmails: results[0].successfulEmails,
+          errorEmails: results[0].errorEmails,
+        });
+      });
+});
 
 // create application/json parser
 var jsonParser = bodyParser.json();
