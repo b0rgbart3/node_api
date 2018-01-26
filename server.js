@@ -1117,6 +1117,16 @@ server.listen(process.env.PORT);
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+const msg= {
+    to: 'bartdority@gmail.com',
+    from: 'b0rgBart3@gmail.com',
+    subject: 'You requested a reset',
+    text: 'Your reset key is: ' + tempPassword,
+    html: '<strong>Your reset key is:</strong>' + tempPassword
+};
+
+sgMail.send(msg);
+
 
 var makeid = function() {
     var text = "";
