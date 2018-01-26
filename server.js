@@ -1044,7 +1044,7 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
 
 app.post('/api/reset', jsonParser, function(req,res,next) {
     console.log('Got a Post to reset');
-    processReset(body, req,res, function(err) {
+    processReset( req,res, function(err) {
         if (err) {
             console.log('error sending reset');
 
@@ -1361,7 +1361,7 @@ var processDelete = function(body,req,res) {
 
 
 
-var processReset = function(body,req,res) {
+var processReset = function(req,res) {
     console.log("About to reset a password.");
 
     
