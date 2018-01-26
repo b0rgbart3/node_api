@@ -10,7 +10,7 @@ var helper = require('sendgrid').mail;
 var from_email = new helper.Email('thewebsite@reclaimingloom.org');
 var to_email = new helper.Email('bartdority@gmail.com');
 var subject = 'Hello World from the SendGrid Node.js Library!';
-var content = new helper.Content('text/html', '<h1>Hello, Email!</h1>');
+var content = new helper.Content('text/html', '<h1>Hello There, This is a new Email!</h1><p>with real content</p>');
 var mail = new helper.Mail(from_email, subject, to_email, content);
 
 var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
