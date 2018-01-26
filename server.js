@@ -142,7 +142,29 @@ app.use(urlencodedParser);
 
 app.post('/api/reset', jsonParser, (req, res, next) => {
     console.log('Got email: ' + req.body.email );
-    mailer.sendReset(req.body);
+    
+
+    // Here we need to generate a JSON 'key' of sorts, and store
+    // it in the database, and then send that key through the email
+    // to make sure that the person getting the email, is the 
+    // same person who requested the reset.  (That they have access
+    // to the primary email address for the account )
+
+    // First, let's find this user in the database.
+    // because if they're not already in the system, then we don't even
+    // want to send them a reset email.
+
+    dbQuery = {'email' : req.body.email };
+    db.collection('users').find(dbQuery).toArray(function(err,docs) {
+        if(err) { handleError(res,err.message, "Didn't find that user" + req.body.email); }
+        else{
+           // here we found the users email in our system, so we can send them
+           // a reset email.
+           mailer.sendReset(req.body);
+        }
+    });
+    
+
     res.writeHead(200, {"Content-Type": "application/json"});
     res.end();
     next();

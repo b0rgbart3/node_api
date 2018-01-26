@@ -15,7 +15,7 @@ var buildHTML= function( contentObject ) {
     var output = '';
     for (var key in contentObject) {
         if (contentObject[key]["headline"]) {      
-        output +=  "<h1>" + contentObject[key]["headline"] + "</h1>";}
+        output +=  "<h1 style='color:#334488'; font-family:'Tahoma'; font-weight:bold;>" + contentObject[key]["headline"] + "</h1>";}
         output +=  "<p>" + contentObject[key]["paragraph"] + "</p>";
     }
     return output;
@@ -143,9 +143,9 @@ var sendMail = function(req) {
 var sendReset = function( resourceObject ) {
     
     console.log("About to send reset email.");
-    var headline = "A Message from the Reclaiming Loom, " + resourceObject.firstname + ".";
-    var paragraph = "You have requested to reset your password.";
-    var paragraph2 = "Please go here to reset your password:" +
+    var headline = "A Message from the Reclaiming Loom";
+    var paragraph = "We have received a request to reset your password.";
+    var paragraph2 = "If you requested this reset, please go here:" +
     "https://thawing-reaches-29763.herokuapp.com/#/reset and then enter " +
     " the new password you would like to use for your account.";
     var paragraph3 = "Thank you.";
@@ -175,7 +175,7 @@ var sendReset = function( resourceObject ) {
         body: myMailBody,
       });
       
-    console.log("Sending Welcome Email");
+    console.log("Sending Reset Email");
     
     sg.API(request, function(error, response) {
     console.log(response.statusCode);
@@ -186,7 +186,7 @@ var sendReset = function( resourceObject ) {
 
 var buildBody = function( toEmail, subjectLine, text, html ) {
     console.log("In buildBody: email==" + toEmail);
-    
+
     var body = {
         "personalizations": [
           {
