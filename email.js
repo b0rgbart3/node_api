@@ -53,7 +53,7 @@ function sendEmail(
     );
 }
 
-module.exports = (app) => {
+module.exports = function(request, response, next) {
     app.post('/api/send', function (req, res, next) {
 
         async.parallel([
