@@ -495,7 +495,6 @@ var chatLogin = function(req,res,next) {
 
 var putUser = function(req,res,next) {
     let resourceObject = req.body;
-    // console.log("PUTTING THE USER");
     let userPas = resourceObject.password;
     let userJWT = jwt.sign({ password: userPas}, certString );
     resourceObject.verified = 'false';
@@ -506,6 +505,12 @@ var putUser = function(req,res,next) {
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+
+    // When we pass zero as the id# -- that means we are inserting a brand new user 
+    // into the database.  NOTE however, that the id within the body object is NOT zero
+    // I have my own ID counting system which happens in the angular user service
+    // NOTE also that this body.id is my own id system which is different from the
+    // MONGO generated _id value
 
     if (req.query.id && req.query.id != 0)
     {
@@ -522,15 +527,25 @@ var putUser = function(req,res,next) {
             res.end(e.message);
         } 
     } else {
-        // console.log ( 'Inserting Resource into DB ' );
+
+
+        // New user getting added here
+
+
         db.collection('users').insert(resourceObject, function(err,data) {
             if (err) {
                 console.log("Error entering resource into the DB");
+                
+                // Let's send an email to the new user to welcome them to the Loom!
+
+                mailer.sendWelcome(resourceObject);
+
+
                 res.writeHead(400, { 'Content-Type': 'plain/text' });
                 res.end(err);
             }
             else{
-                // console.log("Wrote: "+JSON.stringify(data));
+ 
                 res.writeHead(200, { 'Content-Type': 'plain/text' });
                 res.end(JSON.stringify(data ) );
             }
