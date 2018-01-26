@@ -535,17 +535,16 @@ var putUser = function(req,res,next) {
         db.collection('users').insert(resourceObject, function(err,data) {
             if (err) {
                 console.log("Error entering resource into the DB");
-                
-                // Let's send an email to the new user to welcome them to the Loom!
-
-                mailer.sendWelcome(resourceObject);
 
 
                 res.writeHead(400, { 'Content-Type': 'plain/text' });
                 res.end(err);
             }
             else{
- 
+                // Let's send an email to the new user to welcome them to the Loom!
+
+                mailer.sendWelcome(resourceObject);
+                
                 res.writeHead(200, { 'Content-Type': 'plain/text' });
                 res.end(JSON.stringify(data ) );
             }
