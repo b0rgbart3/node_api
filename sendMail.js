@@ -165,7 +165,7 @@ var sendReset = function( resourceObject ) {
     ];
     var textBody = buildPlain( welcomeEmail );
     var htmlBody = buildHTML( welcomeEmail );
-    var myMailBody = buildBody( resourceObject.email, textBody, htmlBody);
+    var myMailBody = buildBody( resourceObject.email, "Request for Reset", textBody, htmlBody);
     
 
     var request = sg.emptyRequest({
@@ -183,7 +183,7 @@ var sendReset = function( resourceObject ) {
     });
 }
 
-var buildBody = function( toEmail, text, html ) {
+var buildBody = function( toEmail, subjectLine, text, html ) {
     var body = {
         "personalizations": [
           {
@@ -192,7 +192,7 @@ var buildBody = function( toEmail, text, html ) {
                 "email": toEmail
               }
             ],
-            "subject": "Welcome to the Reclaiming Loom"
+            "subject": subjectLine
           }
         ],
         "from": {
