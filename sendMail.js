@@ -23,8 +23,10 @@ var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
 
 
 var sendMail = function(req) {
-    user_email = req.body;
+    user_email = req.body.email;
 
+    console.log("In SendMail: email==" + user_email);
+    
     var myMailBody = {
         "personalizations": [
           {
