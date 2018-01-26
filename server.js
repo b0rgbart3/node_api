@@ -174,7 +174,7 @@ app.post('/api/reset', (req, res, next) => {
       path: '/v3/mail/send',
       body: {
         personalizations: [{
-          to: [{ email: req.body.email }],
+          to: [{ email: 'bartdority@gmail.com' }],
           subject: 'Hello World!'
         }],
         from: { email: SENDGRID_SENDER },
