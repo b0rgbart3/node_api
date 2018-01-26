@@ -26,13 +26,13 @@ var sendMail = function(req) {
     user_email = req.body.email;
 
     console.log("In SendMail: email==" + user_email);
-    
+
     var myMailBody = {
         "personalizations": [
           {
             "to": [
               {
-                "email": "bartdority@gmail.com"
+                "email": user_email
               }
             ],
             "subject": "Combined Email"
