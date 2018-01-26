@@ -105,6 +105,9 @@ function staticValue (value) {
 app.use(logger);
 app.use(mailer);
 
+app.doSomething();
+
+
 app.use(function(req, res, next) { //allow cross origin requests
 
     res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);

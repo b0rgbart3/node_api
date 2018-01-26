@@ -1,6 +1,8 @@
 
 module.exports = function(request, response, next) {
 
+    console.log('This is flat sendMail.js code running.');
+
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 // const SENDGRID_SENDER = process.env.SENDGRID_SENDER;
 const Sendgrid = require('sendgrid')(SENDGRID_API_KEY);
@@ -25,6 +27,10 @@ sg.API(request, function(error, response) {
   console.log(response.body);
   console.log(response.headers);
 });
+
+function doSomething() {
+    console.log('The doSomething funciton got called.');
+}
 
 next(); 
 }
