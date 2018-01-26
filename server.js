@@ -142,7 +142,7 @@ app.use(urlencodedParser);
 
 app.post('/api/reset', jsonParser, (req, res, next) => {
     console.log('Got email: ' + req.body.email );
-    mailer.sendReset(req);
+    mailer.sendReset(req.body);
     res.writeHead(200, {"Content-Type": "application/json"});
     res.end();
     next();
