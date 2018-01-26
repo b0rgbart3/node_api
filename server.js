@@ -101,7 +101,7 @@ const Sendgrid = require('sendgrid')(SENDGRID_API_KEY);
 
 
 var helper = require('sendgrid').mail;
-var from_email = new helper.Email('b0rgBart3@gmail.com');
+var from_email = new helper.Email('thewebsite@reclaimingloom.org');
 var to_email = new helper.Email('bartdority@gmail.com');
 var subject = 'Hello World from the SendGrid Node.js Library!';
 var content = new helper.Content('text/plain', 'Hello, Email!');
