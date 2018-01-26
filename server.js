@@ -156,7 +156,7 @@ const Sendgrid = require('sendgrid')(SENDGRID_API_KEY);
 
 
 app.use(logger);
-app.use(sendEmail);
+// app.use(sendEmail);
 
 app.use(function(req, res, next) { //allow cross origin requests
 
