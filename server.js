@@ -156,7 +156,7 @@ app.post('/api/reset', jsonParser, (req, res, next) => {
 
     dbQuery = {'email' : req.body.email };
 
-    db.collection('users').findOne(dbQuery).toArray(function(err,docs) {
+    db.collection('users').findOne(dbQuery, function(err,docs) {
         if(err) { handleError(res,err.message, "Didn't find that user" + req.body.email); }
         else{
            // here we found the users email in our system, so we can send them
