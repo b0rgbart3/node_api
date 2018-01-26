@@ -12,6 +12,7 @@ var tempPassword;
 var path = require('path'),
 fs = require('fs');
 var logger = require('./logger');
+var sendEmail = require('./server/routes/api/email');
 var url = require('url');
 var multer  = require('multer');
 var easyimg = require('easyimage');
@@ -96,7 +97,7 @@ function staticValue (value) {
 
 
 app.use(logger);
-
+app.use(sendEmail);
 
 app.use(function(req, res, next) { //allow cross origin requests
 
@@ -1114,18 +1115,19 @@ server.listen(process.env.PORT);
 
 // I'm using SENDGRID -- with a 'free' account - 
 // but this could be replaced with NodeMailer when it's on a live produciton server
-const sgMail = require('@sendgrid/mail');
-sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+// const sgMail = require('@sendgrid/mail');
+// sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const msg= {
-    to: 'bartdority@gmail.com',
-    from: 'b0rgBart3@gmail.com',
-    subject: 'You requested a reset',
-    text: 'Your reset key is: ' + tempPassword,
-    html: '<strong>Your reset key is:</strong>' + tempPassword
-};
+// const msg= {
+//     to: 'bartdority@gmail.com',
+//     from: 'b0rgBart3@gmail.com',
+//     subject: 'You requested a reset',
+//     text: 'Your reset key is: ' + tempPassword,
+//     html: '<strong>Your reset key is:</strong>' + tempPassword
+// };
 
-sgMail.send(msg);
+// sgMail.send(msg);
+
 
 
 var makeid = function() {
