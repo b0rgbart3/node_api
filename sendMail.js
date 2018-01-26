@@ -15,7 +15,7 @@ var doSomething = function() {
 }
 
 module.exports.sendMail = sendMail;
-module.exports.doSOmething = doSomething;
+module.exports.doSomething = doSomething;
 
 
 
