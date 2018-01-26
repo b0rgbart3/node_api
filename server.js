@@ -12,7 +12,7 @@ var tempPassword;
 var path = require('path'),
 fs = require('fs');
 var logger = require('./logger');
-var sendEmail = require('./server/routes/api/email');
+var sendEmail = require('./email');
 var url = require('url');
 var multer  = require('multer');
 var easyimg = require('easyimage');
