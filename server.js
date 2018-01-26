@@ -105,6 +105,8 @@ function sendEmail(
     const errorEmails = [];
     const successfulEmails = [];
      const sg = require('sendgrid');
+     const async = require('async');
+     
      sg.setApiKey(process.env.SENDGRID_API_KEY);
      async.parallel([
       function(callback) {
