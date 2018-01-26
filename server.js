@@ -1044,7 +1044,7 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
 
 app.post('/api/reset', jsonParser, function(req,res,next) {
     console.log('Got a Post to reset');
-    processReset( req,res, function(err) {
+    processReset( sgMail, req,res, function(err) {
         if (err) {
             console.log('error sending reset');
 
@@ -1361,7 +1361,7 @@ var processDelete = function(body,req,res) {
 
 
 
-var processReset = function(req,res) {
+var processReset = function(mailer, req,res, next) {
     console.log("About to reset a password.");
 
     
@@ -1388,7 +1388,7 @@ var processReset = function(req,res) {
                         html: '<strong>Your reset key is:</strong>' + tempPassword
                     };
     
-                     sgMail.send(msg);
+                    mailer.send(msg);
 
                     //  res.writeHead('Access-Control-Allow-Origin',  ORIGIN_BASEPATH );
                     // res.writeHead('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
@@ -1408,6 +1408,7 @@ var processReset = function(req,res) {
                     //     console.log('Preview URL: %s', nodemailer.getTestMessageUrl(info));
     
                     // });
+                    next();
 };
 
 
