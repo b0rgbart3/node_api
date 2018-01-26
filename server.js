@@ -66,11 +66,11 @@ const Sendgrid = require('sendgrid')(SENDGRID_API_KEY);
 // ---------------------------------
 
 
+
+
+
+
 // ---------------------------------
-
-mailer.sendMail();
-mailer.doSomething();
-
 
 const querystring = require('querystring');
 
@@ -133,55 +133,13 @@ app.use(function(req, res, next) { //allow cross origin requests
 
 
 app.post('/api/reset', (req, res, next) => {
-    const sgReq = Sendgrid.emptyRequest({
-      method: 'POST',
-      path: '/v3/mail/send',
-      body: {
-        personalizations: [{
-          to: [{ email: 'bartdority@gmail.com' }],
-          subject: 'Hello World!'
-        }],
-        from: { email: 'b0rgBart3@gmail.com' },
-        content: [{
-          type: 'text/plain',
-          value: 'Sendgrid on Google App Engine with Node.js.'
-        }]
-      }
-    });
-  
-    Sendgrid.API(sgReq, (err) => {
-      if (err) {
-        next(err);
-        return;
-      }
-      // Render the index route on success
-      res.render('index', {
-        sent: true
-      });
-    });
-  });
-// app.post('/api/send', function (req, res, next) {
+    mailer.sendMail();
+    res.writeHead(200, {"Content-Type": "application/json"});
+    res.end();
+    next();
+ });
 
-//     async.parallel([
-//         function (callback) {
-//           sendEmail(
-//             callback,
-//             'b0rgBart3@gmail.com',
-//             ['bartdority@gmail.com'],
-//             'first SendGrid Email',
-//             'This works!',
-//             '<p style="font-size: 32px;">This Works!</p>'
-//           );
-//         }
-//       ], function(err, results) {
-//         res.send({
-//           success: true,
-//           message: 'Emails sent',
-//           successfulEmails: results[0].successfulEmails,
-//           errorEmails: results[0].errorEmails,
-//         });
-//       });
-// });
+
 
 // create application/json parser
 var jsonParser = bodyParser.json();

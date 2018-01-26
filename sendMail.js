@@ -23,13 +23,9 @@ var sendMail = function() {
     });
 }
 
-var doSomething = function() {
-    console.log('The doSomething funciton got called.');
-}
+
 
 module.exports.sendMail = sendMail;
-module.exports.doSomething = doSomething;
-
 
 
 
