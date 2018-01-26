@@ -164,7 +164,7 @@ app.post('/api/reset', jsonParser, (req, res, next) => {
            // but first, let's store a JSON key in the db that we can match on the other side
            const id = docs.id;
            const resourceObject = docs;
-           resourceObject.resetKey = "This is a reset key";
+           resourceObject.resetKey = makeid();
 
            try {
             db.collection('users').update({ "id" : id },

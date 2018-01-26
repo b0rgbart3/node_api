@@ -146,7 +146,8 @@ var sendReset = function( resourceObject ) {
     var headline = "A Message from the Reclaiming Loom";
     var paragraph = "We have received a request to reset your password.";
     var paragraph2 = "If you requested this reset, please go here:" +
-    "https://thawing-reaches-29763.herokuapp.com/#/reset and then enter " +
+    "https://thawing-reaches-29763.herokuapp.com/#/reset?key=" + resourceObject.resetKey + 
+    " and then enter " +
     " the new password you would like to use for your account.";
     var paragraph3 = "Thank you.";
 
