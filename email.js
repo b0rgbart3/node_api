@@ -15,7 +15,8 @@ module.exports = function(request, response, next) {
       ) {
         const errorEmails = [];
         const successfulEmails = [];
-         const sg = require('sendgrid')   (SENDGRID_API_KEY);
+         const sg = require('sendgrid');
+         sg.setApiKey(process.env.SENDGRID_API_KEY);
          async.parallel([
           function(callback) {
             // Add to emails
