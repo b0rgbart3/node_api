@@ -1098,7 +1098,7 @@ app.use(express.static(frontDir));
 server.listen(process.env.PORT);
 
 
-// var nodemailer = require('nodemailer');
+var nodemailer = require('nodemailer');
 
 // var transporter = nodemailer.createTransport({
 //     service: 'gmail',
@@ -1372,9 +1372,32 @@ var processDelete = function(body,req,res) {
 };
 
 
+var transporter = nodemailer.createTransport( {
+    service: 'gmail',
+    auth: {
+        user: 'doritydesignwork@gmail.com',
+        pass: '#T8maIArn[]'
+    }
+});
+
+var mailOptions = {
+    from: 'doritydesignworks@gmail.com',
+    to: 'bartdority@gmail.com',
+    subject: 'Sending Email using Node JS',
+    text: 'That works!'
+};
+
+
 
 var processReset = function(body,req,res) {
     console.log("About to reset a password.");
+    transporter.sendMail(mailOptions, function(error, info) {
+        if (error) {
+            console.log(error);
+        }else {
+            console.log('Email send: ' + info.response);
+        }
+    });
     
     //
                     //let sentObject = JSON.parse(body);
