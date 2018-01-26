@@ -138,5 +138,6 @@ var sendMail = function(req) {
 
 module.exports.sendMail = sendMail;
 
+module.exports.sendWelcome = sendWelcome;
 
 
