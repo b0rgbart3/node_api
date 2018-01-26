@@ -23,7 +23,7 @@ var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
 
 
 var sendMail = function(req) {
-    user_email = req.body.email;
+    user_email = req.body;
 
     var myMailBody = {
         "personalizations": [
@@ -50,7 +50,7 @@ var sendMail = function(req) {
           }
         ]
       }
-      
+
     var request = sg.emptyRequest({
         method: 'POST',
         path: '/v3/mail/send',
