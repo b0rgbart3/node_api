@@ -94,26 +94,21 @@ function staticValue (value) {
 
 //var MAU = require('./modify-and-upload');
 
+
+app.use(logger);
+
+
 app.use(function(req, res, next) { //allow cross origin requests
 
     res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
-    // var whitelist = ['localhost:4200', 'https://thawing-reaches-29763.herokuapp.com']
-    // var host = req.get('host');
-
-    // whitelist.forEach(function(val, key){
-    //     if (host.indexOf(val) > -1){
-    //       res.setHeader('Access-Control-Allow-Origin', host);
-    //     }
-    //   })
     res.setHeader("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
-
     res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
     res.header("Access-Control-Allow-Credentials", true);
     next();
 });
 
 
-app.use(logger);
+
 // create application/json parser
 var jsonParser = bodyParser.json();
 
@@ -1049,21 +1044,14 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
 
 app.post('/api/reset', jsonParser, function(req,res,next) {
     console.log('Got a Post to reset');
-    processReset(req,res, function(err) {
+    processReset(body, req,res, function(err) {
         if (err) {
             console.log('error sending reset');
-            res.header('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
-            res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
-            res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-        
+
             res.json({error_code:1,err_desc:err});
              return;
         }
         console.log('No error - back from processReset');
-        res.header('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
-        res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
-        res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-    
         res.json({error_code:0,err_desc:null});
     });
 });
