@@ -1,9 +1,9 @@
 
-var helper = require('sendgrid').mail;
-var from_email = new helper.Email('thewebsite@reclaimingloom.org');
-var to_email = new helper.Email('bartdority@gmail.com');
-var subject = 'Hello World from the SendGrid Node.js Library!';
-var content = new helper.Content('text/html', '<h1>Hello HTML World</h1><p>This is an <strong>html</strong> email!');
+// var helper = require('sendgrid').mail;
+// var from_email = new helper.Email('thewebsite@reclaimingloom.org');
+// var to_email = new helper.Email('bartdority@gmail.com');
+// var subject = 'Hello World from the SendGrid Node.js Library!';
+// var content = new helper.Content('text/html', '<h1>Hello HTML World</h1><p>This is an <strong>html</strong> email!');
 
 // const msg = {
 //     to: 'bartdority@gmail.com',
@@ -13,13 +13,40 @@ var content = new helper.Content('text/html', '<h1>Hello HTML World</h1><p>This 
 //     html: '<h1>Hello HTML World</h1><p>This is an <strong>html</strong> email!',
 // };
 
-var mail = new helper.Mail(from_email, subject, to_email, content);
+//var mail = new helper.Mail(from_email, subject, to_email, content);
+
+
+var myMailBody = {
+    "personalizations": [
+      {
+        "to": [
+          {
+            "email": "bartdority@gmail.com"
+          }
+        ],
+        "subject": "Combined Email"
+      }
+    ],
+    "from": {
+      "email": "info@reclaimingloom.org"
+    },
+    "content": [
+      {
+        "type": "text/plain",
+        "value": "This is plain text!"
+      },
+      {
+          "type": "text/html",
+          "value": "<h1>Hello There, HTML World</h1><p>This is another <strong>html</strong> email!"
+      }
+    ]
+  }
 
 var sg = require('sendgrid')(process.env.SENDGRID_API_KEY);
 var request = sg.emptyRequest({
   method: 'POST',
   path: '/v3/mail/send',
-  body: mail.toJSON(),
+  body: myMailBody,
 });
 
 
