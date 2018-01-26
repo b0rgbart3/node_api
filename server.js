@@ -175,6 +175,7 @@ app.post('/api/reset', jsonParser, (req, res, next) => {
 
                res.sendStatus(200);
                res.end();
+
             } catch (e) {
                 console.log("Error entering reset key into the DB");
                 res.sendStatus(450);
@@ -186,9 +187,6 @@ app.post('/api/reset', jsonParser, (req, res, next) => {
     });
     
 
-    res.writeHead(200, {"Content-Type": "application/json"});
-    res.end();
-    next();
  });
 
 
