@@ -81,7 +81,7 @@ var request = sg.emptyRequest({
 
 // ---------------------------------
 
-mailer.sendMail(sg);
+mailer.sendMail(sg, request);
 mailer.doSomething();
 
 

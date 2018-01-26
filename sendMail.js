@@ -2,7 +2,7 @@
 
 
 
-var sendMail = function(sg) {
+var sendMail = function(sg, request) {
     sg.API(request, function(error, response) {
     console.log(response.statusCode);
     console.log(response.body);
