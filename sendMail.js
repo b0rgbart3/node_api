@@ -46,7 +46,7 @@ var sendMail = function(req) {
           },
           {
               "type": "text/html",
-              "value": "<h1 style='color:#3355ff;'>Hello There, HTML World</h1><p>This is another <strong>html</strong> email!"
+              "value": "<h1 style='color:#334499;'>Hello There, HTML World</h1><p>This is another <strong>html</strong> email!"
           }
         ]
       }
