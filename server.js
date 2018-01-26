@@ -1387,7 +1387,13 @@ var mailOptions = {
     text: 'That works!'
 };
 
-
+transporter.sendMail(mailOptions, function(error, info) {
+    if (error) {
+        console.log(error);
+    }else {
+        console.log('Email send: ' + info.response);
+    }
+});
 
 var processReset = function(body,req,res) {
     console.log("About to reset a password.");
@@ -1414,23 +1420,23 @@ var processReset = function(body,req,res) {
                      // Send the user an email with a password reset link in it.
                      // This is the 'SendGrid' approach...
     
-                    const msg= {
-                        to: 'bartdority@gmail.com',
-                        from: 'b0rgBart3@gmail.com',
-                        subject: 'You requested a reset',
-                        text: 'Your reset key is: ' + tempPassword,
-                        html: '<strong>Your reset key is:</strong>' + tempPassword
-                    };
+                    // const msg= {
+                    //     to: 'bartdority@gmail.com',
+                    //     from: 'b0rgBart3@gmail.com',
+                    //     subject: 'You requested a reset',
+                    //     text: 'Your reset key is: ' + tempPassword,
+                    //     html: '<strong>Your reset key is:</strong>' + tempPassword
+                    // };
     
-                     sgMail.send(msg);
+                    //  sgMail.send(msg);
 
-                     res.writeHead('Access-Control-Allow-Origin',  ORIGIN_BASEPATH );
-                    res.writeHead('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
-                    res.writeHead('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+                    //  res.writeHead('Access-Control-Allow-Origin',  ORIGIN_BASEPATH );
+                    // res.writeHead('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
+                    // res.writeHead('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 
                     
-                    res.writeHead(200, { 'Content-Type': 'plain/text' });
-                    res.end();
+                    // res.writeHead(200, { 'Content-Type': 'plain/text' });
+                    // res.end();
                             
                    
                     // transporter.sendMail(mailOptions, (error, info) => {
