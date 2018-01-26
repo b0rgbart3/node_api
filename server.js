@@ -96,7 +96,7 @@ function staticValue (value) {
 
 
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
-const SENDGRID_SENDER = process.env.SENDGRID_SENDER;
+// const SENDGRID_SENDER = process.env.SENDGRID_SENDER;
 const Sendgrid = require('sendgrid')(SENDGRID_API_KEY);
 
 
@@ -177,7 +177,7 @@ app.post('/api/reset', (req, res, next) => {
           to: [{ email: 'bartdority@gmail.com' }],
           subject: 'Hello World!'
         }],
-        from: { email: SENDGRID_SENDER },
+        from: { email: 'b0rgBart3@gmail.com' },
         content: [{
           type: 'text/plain',
           value: 'Sendgrid on Google App Engine with Node.js.'
