@@ -1401,9 +1401,9 @@ var processReset = function(body,req,res) {
     
                      sgMail.send(msg);
 
-                     res.header('Access-Control-Allow-Origin',  ORIGIN_BASEPATH );
-                    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
-                    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
+                     res.writeHead('Access-Control-Allow-Origin',  ORIGIN_BASEPATH );
+                    res.writeHead('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
+                    res.writeHead('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 
                     
                     res.writeHead(200, { 'Content-Type': 'plain/text' });
