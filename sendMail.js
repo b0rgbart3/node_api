@@ -74,7 +74,8 @@ var sendWelcome = function( resourceObject ) {
         body: myMailBody,
       });
       
-
+    console.log("Sending Welcome Email");
+    
     sg.API(request, function(error, response) {
     console.log(response.statusCode);
     console.log(response.body);
