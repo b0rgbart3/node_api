@@ -140,8 +140,8 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 app.use(urlencodedParser);
 
 
-app.post('/api/reset', (req, res, next) => {
-    console.log('Got email: ' + JSON.stringify(req) );
+app.post('/api/reset', jsonParser, (req, res, next) => {
+    console.log('Got email: ' + req );
     mailer.sendMail(req);
     res.writeHead(200, {"Content-Type": "application/json"});
     res.end();
