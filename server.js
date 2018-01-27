@@ -151,11 +151,41 @@ app.put('/api/reset', jsonParser, (req, res, next) => {
         if(err) { handleError(res,err.message, "Didn't find that user" + req.body.email); }
         else{
 
-            key = docs.resetKey;
-            console.log("Key == " + key);
-            key_from_form = req.body.resetKey;
-            console.log("Key from form == " + key_from_form);
+            const resourceObject = req.body;
 
+            key = docs.resetKey;
+            //console.log("Key == " + key);
+            key_from_form = req.body.resetKey;
+            //console.log("Key from form == " + key_from_form);
+
+            if (key === key_from_form) {
+                // we are good to go - let's reset the users password!
+                // we should remove the storing of the pasword alltogether and just use the JWT
+
+                const userPas = req.body.password;
+                const userJWT = jwt.sign({ password: userPas}, certString );
+                resourceObject.token = userJWT;
+
+                res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
+                res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+                res.setHeader("Access-Control-Allow-Headers", 
+                "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+            
+                dbQuery = {'id':resourceObject.id };
+
+                try {
+                db.collection('users').replaceOne({ "id" : resourceObject.id },
+                    resourceObject);
+                    res.sendStatus(200);
+                    res.end();
+                } catch (e) {
+                    console.log("Error entering update of user info into the DB");
+                    res.sendStatus(450);
+                    res.end(e.message);
+                } 
+             
+
+            }
             
         }
 
@@ -561,8 +591,9 @@ var putUser = function(req,res,next) {
     let resourceObject = req.body;
     let userPas = resourceObject.password;
     let userJWT = jwt.sign({ password: userPas}, certString );
-    resourceObject.verified = 'false';
     resourceObject.token = userJWT;
+    resourceObject.verified = 'false';
+    
     let verificationID = makeid();
     resourceObject.verificationID = verificationID;
     res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
