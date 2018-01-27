@@ -141,6 +141,25 @@ app.use(urlencodedParser);
 
 app.put('/api/reset', jsonParser, (req, res, next) => {
     console.log('Got Reset: ' + req.body );
+
+    // This feels a little redundant, but we are once again, going to look up the user
+    // in the db based on their email address -- and then UPDATE their password
+    // ** only if the reset key matches!
+    dbQuery = {'email': req.body.email };
+
+    db.collection('users').findOne(dbQuery, function(err,docs) {
+        if(err) { handleError(res,err.message, "Didn't find that user" + req.body.email); }
+        else{
+
+            key = docs.resetKey;
+            console.log("Key == " + key);
+            key_from_form = req.body.resetKey;
+            console.log("Key from form == " + key_from_form);
+            
+
+
+        }
+
 });
 
 app.post('/api/requestreset', jsonParser, (req, res, next) => {
