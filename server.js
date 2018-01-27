@@ -140,7 +140,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 app.use(urlencodedParser);
 
 app.put('/api/reset', jsonParser, (req, res, next) => {
-    console.log('Got Reset: ' + req.body );
+    console.log('Got Reset: ' + JSON.stringify(req.body) );
 
     // This feels a little redundant, but we are once again, going to look up the user
     // in the db based on their email address -- and then UPDATE their password
