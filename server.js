@@ -156,8 +156,7 @@ app.put('/api/reset', jsonParser, (req, res, next) => {
             key_from_form = req.body.resetKey;
             console.log("Key from form == " + key_from_form);
 
-
-
+            
         }
 
     });
