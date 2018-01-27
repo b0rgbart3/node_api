@@ -139,8 +139,11 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(urlencodedParser);
 
-
 app.post('/api/reset', jsonParser, (req, res, next) => {
+    console.log('Got Reset: ' + req.body );
+});
+
+app.post('/api/requestreset', jsonParser, (req, res, next) => {
     console.log('Got email: ' + req.body.email );
     
 
@@ -166,7 +169,7 @@ app.post('/api/reset', jsonParser, (req, res, next) => {
            const resourceObject = docs;
            resourceObject.resetKey = makeid();
            req.body.resetKey = resourceObject.resetKey;
-           
+
            try {
             db.collection('users').update({ "id" : id },
                resourceObject, {upsert: true});
@@ -831,8 +834,11 @@ app.options('/api/chats/enter', function(req, res, next){
 app.options('/api/chats/whosin*', function(req, res, next){
         returnSuccess( req, res, next ); });
 
-app.options('/api/reset', function( req, res, next) {
+app.options('/api/requestreset', function( req, res, next) {
     returnSuccess( req, res, next ); });
+
+app.options('/api/reset', function( req, res, next) {
+        returnSuccess( req, res, next ); });
 
 app.options('/api/usersettings', function(req, res, next){
     res.header('Access-Control-Allow-Origin',  ORIGIN_BASEPATH );
