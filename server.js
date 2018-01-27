@@ -139,7 +139,7 @@ var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
 app.use(urlencodedParser);
 
-app.post('/api/reset', jsonParser, (req, res, next) => {
+app.put('/api/reset', jsonParser, (req, res, next) => {
     console.log('Got Reset: ' + req.body );
 });
 
