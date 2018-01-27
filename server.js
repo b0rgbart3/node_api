@@ -155,11 +155,12 @@ app.put('/api/reset', jsonParser, (req, res, next) => {
             console.log("Key == " + key);
             key_from_form = req.body.resetKey;
             console.log("Key from form == " + key_from_form);
-            
+
 
 
         }
 
+    });
 });
 
 app.post('/api/requestreset', jsonParser, (req, res, next) => {
