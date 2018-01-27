@@ -163,7 +163,7 @@ app.put('/api/reset', jsonParser, (req, res, next) => {
                 // we should remove the storing of the pasword alltogether and just use the JWT
 
                 console.log('Keys match');
-                
+
                 const userPas = req.body.password;
                 const userJWT = jwt.sign({ password: userPas}, certString );
                 resourceObject.token = userJWT;
@@ -173,10 +173,10 @@ app.put('/api/reset', jsonParser, (req, res, next) => {
                 res.setHeader("Access-Control-Allow-Headers", 
                 "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
             
-                dbQuery = {'id':resourceObject.id };
+                dbQuery = {'id':docs.id };
 
                 try {
-                db.collection('users').replaceOne({ "id" : resourceObject.id },
+                db.collection('users').replaceOne( dbQuery,
                     resourceObject);
                     res.sendStatus(200);
                     res.end();
