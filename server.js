@@ -218,7 +218,9 @@ app.post('/api/requestreset', jsonParser, (req, res, next) => {
 
     db.collection('users').findOne(dbQuery, function(err,docs) {
 
-        if(err) { handleError(res,err.message, "Didn't find that user" + req.body.email); }
+        if(err) { 
+            console.log("Got an error durring password reset request");
+            handleError(res,err.message, "Didn't find that user" + req.body.email); }
         else{
            // here we found the users email in our system, so we can send them
            // a reset email.
