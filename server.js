@@ -168,6 +168,12 @@ app.put('/api/reset', jsonParser, (req, res, next) => {
                 const userJWT = jwt.sign({ password: userPas}, certString );
                 resourceObject.token = userJWT;
 
+                // OK since we know the keys match -- now we want to remove them
+                // from the object (in the db) so that folks can't use the same email
+                // reset twice -- This could also be done with a Timestamp, but I'm
+                // not ready to implement that level of detail just yet.
+                resourceObject.resetKey = '';
+
                 res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
                 res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
                 res.setHeader("Access-Control-Allow-Headers", 
@@ -211,12 +217,15 @@ app.post('/api/requestreset', jsonParser, (req, res, next) => {
     dbQuery = {'email' : req.body.email };
 
     db.collection('users').findOne(dbQuery, function(err,docs) {
+
         if(err) { handleError(res,err.message, "Didn't find that user" + req.body.email); }
         else{
            // here we found the users email in our system, so we can send them
            // a reset email.
            // but first, let's store a JSON key in the db that we can match on the other side
            const id = docs.id;
+
+           console.log('Found user for requested reset, with an id of: ' + id);
            const resourceObject = docs;
            resourceObject.resetKey = makeid();
            req.body.resetKey = resourceObject.resetKey;
