@@ -150,7 +150,7 @@ app.put('/api/reset', jsonParser, (req, res, next) => {
     db.collection('users').findOne(dbQuery, function(err,docs) {
         if(err) { handleError(res,err.message, "Didn't find that user" + req.body.email); }
         else{
-
+            console.log('In Reset: found user: ' + JSON.stringify(docs));
             const resourceObject = req.body;
 
             key = docs.resetKey;
@@ -162,6 +162,8 @@ app.put('/api/reset', jsonParser, (req, res, next) => {
                 // we are good to go - let's reset the users password!
                 // we should remove the storing of the pasword alltogether and just use the JWT
 
+                console.log('Keys match');
+                
                 const userPas = req.body.password;
                 const userJWT = jwt.sign({ password: userPas}, certString );
                 resourceObject.token = userJWT;
