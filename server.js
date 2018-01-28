@@ -1726,7 +1726,7 @@ var processAuthentication = function(req, res, next) {
     console.log("userPas: "+ userPas);
 
     let comparePW = userPas;
-    let userJWT = JWT.sign({ "password": userPas}, certString );
+    let userJWT = jwt.sign({ "password": userPas}, certString );
     let queryObject = { "username":userObject.username};
 
     // console.log("DB: ");
