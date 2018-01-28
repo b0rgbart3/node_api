@@ -168,11 +168,18 @@ app.put('/api/reset', jsonParser, (req, res, next) => {
                 const userJWT = jwt.sign({ "password": userPas}, certString );
                 resourceObject.token = userJWT;
 
+                
+                
+                // This is Deborah Korata's way of merging two models
+                // In this case we want to merge the model in the DB with the new
+                // data that came in from the request
+                const combinedObject = Object.assign( {}, resourceObject, docs);
+
                 // OK since we know the keys match -- now we want to remove them
                 // from the object (in the db) so that folks can't use the same email
                 // reset twice -- This could also be done with a Timestamp, but I'm
                 // not ready to implement that level of detail just yet.
-                resourceObject.resetKey = '';
+                combinedObject.resetKey = '';
 
                 res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
                 res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
@@ -183,7 +190,7 @@ app.put('/api/reset', jsonParser, (req, res, next) => {
 
                 try {
                 db.collection('users').replaceOne( dbQuery,
-                    resourceObject);
+                    combinedObject);
                     res.sendStatus(200);
                     res.end();
                 } catch (e) {
