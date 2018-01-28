@@ -165,7 +165,7 @@ app.put('/api/reset', jsonParser, (req, res, next) => {
                 console.log('Keys match');
 
                 const userPas = req.body.password;
-                const userJWT = jwt.sign({ 'password': userPas}, certString );
+                const userJWT = jwt.sign({ "password": userPas}, certString );
                 resourceObject.token = userJWT;
 
                 // OK since we know the keys match -- now we want to remove them
@@ -1726,7 +1726,7 @@ var processAuthentication = function(req, res, next) {
     console.log("userPas: "+ userPas);
 
     let comparePW = userPas;
-    let userJWT = JWT.sign({ 'password': userPas}, certString );
+    let userJWT = JWT.sign({ "password": userPas}, certString );
     let queryObject = { "username":userObject.username};
 
     // console.log("DB: ");
