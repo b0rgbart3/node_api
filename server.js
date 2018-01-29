@@ -31,7 +31,7 @@ let ssl_options = {};
 let ORIGIN_BASEPATH = "";
 let AVATAR_PATH = "";
 
-let local = false;
+let local = true;
 cert = fs.readFileSync('.bsx');
 certString = cert.toString();
 
@@ -241,7 +241,7 @@ app.post('/api/requestreset', jsonParser, (req, res, next) => {
 
            try {
             db.collection('users').update({ "id" : id },
-               resourceObject, {upsert: true});
+               resourceObject );
                
                // OK - finally - now we can send the user a reset email
                mailer.sendReset(req.body);
