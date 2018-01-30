@@ -462,7 +462,7 @@ var getInstructors = function (req,res,next) {
 
 var getWhosIn = function(req,res,next) {
     let whosIn = [];
-    console.log('Finding out whos in the discusssionroom: ');
+    console.log('Finding out whos in the discusssion: ');
     if (req.query.class && req.query.class != 0)
     {
     
@@ -601,12 +601,14 @@ var makeid= function() {
 var discussionLogin = function(req,res,next) {
     let user = req.body.user;
     let classID = req.body.classID;
-    
-    if (!discusssionroom[classID]) { discusssionroom[classID] = []; }
-    if (!discusssionroom[classID].includes(user)) {
-    discusssionroom[classID].push(user); }
-    console.log('User '+user+', entered discusssionroom: '+ classID);
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    let sectionNumber = req.body.sectionNumber;
+
+    if (!discusssion[classID][sectionNumber]) { discusssion[classID][sectionNumber] = []; }
+    if (!discusssion[classID][sectionNumber].includes(user)) {
+    discusssion[classID][sectionNumber].push(user); }
+    console.log('User '+user+', entered discusssion fro class: '+ classID + ', and section: ' +
+    sectionNumber);
+    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
