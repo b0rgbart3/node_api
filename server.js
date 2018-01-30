@@ -34,6 +34,8 @@ let AVATAR_PATH = "";
 let local = true;
 cert = fs.readFileSync('.bsx');
 certString = cert.toString();
+let chatrooms = [];
+
 
 AVATAR_PATH = 'https://recloom.s3.amazonaws.com/avatars';
 
