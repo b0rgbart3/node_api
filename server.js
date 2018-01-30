@@ -34,7 +34,7 @@ let AVATAR_PATH = "";
 let local = true;
 cert = fs.readFileSync('.bsx');
 certString = cert.toString();
-let chatrooms = [];
+let discussions = [][];
 
 
 AVATAR_PATH = 'https://recloom.s3.amazonaws.com/avatars';
@@ -102,8 +102,8 @@ region: 'us-west-1'
 // credentials: {S3_CREDS}
 
 
-// Chatroom Logins
-var chatroom = [];
+// discusssionroom Logins
+var discussion = [];
 
 
 function staticValue (value) {
@@ -462,10 +462,10 @@ var getInstructors = function (req,res,next) {
 
 var getWhosIn = function(req,res,next) {
     let whosIn = [];
-    console.log('Finding out whos in the chatroom: ');
+    console.log('Finding out whos in the discusssionroom: ');
     if (req.query.id && req.query.id != 0)
     {
-        whosIn = chatroom[req.query.id];
+        whosIn = discussion[req.query.id];
 
     } 
     if (!whosIn) { whosIn = []};
@@ -591,14 +591,14 @@ var makeid= function() {
     return text;
   };
 
-var chatLogin = function(req,res,next) {
+var discussionLogin = function(req,res,next) {
     let user = req.body.user;
     let classID = req.body.classID;
     
-    if (!chatroom[classID]) { chatroom[classID] = []; }
-    if (!chatroom[classID].includes(user)) {
-    chatroom[classID].push(user); }
-    console.log('User '+user+', entered chatroom: '+ classID);
+    if (!discusssionroom[classID]) { discusssionroom[classID] = []; }
+    if (!discusssionroom[classID].includes(user)) {
+    discusssionroom[classID].push(user); }
+    console.log('User '+user+', entered discusssionroom: '+ classID);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
@@ -736,7 +736,7 @@ app.get('/api/finduser*', function(req,res,next) {
   app.get('/api/students',  function(req,res,next) { getStudents(req,res,next);});
   app.get('/api/series', function(req,res,next) { getSeries(req,res,next);});
   app.get('/api/threads', function(req,res,next) { getResources('threads',req,res,next);});
-  app.get('/api/chats/whosin', function(req,res,next) { getWhosIn(req,res,next);});
+  app.get('/api/discussion/whosin', function(req,res,next) { getWhosIn(req,res,next);});
   app.get('/api/avatars*', function(req,res,next) { 
       console.log("About to call get avatars.");
       getResources('avatars',req,res,next);});
@@ -898,10 +898,10 @@ app.options('/api/classregistrations', function(req, res, next){
 app.options('/api/threads', function(req, res, next){
     returnSuccess( req, res, next ); });
 
-app.options('/api/chats/enter', function(req, res, next){
+app.options('/api/discussion/enter', function(req, res, next){
         returnSuccess( req, res, next ); });
 
-app.options('/api/chats/whosin*', function(req, res, next){
+app.options('/api/discussion/whosin*', function(req, res, next){
         returnSuccess( req, res, next ); });
 
 app.options('/api/requestreset', function( req, res, next) {
@@ -947,9 +947,9 @@ app.put('/api/threads', jsonParser, function(req,res,next) { putResource('thread
 app.put('/api/users', jsonParser, function(req,res,next) { putUser( req, res, next);});
 app.put('/api/classregistrations', jsonParser, function(req,res,next) { putResource('classregistrations', req, res, next);});
 
-app.put('/api/chats/enter', jsonParser, function(req,res,next) {
-    console.log('Got a chatroom entry request');
-    chatLogin( req, res, next);});
+app.put('/api/discussion/enter', jsonParser, function(req,res,next) {
+    console.log('Got a discussion entry request');
+    discussLogin( req, res, next);});
 
 
 app.post('/api/authenticate', jsonParser, function(req,res,next) {
@@ -1252,7 +1252,7 @@ app.use(express.static(frontDir));
 // LIVE PORT
 
 
-/*  Chat Socket 
+/*  Discussion Socket 
 -----------------------------------*/
 
 var io = require('socket.io')(server);
@@ -1260,18 +1260,19 @@ server.listen(process.env.PORT);
 
 io.sockets.on('connection', function(socket){
     console.log('Socket connected');
-    socket.emit('chatsocketevent', { hello: 'world' });
+    socket.emit('discussionsocketevent', { hello: 'world' });
     
-    socket.on('enter', function( user, classID ) {
+    socket.on('enter', function( user, classID, sectionNumber ) {
       console.log('got a message from the frontend: ' + user.username);
-      if (!chatrooms[classID]) {chatrooms[classID] = [];}
-      chatrooms[classID].push(user);
-      socket.broadcast.emit('message', user.username + ' has joined the chat');
+      if (!discussions[classID][sectionNumber]) {discussions[classID] = [];
+        discussions[sectionNumber] = [];}
+      discussions[classID][sectionNumber].push(user);
+      socket.broadcast.emit('message', user.username + ' has joined the discussion');
     });
   
-    socket.on('whosin', function( classID ) {
-      if (chatrooms[classID]) {
-        socket.emit('whosinresponse', chatrooms[classID] );
+    socket.on('whosin', function( classID, sectionNumber ) {
+      if (discussions[classID][sectionNumber]) {
+        socket.emit('whosinresponse', discussions[classID][sectionNumber] );
       }
     });
 });
