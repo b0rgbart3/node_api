@@ -463,11 +463,18 @@ var getInstructors = function (req,res,next) {
 var getWhosIn = function(req,res,next) {
     let whosIn = [];
     console.log('Finding out whos in the discusssionroom: ');
-    if (req.query.id && req.query.id != 0)
+    if (req.query.class && req.query.class != 0)
     {
-        whosIn = discussion[req.query.id];
-
+    
+        if (req.query.section) {
+        
+            console.log('Looking whos in Class: ' + req.query.class + ', and section: ' +
+            req.query.section );
+            
+            whosIn = discussion[req.query.class][req.query.section];
+        }
     } 
+
     if (!whosIn) { whosIn = []};
     console.log('Whosin: ' + whosIn);
     let whosInObject = { userIDs : whosIn };
