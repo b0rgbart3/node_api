@@ -118,8 +118,30 @@ function staticValue (value) {
 
 app.use(logger);
 
+/*  Chat Socket 
+-----------------------------------*/
 
-// app.doSomething();
+var io = require('socket.io').listen(app);
+
+io.sockets.on('connection', function(socket){
+    console.log('Socket connected');
+    socket.emit('chatsocketevent', { hello: 'world' });
+    
+    socket.on('enter', function( user, classID ) {
+      console.log('got a message from the frontend: ' + user.username);
+      if (!chatrooms[classID]) {chatrooms[classID] = [];}
+      chatrooms[classID].push(user);
+      socket.broadcast.emit('message', user.username + ' has joined the chat');
+    });
+  
+    socket.on('whosin', function( classID ) {
+      if (chatrooms[classID]) {
+        socket.emit('whosinresponse', chatrooms[classID] );
+      }
+    });
+/*
+  ------------------------------------*/
+  
 
 
 app.use(function(req, res, next) { //allow cross origin requests
