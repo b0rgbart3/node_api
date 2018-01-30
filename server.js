@@ -1253,7 +1253,7 @@ server.listen(process.env.PORT);
 /*  Chat Socket 
 -----------------------------------*/
 
-var io = require('socket.io').listen(server);
+var io = require('socket.io');
 
 io.sockets.on('connection', function(socket){
     console.log('Socket connected');
