@@ -102,7 +102,7 @@ region: 'us-west-1'
 // credentials: {S3_CREDS}
 
 
-// discusssionroom Logins
+// discusssion Logins
 var discussion = [];
 
 
@@ -470,7 +470,7 @@ var getWhosIn = function(req,res,next) {
         
             console.log('Looking whos in Class: ' + req.query.class + ', and section: ' +
             req.query.section );
-            
+
             whosIn = discussion[req.query.class][req.query.section];
         }
     } 
@@ -956,7 +956,7 @@ app.put('/api/classregistrations', jsonParser, function(req,res,next) { putResou
 
 app.put('/api/discussion/enter', jsonParser, function(req,res,next) {
     console.log('Got a discussion entry request');
-    discussLogin( req, res, next);});
+    discussionLogin( req, res, next);});
 
 
 app.post('/api/authenticate', jsonParser, function(req,res,next) {
@@ -1271,15 +1271,15 @@ io.sockets.on('connection', function(socket){
     
     socket.on('enter', function( user, classID, sectionNumber ) {
       console.log('got a message from the frontend: ' + user.username);
-      if (!discussions[classID][sectionNumber]) {discussions[classID] = [];
-        discussions[sectionNumber] = [];}
-      discussions[classID][sectionNumber].push(user);
+      if (!discussion[classID][sectionNumber]) {discussion[classID] = [];
+        discussion[sectionNumber] = [];}
+      discussion[classID][sectionNumber].push(user);
       socket.broadcast.emit('message', user.username + ' has joined the discussion');
     });
   
     socket.on('whosin', function( classID, sectionNumber ) {
-      if (discussions[classID][sectionNumber]) {
-        socket.emit('whosinresponse', discussions[classID][sectionNumber] );
+      if (discussion[classID][sectionNumber]) {
+        socket.emit('whosinresponse', discussion[classID][sectionNumber] );
       }
     });
 });
