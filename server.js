@@ -1256,22 +1256,22 @@ app.use(express.static(frontDir));
 var io = require('socket.io')(server);
 server.listen(process.env.PORT);
 
-// io.sockets.on('connection', function(socket){
-//     console.log('Socket connected');
-//     socket.emit('chatsocketevent', { hello: 'world' });
+io.sockets.on('connection', function(socket){
+    console.log('Socket connected');
+    socket.emit('chatsocketevent', { hello: 'world' });
     
-//     socket.on('enter', function( user, classID ) {
-//       console.log('got a message from the frontend: ' + user.username);
-//       if (!chatrooms[classID]) {chatrooms[classID] = [];}
-//       chatrooms[classID].push(user);
-//       socket.broadcast.emit('message', user.username + ' has joined the chat');
-//     });
+    socket.on('enter', function( user, classID ) {
+      console.log('got a message from the frontend: ' + user.username);
+      if (!chatrooms[classID]) {chatrooms[classID] = [];}
+      chatrooms[classID].push(user);
+      socket.broadcast.emit('message', user.username + ' has joined the chat');
+    });
   
-//     socket.on('whosin', function( classID ) {
-//       if (chatrooms[classID]) {
-//         socket.emit('whosinresponse', chatrooms[classID] );
-//       }
-//     });
+    socket.on('whosin', function( classID ) {
+      if (chatrooms[classID]) {
+        socket.emit('whosinresponse', chatrooms[classID] );
+      }
+    });
 /*
   ------------------------------------*/
   
