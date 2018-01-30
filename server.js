@@ -1248,12 +1248,13 @@ app.use(express.static(frontDir));
 //server.listen(port,() => console.log('PORT :: ' + port));
 
 // LIVE PORT
-server.listen(process.env.PORT);
+
 
 /*  Chat Socket 
 -----------------------------------*/
 
-// var io = require('socket.io');
+var io = require('socket.io')(server);
+server.listen(process.env.PORT);
 
 // io.sockets.on('connection', function(socket){
 //     console.log('Socket connected');
