@@ -1273,7 +1273,11 @@ io.sockets.on('connection', function(socket){
     
     socket.on('enter', function( user, classID, sectionNumber ) {
       console.log('got a message from the frontend: ' + user.username);
-      if (!discussion[classID][sectionNumber]) {discussion[classID] = [];
+      console.log('Class #' + classID);
+      console.log('Section #' + sectionNumber);
+
+      if (!discussion[classID][sectionNumber]) {
+          discussion[classID] = [];
         discussion[sectionNumber] = [];}
       discussion[classID][sectionNumber].push(user);
       socket.broadcast.emit('message', user.username + ' has joined the discussion');
