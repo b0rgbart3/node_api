@@ -19,8 +19,9 @@ var im = require('imagemagick');
 var sanitize = require("sanitize-filename");
 
 // My external JS files
-var logger = require('./logger');
+var logger = require('./api/logger');
 var mailer = require('./sendMail');
+
 
 var cert;
 var certString;
@@ -35,11 +36,7 @@ let local = true;
 cert = fs.readFileSync('.bsx');
 certString = cert.toString();
 
-// var discussion = {
-//     classID: string,
-//     sectionNumber: number,
-//     currentUsers: []
-// }
+
 
 class Discussion {
     constructor(classID, sectionNumber) {
@@ -51,7 +48,7 @@ class Discussion {
 
 
 AVATAR_PATH = 'https://recloom.s3.amazonaws.com/avatars';
-
+UPLOAD_PATH = 'https://recloom.s3.amazonaws.com/';
 
 var express = require('express');
 var app = express();
@@ -60,16 +57,13 @@ gm = require('gm').subClass({imageMagick: true});
 server = http.createServer(app);
 if (local) { 
     ORIGIN_BASEPATH = "http://localhost:4200";
-    //AVATAR_PATH = 'http://localhost:3100/avatars/';
     
     server.listen(3100);
 }
 else {
     
    ORIGIN_BASEPATH = "https://thawing-reaches-29763.herokuapp.com";
- //   AVATAR_PATH = 'https://young-bastion-45095.herokuapp.com';   
-  //   ORIGIN_BASEPATH = "https://ddworks.org/dist/";
-     // AVATAR_PATH = 'https://ddwork.org:8000/avatars/';
+
     let ssl_options = {
         key:fs.readFileSync('./ssl/privkey.pem'),
         cert:fs.readFileSync('./ssl/allchange.pem')
@@ -78,79 +72,14 @@ else {
 }
 
 
-var io = require('socket.io')(server);
-
-var socketTrap;
-
-/*  Discussion Socket 
------------------------------------*/
-
-
-
-io.sockets.on('connection', function(socket){
-    console.log('Socket connected');
-  //  socket.emit('discussionsocketevent', { hello: 'world' });  
-
-    socket.on('enter', function( user, classID, sectionNumber ) {
-      console.log('got a message from the frontend: ' + user.username);
-      console.log('Class #' + classID);
-      console.log('Section #' + sectionNumber);
-      this.broadcast.emit('userentering', {'user': user, 'classID': classID, 'sectionNumber': sectionNumber });
-
-    });
-
-    socket.on('newthread', function( threadObject ) {
-        console.log('got a new thread from the frontend: ' + JSON.stringify(threadObject));
-   
-        this.broadcast.emit('newthread', {'threadObject': threadObject });
-  
-      });   
-
-    socket.on('deletethread', function( threadObject ) {
-        console.log('A thread was deleted: ' + JSON.stringify(threadObject));
-   
-        this.broadcast.emit('deletethread', {'threadObject': threadObject });
-  
-      });   
-    //   foundDiscussion = findDiscussion(classID, sectionNumber);
-
-    //   if (foundDiscussion) {
-    //       foundDiscussion.push(user);
-    //   }
-    //   if (!discussions[classID][sectionNumber]) {
-    //       discussions[classID] = [];
-    //     discussion[sectionNumber] = [];}
-    //   discussion[classID][sectionNumber].push(user);
-    //   socket.broadcast.emit('message', user.username + ' has joined the discussion');
-    // });
-  
-    // socket.on('whosin', function( classID, sectionNumber ) {
-    //   if (discussion[classID][sectionNumber]) {
-    //     socket.emit('whosinresponse', discussion[classID][sectionNumber] );
-    //   }
-    // });
-});
-
-
-/*
-  ------------------------------------*/
-
-// ORIGIN_BASEPATH = "https://thawing-reaches-29763.herokuapp.com";
-
-UPLOAD_PATH = 'https://recloom.s3.amazonaws.com/';
+var options = require('./api/options')(app, ORIGIN_BASEPATH);
+var discussion = require('./api/discussion')(server);
 
 
 
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
 // const SENDGRID_SENDER = process.env.SENDGRID_SENDER;
 const Sendgrid = require('sendgrid')(SENDGRID_API_KEY);
-
-// ---------------------------------
-
-
-
-
-
 
 // ---------------------------------
 
@@ -222,7 +151,6 @@ mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
 
 
 app.use(logger);
-
 
 
 app.use(function(req, res, next) { //allow cross origin requests
@@ -1009,104 +937,6 @@ var getResources = function(resource,req,res,next) {
       };
   
 
-
-
-app.options('/api/doc', function(req, res, next){
-    returnSuccess( req, res, next ); });
-app.options('/api/docimages', function(req, res, next){
-returnSuccess( req, res, next );
-});
-app.options('/api/book', function(req, res, next){
-                returnSuccess( req, res, next ); });
-app.options('/api/bookimages', function(req, res, next){
-    returnSuccess( req, res, next );
-});
-                
-app.options('/courseimages', function(req, res, next){
-    returnSuccess( req, res, next ); });
-
-app.options('/api/studentClasses', function(req, res, next){
-    returnSuccess( req, res, next ); });
-
-app.options('/api/instructorClasses', function(req, res, next){
-        returnSuccess( req, res, next ); });
-
-app.options('/api/finduser', function(req, res, next){
-    returnSuccess( req, res, next ); });
-
-app.options('/api/users', function(req, res, next){
-    returnSuccess( req, res, next ); });
-
-app.options('/api/courses', function(req, res, next){
-        returnSuccess( req, res, next ); });
-
-app.options('/api/classes', function(req, res, next){
-        returnSuccess( req, res, next ); });
-
-app.options('/api/allmaterialsbytype', function(req, res, next){
-            returnSuccess( req, res, next ); });
-
-app.options('/api/series', function(req, res, next){
-                returnSuccess( req, res, next ); });
-
-app.options('/api/materials', function(req, res, next){
-    returnSuccess( req, res, next ); });
-     
-app.options('/api/materialimages', function(req, res, next){
-    returnSuccess( req, res, next );
-});
-app.options('/api/materialfiles', function(req, res, next){
-    returnSuccess( req, res, next );
-});
-app.options('/api/docfiles', function(req, res, next){
-    returnSuccess( req, res, next );
-});
-app.options('/api/classregistrations', function(req, res, next){
-    returnSuccess( req, res, next );
-});
-app.options('/api/threads', function(req, res, next){
-    returnSuccess( req, res, next ); });
-
-app.options('/api/discussion/enter', function(req, res, next){
-        returnSuccess( req, res, next ); });
-
-app.options('/api/discussion/whosin*', function(req, res, next){
-        returnSuccess( req, res, next ); });
-
-app.options('/api/requestreset', function( req, res, next) {
-    returnSuccess( req, res, next ); });
-
-app.options('/api/reset', function( req, res, next) {
-        returnSuccess( req, res, next ); });
-
-app.options('/api/batchmaterials', function( req, res, next) {
-    returnSuccess( req, res, next ); });
-
-app.options('/api/usersettings', function(req, res, next){
-    res.header('Access-Control-Allow-Origin',  ORIGIN_BASEPATH );
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-    res.sendStatus(200);
-  });
-app.options('/api/assets', function(req, res, next){
-    res.header('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-    res.sendStatus(200);
-  });
-app.options('/api/avatar', function(req, res, next){
-    res.header('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-    res.sendStatus(200);
-  });
-
-app.options("/*", function(req, res, next){
-    res.header('Access-Control-Allow-Origin', ORIGIN_BASEPATH );
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
-    res.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
-    res.sendStatus(200);
-  });
 
 app.put('/api/book', jsonParser, function(req,res,next) { putResource('book', req, res, next);}); 
 app.put('/api/doc', jsonParser, function(req,res,next) { putResource('doc', req, res, next);});  
