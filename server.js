@@ -34,15 +34,35 @@ let AVATAR_PATH = "";
 let local = true;
 cert = fs.readFileSync('.bsx');
 certString = cert.toString();
-let discussions = [];
+
+// var discussion = {
+//     classID: string,
+//     sectionNumber: number,
+//     currentUsers: []
+// }
+
+class Discussion {
+    constructor(classID, sectionNumber) {
+      this.classID = classID;
+      this.sectionNumber = sectionNumber;
+      this.currentUsers = [];
+    }
+  }
 
 
 AVATAR_PATH = 'https://recloom.s3.amazonaws.com/avatars';
 
+
+var express = require('express');
+var app = express();
+gm = require('gm').subClass({imageMagick: true});
+
+server = http.createServer(app);
 if (local) { 
     ORIGIN_BASEPATH = "http://localhost:4200";
     //AVATAR_PATH = 'http://localhost:3100/avatars/';
     
+    server.listen(3100);
 }
 else {
     
@@ -54,7 +74,67 @@ else {
         key:fs.readFileSync('./ssl/privkey.pem'),
         cert:fs.readFileSync('./ssl/allchange.pem')
     };
+    server.listen(process.env.PORT);
 }
+
+
+var io = require('socket.io')(server);
+
+var socketTrap;
+
+/*  Discussion Socket 
+-----------------------------------*/
+
+
+
+io.sockets.on('connection', function(socket){
+    console.log('Socket connected');
+  //  socket.emit('discussionsocketevent', { hello: 'world' });  
+
+    socket.on('enter', function( user, classID, sectionNumber ) {
+      console.log('got a message from the frontend: ' + user.username);
+      console.log('Class #' + classID);
+      console.log('Section #' + sectionNumber);
+      this.broadcast.emit('userentering', {'user': user, 'classID': classID, 'sectionNumber': sectionNumber });
+
+    });
+
+    socket.on('newthread', function( threadObject ) {
+        console.log('got a new thread from the frontend: ' + JSON.stringify(threadObject));
+   
+        this.broadcast.emit('newthread', {'threadObject': threadObject });
+  
+      });   
+
+    socket.on('deletethread', function( threadObject ) {
+        console.log('A thread was deleted: ' + JSON.stringify(threadObject));
+   
+        this.broadcast.emit('deletethread', {'threadObject': threadObject });
+  
+      });   
+    //   foundDiscussion = findDiscussion(classID, sectionNumber);
+
+    //   if (foundDiscussion) {
+    //       foundDiscussion.push(user);
+    //   }
+    //   if (!discussions[classID][sectionNumber]) {
+    //       discussions[classID] = [];
+    //     discussion[sectionNumber] = [];}
+    //   discussion[classID][sectionNumber].push(user);
+    //   socket.broadcast.emit('message', user.username + ' has joined the discussion');
+    // });
+  
+    // socket.on('whosin', function( classID, sectionNumber ) {
+    //   if (discussion[classID][sectionNumber]) {
+    //     socket.emit('whosinresponse', discussion[classID][sectionNumber] );
+    //   }
+    // });
+});
+
+
+/*
+  ------------------------------------*/
+
 // ORIGIN_BASEPATH = "https://thawing-reaches-29763.herokuapp.com";
 
 UPLOAD_PATH = 'https://recloom.s3.amazonaws.com/';
@@ -76,16 +156,6 @@ const Sendgrid = require('sendgrid')(SENDGRID_API_KEY);
 
 const querystring = require('querystring');
 
-var express = require('express');
-var app = express();
-gm = require('gm').subClass({imageMagick: true});
-
-if (local) {
-    server = http.createServer(app);
-} else {
-//    server = https.createServer(ssl_options,app);
-server = http.createServer(app);
-}
 
 // var S3_CREDS = {
 //     "aws_access_key_id" : "AKIAIE52WOYO3ZPCPT3Q",
@@ -103,7 +173,7 @@ region: 'us-west-1'
 
 
 // discusssion Logins
-var discussion = [];
+var discussions = [];
 
 
 function staticValue (value) {
@@ -116,6 +186,39 @@ function staticValue (value) {
 
 
 
+
+
+
+var makeid = function() {
+    var text = "";
+    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+  
+    for (var i = 0; i < 5; i++)
+      text += possible.charAt(Math.floor(Math.random() * possible.length));
+  
+    return text;
+  }
+
+var ObjectID = mongodb.ObjectID;
+                    // this should be set to: process.env.MONGODB_URI
+const MONGODB_URI = 'mongodb://bart:givemedata@ds163360.mlab.com:63360/loomdata';
+
+var db;
+
+
+// Connect to the database before starting the application server.
+mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
+
+    if (err) {
+        console.log(err);
+        process.exit(1);
+      }
+
+    // Save database object from the callback for reuse.
+    db = database;
+    console.log("Connected to MLAB");
+
+});
 
 
 app.use(logger);
@@ -514,7 +617,32 @@ var getUserByEmail = function( req, res, next ) {
     
 // }
 
+var getBatchMaterials = function (req,res,next) {
+    console.log('Getting a Batch of materials');
 
+    let materialList = req.query.materials;
+    
+    let materialArray = materialList.split(',');
+
+    console.log(req.query);
+    console.log(materialList);
+    console.log('array length: ' + materialArray.length);
+
+    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+
+    db.collection('materials').find( { id: { $in: materialArray }}).toArray(function(err, docs) {
+      if (err) { handleError(res,err.message, "Failed to get batch of materials" ); } else {
+          console.log('Found a whole batch of materials from the database!');
+          console.log('Number of materials: ' + docs.length);
+          res.writeHead(200, {"Content-Type": "application/json"});
+          res.end( JSON.stringify(docs) );
+      }
+    });
+    
+};
 
 var getAllMaterialsByType = function(req,res,next) {
 
@@ -528,7 +656,7 @@ var getAllMaterialsByType = function(req,res,next) {
     dbQuery1 = { 'type' : 'book' };
     dbQuery2 = { 'type' : 'doc' };
     
-    res.setHeader('Access-Control-Allow-Origin', '*');
+    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
@@ -557,7 +685,7 @@ var getAllMaterialsByType = function(req,res,next) {
              
         } );
     
-}
+};
 
 
 
@@ -598,22 +726,53 @@ var makeid= function() {
     return text;
   };
 
-var discussionLogin = function(req,res,next) {
+var findDiscussion = function( classID, sectionNumber) {
+    for (var i = 0; i < discussions.length; i++) {
+        if (discussions[i].classID == classID && discussions[i].sectionNumber == sectionNumber) {
+            return discussions[i];
+        }
+    }
+    return null;
+}
+
+var findUserInDiscussion = function( user, discussion ) {
+    for (var i = 0; i < discussion.currentUsers.length; i++) {
+        if (user.id == discussion.currentUsers[i].id) {
+            return true;
+        }
+    }
+    return false;
+}
+var discussionLogin = function( req,res,next) {
     let user = req.body.user;
     let classID = req.body.classID;
     let sectionNumber = req.body.sectionNumber;
 
-    if (!discusssion[classID][sectionNumber]) { discusssion[classID][sectionNumber] = []; }
-    if (!discusssion[classID][sectionNumber].includes(user)) {
-    discusssion[classID][sectionNumber].push(user); }
-    console.log('User '+user+', entered discusssion fro class: '+ classID + ', and section: ' +
-    sectionNumber);
+    console.log('In discussionLogin(), user:' + user.username + ', class: ' + classID +
+       ', section: ' + sectionNumber);
+
+    let discussion = findDiscussion(classID, sectionNumber);
+    if (!discussion) {
+        discussion = new Discussion( classID, sectionNumber);
+        discussions.push(discussion);
+        discussion.currentUsers.push(user);
+    } else {
+        if (discussion.currentUsers) {
+            foundUser = findUserInDiscussion(user, discussion);
+            if (!foundUser) {
+                discussion.currentUsers.push(user);
+            }
+        }
+    }
+    console.log('Current Users: ' + JSON.stringify(discussion));
+    
+    console.log('leaving the Login method');
     res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
     res.writeHead(200, {"Content-Type": "application/json"});
-    res.end();
+    res.end('true');
 };
 
 var putUser = function(req,res,next) {
@@ -746,6 +905,7 @@ app.get('/api/finduser*', function(req,res,next) {
   app.get('/api/series', function(req,res,next) { getSeries(req,res,next);});
   app.get('/api/threads', function(req,res,next) { getResources('threads',req,res,next);});
   app.get('/api/discussion/whosin', function(req,res,next) { getWhosIn(req,res,next);});
+  app.get('/api/batchmaterials', function(req,res,next) { getBatchMaterials(req,res,next);});
   app.get('/api/avatars*', function(req,res,next) { 
       console.log("About to call get avatars.");
       getResources('avatars',req,res,next);});
@@ -918,6 +1078,9 @@ app.options('/api/requestreset', function( req, res, next) {
 
 app.options('/api/reset', function( req, res, next) {
         returnSuccess( req, res, next ); });
+
+app.options('/api/batchmaterials', function( req, res, next) {
+    returnSuccess( req, res, next ); });
 
 app.options('/api/usersettings', function(req, res, next){
     res.header('Access-Control-Allow-Origin',  ORIGIN_BASEPATH );
@@ -1182,7 +1345,7 @@ app.post('/api/materialimages', jsonParser, function(req,res,next) {
 var storeMaterialFile = multerS3( {
     s3: s3,
     bucket: 'recloom',
-    contentType: staticValue('application/pdf'),
+    contentType: multerS3.AUTO_CONTENT_TYPE, // staticValue('application/pdf'),
     contentDisposition: staticValue('inline'),
     metadata: function (req, file, cb) {
         cb(null, {fieldName: file.fieldname });
@@ -1261,37 +1424,7 @@ app.use(express.static(frontDir));
 // LIVE PORT
 
 
-/*  Discussion Socket 
------------------------------------*/
 
-var io = require('socket.io')(server);
-server.listen(process.env.PORT);
-
-io.sockets.on('connection', function(socket){
-    console.log('Socket connected');
-    socket.emit('discussionsocketevent', { hello: 'world' });
-    
-    socket.on('enter', function( user, classID, sectionNumber ) {
-      console.log('got a message from the frontend: ' + user.username);
-      console.log('Class #' + classID);
-      console.log('Section #' + sectionNumber);
-
-      if (!discussion[classID][sectionNumber]) {
-          discussion[classID] = [];
-        discussion[sectionNumber] = [];}
-      discussion[classID][sectionNumber].push(user);
-      socket.broadcast.emit('message', user.username + ' has joined the discussion');
-    });
-  
-    socket.on('whosin', function( classID, sectionNumber ) {
-      if (discussion[classID][sectionNumber]) {
-        socket.emit('whosinresponse', discussion[classID][sectionNumber] );
-      }
-    });
-});
-
-/*
-  ------------------------------------*/
   
 
 
@@ -1337,37 +1470,6 @@ io.sockets.on('connection', function(socket){
 // sgMail.send(msg);
 
 
-
-var makeid = function() {
-    var text = "";
-    var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-  
-    for (var i = 0; i < 5; i++)
-      text += possible.charAt(Math.floor(Math.random() * possible.length));
-  
-    return text;
-  }
-
-var ObjectID = mongodb.ObjectID;
-                    // this should be set to: process.env.MONGODB_URI
-const MONGODB_URI = 'mongodb://bart:givemedata@ds163360.mlab.com:63360/loomdata';
-
-var db;
-
-
-// Connect to the database before starting the application server.
-mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
-
-    if (err) {
-        console.log(err);
-        process.exit(1);
-      }
-
-    // Save database object from the callback for reuse.
-    db = database;
-    console.log("Connected to MLAB");
-
-});
 
 // var myServerCallBack = function(req,res) {
 //     const  testUser = { username: 'test', password: 'test', firstname: 'test', lastname: 'user' };
