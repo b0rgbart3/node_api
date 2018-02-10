@@ -1,17 +1,14 @@
 module.exports = function(app, basepath) {
 
-
-
     var returnSuccess = function( req,res,next) {
         res.setHeader('Access-Control-Allow-Origin', basepath );
         res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
         res.setHeader("Access-Control-Allow-Headers", 
         "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+        res.setHeader("Access-Control-Allow-Credentials", true);
         res.writeHead(200, { 'Content-Type': 'plain/text' });
         res.end();
     };
-
-    
 
 
     app.options('/api/doc', function(req, res, next){
@@ -72,6 +69,10 @@ module.exports = function(app, basepath) {
     
     app.options('/api/discussion/enter', function(req, res, next){
             returnSuccess( req, res, next ); });
+    
+    app.options('/api/discussion/settings', function(req, res, next){
+        console.log("GOT OPTIONS FOR DISCUSSION SETTINGS!!!");
+        returnSuccess( req, res, next ); });
     
     app.options('/api/discussion/whosin*', function(req, res, next){
             returnSuccess( req, res, next ); });
