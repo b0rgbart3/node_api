@@ -602,7 +602,7 @@ var getAllMaterialsByType = function(req,res,next) {
 var deleteResource = function(resource,req,res,next) {
 
     let resourceId = req.query.id;
-   // console.log('Removing ' + resource + ', with id of of: ' + resourceId);
+   console.log('Removing ' + resource + ', with id of of: ' + resourceId);
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
     res.setHeader("Access-Control-Allow-Headers", 
@@ -714,6 +714,7 @@ var putResource = function(resource, req,res,next) {
     {
         dbQuery = {'id':req.query.id };
         delete resourceObject._id;
+        resourceObject.timestamp = Date.now();
 
         try {
         db.collection(resource).update({ "id" : resourceObject.id },
@@ -726,6 +727,9 @@ var putResource = function(resource, req,res,next) {
         }
     
  
+    }
+    else {
+        console.log('Trying to put a resource without an id.');
     }
 
   
@@ -749,17 +753,19 @@ app.get('/api/finduser*', function(req,res,next) {
     getUserByEmail(req,res,next);
   });
   
-  
+
+
+  app.get('/api/enrollments', function(req,res,next) {  getResources('enrollments', req,res,next);});
   app.get('/api/book', function(req,res,next) { getResources('book',req,res,next);});
   app.get('/api/doc', function(req,res,next) { getResources('doc',req,res,next);});
   app.get('/api/classes', function(req,res,next) { getResources('classes',req,res,next);});
-  app.get('/api/studentClasses', function(req,res,next) { getStudentClasses( req, res, next); });
-  app.get('/api/instructorClasses', function(req,res,next) { getInstructorClasses( req, res, next); });
+  app.get('/api/studentenrollments', function(req,res,next) { getStudentEnrollments( req, res, next); });
+  app.get('/api/instructorassignments', function(req,res,next) { getInstructorAssignments( req, res, next); });
   app.get('/api/courses', function(req,res,next) { getResources('courses',req,res,next);});
   app.get('/api/usersettings', function(req,res,next) { getResources('usersettings',req,res,next);});
   app.get('/api/users', function(req,res,next) { getResources('users',req,res,next);});
   app.get('/api/assets', function(req,res,next) { getResources('assets',req,res,next);});
-  app.get('/api/materials', function(req,res,next) { getResources('materials', req,res,next);});
+  app.get('/api/materials', function(req,res,next) { getMaterials( req,res,next);});
   app.get('/api/allmaterialsbytype', function(req,res,next) { getAllMaterialsByType(req,res,next);});
   app.get('/api/classregistrations', function(req,res,next) { getResources('classregistrations',req,res,next);});
   app.get('/api/instructors',  function(req,res,next) { getInstructors(req,res,next);});
@@ -775,6 +781,81 @@ app.get('/api/finduser*', function(req,res,next) {
   app.get('/api/classregistrations*', function(req,res,next) { 
               getResources('classregistrations',req,res,next);});
   
+  app.get('/api/messages/fresh', function(req, res, next) {
+                  console.log('got a get request for Fresh messages.');
+                  getFreshMessages( req, res, next); 
+              });
+  app.get('/api/messages', function(req,res,next) { 
+                console.log('got a get request for MESSAGES.');  
+                getMessages( req, res, next); });
+
+  var getFreshMessages = function (req, res, next) {
+    console.log('getting fresh messages, for: ' + req.query.user_id);
+    dbQuery = {};
+    if (req.query && req.query.user_id) {
+
+        dbQuery = { "freshness" : { "user_id": req.query.user_id, "fresh": true} };
+    }
+    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+          db.collection('messages').find(dbQuery).toArray(function(err,docs) {
+              if(err) { handleError(res,err.message, "Failed to get" + resource); }
+              else{
+                  console.log('Mongo returned: ' + JSON.stringify(docs));
+                  res.writeHead(200, {"Content-Type": "application/json"});
+      
+                  let stringyDocs = JSON.stringify(docs);
+      
+                  var reverseChronology = [];
+                 
+                      reverseChronology = sortBy( docs, 'post_date' ).reverse();
+                      docs = reverseChronology;
+                      res.end( JSON.stringify(docs) );
+                
+              }
+          });
+  }
+
+var getMessages = function( req,res,next) {
+    console.log('Getting MESSAGES...');
+    dbQuery = {};
+    if (req.query && req.query.users) {
+        console.log('user ids were included: ' + req.query.users);
+
+        let userArray = req.query.users.split(',');
+
+        dbQuery = {$and : [{'users':userArray[0]}, {'users':userArray[1]} ] };
+    } else {
+        if (req.query && req.query.user) {
+            console.log('user ID was included: ' + req.query.user);
+
+            dbQuery = { 'users': req.query.user };
+        }
+    }
+    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+          db.collection('messages').find(dbQuery).toArray(function(err,docs) {
+              if(err) { handleError(res,err.message, "Failed to get" + resource); }
+              else{
+                  console.log('Mongo returned: ' + JSON.stringify(docs));
+                  res.writeHead(200, {"Content-Type": "application/json"});
+      
+                  let stringyDocs = JSON.stringify(docs);
+      
+                  var reverseChronology = [];
+                 
+                      reverseChronology = sortBy( docs, 'post_date' ).reverse();
+                      docs = reverseChronology;
+                      res.end( JSON.stringify(docs) );
+                
+              }
+          });
+      
+}
 var getThreads = function(req,res,next) {
     dbQuery = req.query;
     res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
@@ -801,7 +882,30 @@ var getThreads = function(req,res,next) {
 var getMaterials = function(req,res,next) {
     // the materials need to get loaded in based on querying their course #
     // so 
+    dbQuery = {};
+      
+          // Use the power of queries to get exactly what we want from the Mongo DB Call
+          if (req.query && req.query.id && req.query.id !== 0)
+          {
+            dbQuery = {'id':req.query.id };
+          } else { dbQuery = {}; }
+
+          res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
+          res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+          res.setHeader("Access-Control-Allow-Headers", 
+          "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+
+
+          db.collection('materials').find(dbQuery).toArray(function(err,docs) {
+              if(err) { handleError(res,err.message, "Failed to get materials" ); }
+              else{
+                  res.writeHead(200, {"Content-Type": "application/json"});
+      
+                  res.end( JSON.stringify(docs ) ); 
+              }
+          });
 }
+
 var getResources = function(resource,req,res,next) {
   
           console.log("Getting resource " + resource);
@@ -821,7 +925,11 @@ var getResources = function(resource,req,res,next) {
                   dbQuery = {'type':req.query.type };
               } 
           }
-          
+          if (resource === 'messages') {
+              if (req.query.users) {
+                  console.log('query users: ' + JSON.stringify(req.query.users));
+              }
+          }
           if (req.query.classID && (req.query.classID != 0) && req.query.sectionNumber) {
               dbQuery={'classID': req.query.classID, 'sectionNumber': req.query.sectionNumber };
               console.log('sectionNumber: ' + req.query.sectionNumber);
@@ -849,20 +957,23 @@ var getResources = function(resource,req,res,next) {
       };
   
   
-      var getInstructorClasses = function (req,res,next) {
-          console.log("Getting Classes for a specific instructor");
+      var getInstructorAssignments = function (req,res,next) {
+        console.log("Get INSTRUCTOR ENROLLMENTS");
           dbQuery = {};
           if (req.query.id && req.query.id != 0)
           {
-              dbQuery = {'instructors.user_id': req.query.id };
+              dbQuery = {'user_id': req.query.id, 'participation': 'instructor' };
              
-          }
+          } else {
+            // this will grab ALL the student enrollments -- not just for the current user
+            dbQuery = {'participation': 'instructor' };
+        }
       
           res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
               res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
               res.setHeader("Access-Control-Allow-Headers", 
               "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-              db.collection('classes').find(dbQuery).toArray(function(err,docs) {
+              db.collection('enrollments').find(dbQuery).toArray(function(err,docs) {
                   if(err) { handleError(res,err.message, "Failed to get" + resource); }
                   else{
                       res.writeHead(200, {"Content-Type": "application/json"});
@@ -873,22 +984,29 @@ var getResources = function(resource,req,res,next) {
       };
       
       
-      var getStudentClasses = function (req,res,next) {
-          console.log("Getting Classes for a specific student");
+      var getStudentEnrollments = function (req,res,next) {
+          console.log("Get STUDENT ENROLLMENTS");
           dbQuery = {};
           if (req.query.id && req.query.id != 0)
           {
-              dbQuery = {'students.user_id': req.query.id };
+              console.log('The request query id was: ' + req.query.id);
+              dbQuery = {'user_id': req.query.id, 'participation': 'student' };
              
+          }
+          else {
+              // this will grab ALL the student enrollments -- not just for the current user
+              console.log('Grabbing all the student enrollment objects.');
+              dbQuery = {'participation': 'student' };
           }
       
           res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
               res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
               res.setHeader("Access-Control-Allow-Headers", 
               "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-              db.collection('classes').find(dbQuery).toArray(function(err,docs) {
+              db.collection('enrollments').find(dbQuery).toArray(function(err,docs) {
                   if(err) { handleError(res,err.message, "Failed to get" + resource); }
                   else{
+                    console.log( JSON.stringify(docs));
                       res.writeHead(200, {"Content-Type": "application/json"});
                       res.end( JSON.stringify(docs ) );
                       // console.log( JSON.stringify(docs));
@@ -897,7 +1015,7 @@ var getResources = function(resource,req,res,next) {
       };
   
 
-
+app.put('/api/enrollments', jsonParser, function(req,res,next) { putResource('enrollments', req, res, next);});
 app.put('/api/book', jsonParser, function(req,res,next) { putResource('book', req, res, next);}); 
 app.put('/api/doc', jsonParser, function(req,res,next) { putResource('doc', req, res, next);});  
 app.put('/api/classes', jsonParser, function(req,res,next) { putResource('classes', req, res, next);});
@@ -908,7 +1026,7 @@ app.put('/api/series', jsonParser, function(req,res,next) { putResource('series'
 app.put('/api/threads', jsonParser, function(req,res,next) { putResource('threads', req, res, next);});
 app.put('/api/users', jsonParser, function(req,res,next) { putUser( req, res, next);});
 app.put('/api/classregistrations', jsonParser, function(req,res,next) { putResource('classregistrations', req, res, next);});
-
+app.put('/api/messages', jsonParser, function(req,res,next) { putResource('messages', req, res, next);});
 // app.post('/api/threads', jsonParser, function(req,res,next) { putNewThread( req,res,next); });
 
 app.post('/api/authenticate', jsonParser, function(req,res,next) {
@@ -1023,18 +1141,54 @@ var uploadAvatar = multer({ //multer settings
 }).single('file');
 
 app.get('/api/discussion/settings', function(req,res,next) { 
-//    console.log('GOT A GET TO DISCUSSION SETTINGS');
+    console.log('GOT A GET TO DISCUSSION SETTINGS');
     getDiscussionSettings(req,res,next);});
+
+app.get('/api/notes/settings', function(req,res,next) { 
+        console.log('GOT A GET TO NOTES SETTINGS');
+        getNotesSettings(req,res,next);});
     
 app.put('/api/discussion/settings', jsonParser, function(req,res,next) { 
       putDiscussionSettings(req, res, next);
-    //   console.log();
-    //   console.log('GOT A PUT TO DISCUSSION SETTINGS');
-    //   console.log();
-    //   console.log('---------------------------------');
     });
+app.put('/api/notes/settings', jsonParser, function(req,res,next) { 
+        putNotesSettings(req, res, next);
+      });
 
+      var putNotesSettings = function ( req,res,next) {
+        //    console.log('Got a put discussionsettings request');
+          
+            res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
+            res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+            res.setHeader("Access-Control-Allow-Headers", 
+            "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+          
+            req.body.section = '' + req.body.section;
 
+            if (req.body) {
+              resourceObject = req.body;
+            dbQuery = {'user_id': req.body.user_id, 'classID': req.body.classID, 
+            'section': '' + req.body.section + '' };
+            delete resourceObject._id;
+            try {
+              db.collection('notessettings').update(dbQuery,
+               
+                 resourceObject, {upsert: true});
+               //  console.log('Sent discussion settings to mongo');
+                 res.json({error_code:0,err_desc:null});
+                 res.end();
+              } catch (e) {
+                  console.log("Error entering resource into the DB");
+                  res.sendStatus(450);
+                  res.end(e.message);
+              }
+            } else {
+              res.sendStatus(400);
+              res.end();
+            }
+          //  next();
+          };
+             
     var putDiscussionSettings = function ( req,res,next) {
     //    console.log('Got a put discussionsettings request');
       
@@ -1045,7 +1199,7 @@ app.put('/api/discussion/settings', jsonParser, function(req,res,next) {
       
         if (req.body) {
           resourceObject = req.body;
-        dbQuery = {'user_id': req.body.user_id, 'classID': req.body.classID, 'section': req.body.section };
+        dbQuery = {'user_id': req.body.user_id, 'classID': req.body.classID, 'section': req.body.section + '' };
         delete resourceObject._id;
         try {
           db.collection('discussionsettings').update(dbQuery,
@@ -1063,12 +1217,39 @@ app.put('/api/discussion/settings', jsonParser, function(req,res,next) {
           res.sendStatus(400);
           res.end();
         }
-        next();
+    //    next();
       };
+   
+      var getNotesSettings = function(req, res,next) {
       
+            const class_id = req.query.class_id;
+            const user_id = req.query.user_id;
+            const section = '' + req.query.section;
+            console.log('In the getNotesSettings method:, getting settings for: user: ' + user_id +
+             ', class: ' + class_id + ', section: ' + section );
+
+            dbQuery = {'class_id': class_id, 'user_id': user_id, 'section': section };
+      
+            db.collection('notessettings').findOne(dbQuery, function(err,docs) {
+                // res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
+                // res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+                // res.setHeader("Access-Control-Allow-Headers", 
+                // "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+              if(err) { console.log("ERROR");  
+              res.sendStatus(450);
+                res.end();} else{
+
+                    console.log('Mongo returned: ' + JSON.stringify(docs));
+                    res.end( JSON.stringify(docs) );
+                }
+              });
+        //    next();
+        };
+
+        
         var getDiscussionSettings = function(req, res,next) {
       
-        //    console.log('Getting Discussion Settings: ' + JSON.stringify(req.query));
+           console.log('Getting Discussion Settings: ' + JSON.stringify(req.query));
       
       
             const class_id = req.query.classID;
@@ -1078,20 +1259,20 @@ app.put('/api/discussion/settings', jsonParser, function(req,res,next) {
             dbQuery = {'classID': class_id, 'user_id': user_id, 'section': section };
       
             db.collection('discussionsettings').findOne(dbQuery, function(err,docs) {
-            //   res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
-            //     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-            //     res.setHeader("Access-Control-Allow-Headers", 
-            //     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+                  res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
+                res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+                res.setHeader("Access-Control-Allow-Headers", 
+                "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
       
               if(err) { console.log("ERROR");  
               res.sendStatus(450);
                 res.end();} else{
-                //    console.log('Found discussion settings ' + JSON.stringify(docs));
+                    console.log('Found discussion settings ' + JSON.stringify(docs));
                     res.end( JSON.stringify(docs) );
                 }
               });
             
-     //   next();
+       // next();
         };
 
         app.get('/api/discussion/whosin', function(req,res,next) { getWhosIn(req,res,next);});
@@ -1130,7 +1311,7 @@ app.put('/api/discussion/settings', jsonParser, function(req,res,next) {
           res.writeHead(200, {"Content-Type": "application/json"});
       
           res.end( JSON.stringify(whosInObject) );
-          next();
+         // next();
       };
       
       
@@ -1197,6 +1378,7 @@ app.put('/api/discussion/settings', jsonParser, function(req,res,next) {
         "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
         res.sendStatus(200);
         res.end();
+       // next();
       };
 
       
@@ -1405,7 +1587,9 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
 //         res.json({error_code:0,err_desc:null});
 //     });
 
-
+app.delete('/api/enrollments', jsonParser, function(req,res,next) { 
+    console.log('got an enrollment delete message');
+    deleteResource('enrollments', req, res, next);});
 app.delete('/api/book', jsonParser, function(req,res,next) { deleteResource('book', req,res,next);});
 app.delete('/api/doc', jsonParser, function(req,res,next) { deleteResource('doc', req,res,next);});
 app.delete('/api/classes', jsonParser, function(req,res,next) { deleteResource('classes', req,res,next);});

@@ -11,6 +11,9 @@ module.exports = function(app, basepath) {
     };
 
 
+    app.options('/api/enrollments', function(req,res,next) {
+        returnSuccess( req,res,next ); } );
+
     app.options('/api/doc', function(req, res, next){
         returnSuccess( req, res, next ); });
     app.options('/api/docimages', function(req, res, next){
@@ -25,10 +28,10 @@ module.exports = function(app, basepath) {
     app.options('/courseimages', function(req, res, next){
         returnSuccess( req, res, next ); });
     
-    app.options('/api/studentClasses', function(req, res, next){
+    app.options('/api/studentenrollments', function(req, res, next){
         returnSuccess( req, res, next ); });
     
-    app.options('/api/instructorClasses', function(req, res, next){
+    app.options('/api/instructorassignments', function(req, res, next){
             returnSuccess( req, res, next ); });
     
     app.options('/api/finduser', function(req, res, next){
@@ -70,13 +73,16 @@ module.exports = function(app, basepath) {
     app.options('/api/discussion/enter', function(req, res, next){
             returnSuccess( req, res, next ); });
     
-    app.options('/api/discussion/settings', function(req, res, next){
-        console.log("GOT OPTIONS FOR DISCUSSION SETTINGS!!!");
+    app.options('/api/discussion/settings*', function(req, res, next){
+     //   console.log("GOT OPTIONS FOR DISCUSSION SETTINGS!!!");
         returnSuccess( req, res, next ); });
     
     app.options('/api/discussion/whosin*', function(req, res, next){
             returnSuccess( req, res, next ); });
     
+    app.options('/api/notes/settings', function(req, res, next){
+                   returnSuccess( req, res, next ); });
+
     app.options('/api/requestreset', function( req, res, next) {
         returnSuccess( req, res, next ); });
     
@@ -95,7 +101,11 @@ module.exports = function(app, basepath) {
     app.options('/api/avatar', function(req, res, next){
           returnSuccess( req, res, next ); });
     
-    
-  
+    app.options('/api/messages/fresh', function(req, res, next){
+        returnSuccess( req, res, next ); });
+        
+    app.options('/api/messages', function(req, res, next){
+            returnSuccess( req, res, next ); });
+            
 
 };

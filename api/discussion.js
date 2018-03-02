@@ -22,6 +22,7 @@ var io = require('socket.io')(server);
 io.sockets.on('connection', function(socket){
  //   console.log('Socket connected');
 
+
     socket.on('enter', function( user, classID, sectionNumber ) {
     //  console.log('got a message from the frontend: ' + user.username);
     //  console.log('Class #' + classID);
@@ -64,6 +65,11 @@ io.sockets.on('connection', function(socket){
     //     socket.emit('whosinresponse', discussion[classID][sectionNumber] );
     //   }
     // });
+    
+    // This is stuff for the Messaging Component -- instead of the discussion component
+    socket.on('messageChanged', function( message ) {
+      this.broadcast.emit('messageChanged', message);
+    });
 });
 
 
