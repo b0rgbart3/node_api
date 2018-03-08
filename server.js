@@ -37,6 +37,8 @@ let local = true;
 cert = fs.readFileSync('.bsx');
 certString = cert.toString();
 
+var Resource = require('./api/resource.js');
+var Loader = require('./api/loader.js');
 
 class Discussion {
     constructor(class_id, section) {
@@ -675,7 +677,7 @@ var putUser = function(req,res,next) {
 
         // New user getting added here
 
-
+        resourceObject['created_date'] = Date.now();
         db.collection('users').insert(resourceObject, function(err,data) {
             if (err) {
                 console.log("Error entering resource into the DB");
@@ -812,6 +814,7 @@ app.get('/api/finduser*', function(req,res,next) {
                  
                       reverseChronology = sortBy( docs, 'post_date' ).reverse();
                       docs = reverseChronology;
+
                       res.end( JSON.stringify(docs) );
                 
               }
@@ -1141,11 +1144,11 @@ var uploadAvatar = multer({ //multer settings
 }).single('file');
 
 app.get('/api/discussion/settings', function(req,res,next) { 
-    console.log('GOT A GET TO DISCUSSION SETTINGS');
+   // console.log('GOT A GET TO DISCUSSION SETTINGS');
     getDiscussionSettings(req,res,next);});
 
 app.get('/api/notes/settings', function(req,res,next) { 
-        console.log('GOT A GET TO NOTES SETTINGS');
+   //     console.log('GOT A GET TO NOTES SETTINGS');
         getNotesSettings(req,res,next);});
     
 app.put('/api/discussion/settings', jsonParser, function(req,res,next) { 
@@ -1225,8 +1228,8 @@ app.put('/api/notes/settings', jsonParser, function(req,res,next) {
             const class_id = req.query.class_id;
             const user_id = req.query.user_id;
             const section = '' + req.query.section;
-            console.log('In the getNotesSettings method:, getting settings for: user: ' + user_id +
-             ', class: ' + class_id + ', section: ' + section );
+    //        console.log('In the getNotesSettings method:, getting settings for: user: ' + user_id +
+    //         ', class: ' + class_id + ', section: ' + section );
 
             dbQuery = {'class_id': class_id, 'user_id': user_id, 'section': section };
       
@@ -1239,7 +1242,7 @@ app.put('/api/notes/settings', jsonParser, function(req,res,next) {
               res.sendStatus(450);
                 res.end();} else{
 
-                    console.log('Mongo returned: ' + JSON.stringify(docs));
+         //           console.log('Mongo returned: ' + JSON.stringify(docs));
                     res.end( JSON.stringify(docs) );
                 }
               });
@@ -1249,7 +1252,7 @@ app.put('/api/notes/settings', jsonParser, function(req,res,next) {
         
         var getDiscussionSettings = function(req, res,next) {
       
-           console.log('Getting Discussion Settings: ' + JSON.stringify(req.query));
+      //     console.log('Getting Discussion Settings: ' + JSON.stringify(req.query));
       
       
             const class_id = req.query.classID;
@@ -1267,7 +1270,7 @@ app.put('/api/notes/settings', jsonParser, function(req,res,next) {
               if(err) { console.log("ERROR");  
               res.sendStatus(450);
                 res.end();} else{
-                    console.log('Found discussion settings ' + JSON.stringify(docs));
+               //     console.log('Found discussion settings ' + JSON.stringify(docs));
                     res.end( JSON.stringify(docs) );
                 }
               });
@@ -1462,7 +1465,7 @@ app.post('/api/courseimages', jsonParser, function(req,res,next) {
     uploadCourseImage(req,res,function(err){
    //    console.log("The uploaded file: " + JSON.stringify( sanitize(req.file) ) );
    
-        var dest = sanitize(req.file.destination);
+      //  var dest = sanitize(req.file.destination);
 
         if(err){
              res.json({error_code:1,err_desc:err});

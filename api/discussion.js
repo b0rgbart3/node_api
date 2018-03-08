@@ -20,13 +20,10 @@ var returnSuccess = function( req,res,next) {
 
 var io = require('socket.io')(server);
 io.sockets.on('connection', function(socket){
- //   console.log('Socket connected');
 
 
     socket.on('enter', function( user, classID, sectionNumber ) {
-    //  console.log('got a message from the frontend: ' + user.username);
-    //  console.log('Class #' + classID);
-    //  console.log('Section #' + sectionNumber);
+
       this.broadcast.emit('userentering', {'user': user, 'classID': classID, 'sectionNumber': sectionNumber });
 
     });
@@ -48,38 +45,20 @@ io.sockets.on('connection', function(socket){
         this.broadcast.emit('deletethread', threadObject );
   
       });   
-    //   foundDiscussion = findDiscussion(classID, sectionNumber);
 
-    //   if (foundDiscussion) {
-    //       foundDiscussion.push(user);
-    //   }
-    //   if (!discussions[classID][sectionNumber]) {
-    //       discussions[classID] = [];
-    //     discussion[sectionNumber] = [];}
-    //   discussion[classID][sectionNumber].push(user);
-    //   socket.broadcast.emit('message', user.username + ' has joined the discussion');
-    // });
-  
-    // socket.on('whosin', function( classID, sectionNumber ) {
-    //   if (discussion[classID][sectionNumber]) {
-    //     socket.emit('whosinresponse', discussion[classID][sectionNumber] );
-    //   }
-    // });
     
     // This is stuff for the Messaging Component -- instead of the discussion component
     socket.on('messageChanged', function( message ) {
       this.broadcast.emit('messageChanged', message);
     });
+
+    socket.on('userSettingsChanged', function( user ) {
+      this.broadcast.emit('userSettingsChanged', user );
+    });
+    socket.on('userChanged', function( user ) {
+      this.broadcast.emit('userChanged', user );
+    });
 });
-
-
-/*
-  ------------------------------------*/
-
-
-/*  Discussion API Methods
------------------------------------*/
-
 
 
 
