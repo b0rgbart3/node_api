@@ -29,5 +29,8 @@
     "sanitize-filename": "^1.6.1",
     "sendgrid": "^5.2.3",
     "socket.io": "^2.0.4"
+  },
+  "devDependencies": {
+    "@angular/cli": "^1.7.3"
   }
 }

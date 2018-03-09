@@ -38,7 +38,19 @@ cert = fs.readFileSync('.bsx');
 certString = cert.toString();
 
 var Resource = require('./api/resource.js');
-var Loader = require('./api/loader.js');
+var Collection = require('./api/collection.js');
+var Collections = [
+    'enrollments',
+    'users',
+    'courses',
+    'classes',
+    'discussionsettings',
+    'materials',
+    'messages',
+    'notessettings',
+    'series',
+    'threads',
+];
 
 class Discussion {
     constructor(class_id, section) {
@@ -48,8 +60,6 @@ class Discussion {
     }
   }
   
-  
-
 
 AVATAR_PATH = 'https://recloom.s3.amazonaws.com/avatars';
 UPLOAD_PATH = 'https://recloom.s3.amazonaws.com/';
@@ -78,7 +88,16 @@ else {
 // create application/json parser
 var jsonParser = bodyParser.json();
 
+var CollectionObjects = Collections.map( collectionType => new Collection(collectionType, db, ORIGIN_BASEPATH));
 
+// Taking a tip from Johnathon Mills at Pluralsight, I've created an OBJECT called a 
+// Collection which mimics the way I'm storing data in Mongo, and then created an array of these objects
+// So now I can loop on them to create my options (which simply satisfy the pre-get or pre-put)
+// http requests (with success everytime, just to "OK" the request).
+
+CollectionObjects.forEach(function(collection) {
+    app.options('api/' + collection.name, collection.options);
+  });
 
 
 const SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
@@ -113,12 +132,6 @@ function staticValue (value) {
     }
   }
 
-//var MAU = require('./modify-and-upload');
-
-
-
-
-
 
 var makeid = function() {
     var text = "";
@@ -130,26 +143,7 @@ var makeid = function() {
     return text;
   }
 
-var ObjectID = mongodb.ObjectID;
-                    // this should be set to: process.env.MONGODB_URI
-const MONGODB_URI = 'mongodb://bart:givemedata@ds163360.mlab.com:63360/loomdata';
 
-var db;
-
-
-// Connect to the database before starting the application server.
-mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
-
-    if (err) {
-        console.log(err);
-        process.exit(1);
-      }
-
-    // Save database object from the callback for reuse.
-    db = database;
-    console.log("Connected to MLAB");
-
-});
 
 
 app.use(logger);
@@ -165,7 +159,6 @@ app.use(function(req, res, next) { //allow cross origin requests
 
 var options = require('./api/options')(app, ORIGIN_BASEPATH);
 var discussion = require('./api/discussion')(jsonParser, server, app, ORIGIN_BASEPATH, db);
-
 
 
 
@@ -426,24 +419,24 @@ var uploadBookImage = multer({ //multer settings
 //     storage: storeDocFile
 // }).single('file');
 
-var getSeries = function(req,res,next) {
-    dbQuery = {};
-    //dbQuery = {'series' : true};
+// var getSeries = function(req,res,next) {
+//     dbQuery = {};
+//     //dbQuery = {'series' : true};
   
-    // console.log("My db query: " + JSON.stringify(dbQuery) );
+//     // console.log("My db query: " + JSON.stringify(dbQuery) );
 
-    res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
-    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", 
-    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-    db.collection('series').find(dbQuery).toArray(function(err,docs) {
-        if(err) { handleError(res,err.message, "Failed to get" + resource); }
-        else{
-            res.writeHead(200, {"Content-Type": "application/json"});
-            res.end( JSON.stringify(docs ) );
-        }
-    });
-}
+//     res.setHeader('Access-Control-Allow-Origin', ORIGIN_BASEPATH);
+//     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+//     res.setHeader("Access-Control-Allow-Headers", 
+//     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+//     db.collection('series').find(dbQuery).toArray(function(err,docs) {
+//         if(err) { handleError(res,err.message, "Failed to get" + resource); }
+//         else{
+//             res.writeHead(200, {"Content-Type": "application/json"});
+//             res.end( JSON.stringify(docs ) );
+//         }
+//     });
+// }
 var getStudents = function (req,res,next) {
     // console.log("Getting Students Only");
     dbQuery = {};
