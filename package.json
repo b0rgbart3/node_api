@@ -3,9 +3,6 @@
   "version": "1.0.0",
   "description": "Barts backend for the Loom",
   "main": "server.js",
-  "engines": {
-    "node": "8.9.1"
-  }
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
