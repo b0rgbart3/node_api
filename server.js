@@ -13,7 +13,7 @@ let ssl_options = {};
 var origin = '';
 var avatar_path = '';
 var upload_path = '';
-var local = true;
+var local = false;
 var fs = require('fs');
 
 var jwt = require('jsonwebtoken');
@@ -38,7 +38,7 @@ var aws = require('aws-sdk');
 //aws.config.loadFromPath('./config.json');
 aws.config.update({accessKeyId: 'AKIAIE52WOYO3ZPCPT3Q', secretAccessKey: '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'});
 
-var multerS3 = require('multer-s3');
+// var multerS3 = require('multer-s3');
 var s3 = new aws.S3({ apiVersion: '2006-03-01',
 region: 'us-west-1'
 });
