@@ -1,7 +1,6 @@
 var http = require('http');
 var https = require('https');
 var url = require('url');
-var mongodb = require("mongodb");
 var bodyParser = require("body-parser");
 var formidable = require("formidable");
 var sortBy = require('lodash').sortBy;
@@ -37,8 +36,10 @@ let local = true;
 cert = fs.readFileSync('.bsx');
 certString = cert.toString();
 
-var Resource = require('./api/resource.js');
+var Resource = require('./api/resource.js'); // did this get replaced with collections?
 var Collection = require('./api/collection.js');
+var Repo = require('./api/repo.js');
+
 var Collections = [
     'enrollments',
     'users',
@@ -59,7 +60,6 @@ class Discussion {
       this.currentUsers = [];
     }
   }
-  
 
 AVATAR_PATH = 'https://recloom.s3.amazonaws.com/avatars';
 UPLOAD_PATH = 'https://recloom.s3.amazonaws.com/';
@@ -124,8 +124,6 @@ region: 'us-west-1'
 // credentials: {S3_CREDS}
 
 
-
-
 function staticValue (value) {
     return function (req, file, cb) {
       cb(null, value)
@@ -165,7 +163,7 @@ var discussion = require('./api/discussion')(jsonParser, server, app, ORIGIN_BAS
 // create application/x-www-form-urlencoded parser
 var urlencodedParser = bodyParser.urlencoded({ extended: false });
 
-app.use(urlencodedParser);
+// app.use(urlencodedParser);
 
 app.put('/api/reset', jsonParser, (req, res, next) => {
     console.log('Got Reset: ' + JSON.stringify(req.body) );
