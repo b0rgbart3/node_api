@@ -1,17 +1,17 @@
-module.exports = function(jsonParser, server, app, basepath, db) {
+module.exports = function(jsonParser, server, app) {
 
 
 
 
 
-var returnSuccess = function( req,res,next) {
-  res.setHeader('Access-Control-Allow-Origin', basepath );
-  res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", 
-  "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-  res.writeHead(200, { 'Content-Type': 'plain/text' });
-  res.end();
-};
+// var returnSuccess = function( req,res,next) {
+//   res.setHeader('Access-Control-Allow-Origin', basepath );
+//   res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+//   res.setHeader("Access-Control-Allow-Headers", 
+//   "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+//   res.writeHead(200, { 'Content-Type': 'plain/text' });
+//   res.end();
+// };
 
 
 

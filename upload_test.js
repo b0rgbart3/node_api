@@ -3,6 +3,8 @@ var https = require('https');
 var url = require('url');
 var bodyParser = require("body-parser");
 var formidable = require("formidable");
+var imager = require('multer-imager');
+// var sharp = require('sharp');
 
 var url = require('url');
 var AVATAR_PATH = 'https://recloom.s3.amazonaws.com/avatars';
@@ -15,6 +17,7 @@ var avatar_path = '';
 var upload_path = '';
 var local = true;
 var fs = require('fs');
+var gm = require('gm');
 
 var jwt = require('jsonwebtoken');
 var logger = require('./api/logger');
@@ -27,6 +30,7 @@ var Datum = require('./api/datum.js');
 
 var multer  = require('multer');
 var multerS3 = require('multer-s3');
+var multerS3T = require('multer-s3-transform');
 var easyimg = require('easyimage');
 var im = require('imagemagick');
 
@@ -45,7 +49,6 @@ region: 'us-west-1'
 // credentials: {S3_CREDS}
 
 
-
 var staticValue = function(value) {
     return function (req, file, cb) {
       cb(null, value)
@@ -53,7 +56,6 @@ var staticValue = function(value) {
   }
 
 var dataTypes = [
-    'announcements',
     'authenticate',
     'enrollments',
     'assignments',
@@ -198,19 +200,64 @@ app.post('/api/materialimages', jsonParser, function(req,res,next) {
                 res.json({error_code:1,err_desc:err});
                 return;
         }
-        res.setHeader('Access-Control-Allow-Origin', origin );
-        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", 
-        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-        res.setHeader("Access-Control-Allow-Credentials", true);
-        res.writeHead(200, { 'Content-Type': 'plain/text' });
-        res.end();
+         //   res.json({error_code:0,err_desc:null});
+            res.setHeader('Access-Control-Allow-Origin', origin);
+            res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+            res.setHeader("Access-Control-Allow-Headers", 
+            "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+            res.sendStatus(200);
     });
 });
 
-app.post('/api/avatars', jsonParser, function(req,res,next) {
-    console.log('posting avatar image: ' + req.query);
-    uploadAvatarImage(req,res,function(err){
+
+
+
+// multer-image version
+var uploadAvatar = multer({
+    storage: imager({
+      dirname: 'avatars',
+      bucket: 'recloom',
+      acl: 'public-read-write',
+      accessKeyId: 'AKIAIE52WOYO3ZPCPT3Q',
+      secretAccessKey: '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',
+      region: 'us-west-1',
+      filename: function (req, file, cb) {  // [Optional]: define filename (default: random)
+        cb(null, req.query.id + '/' + file.originalname)               // i.e. with a timestamp
+      },                                    //
+      gm: {                                 // [Optional]: define graphicsmagick options
+        width: 800,                         // doc: http://aheckmann.github.io/gm/docs.html#resize
+        height: null,
+        options: '!',
+        format: 'jpg'                       // Default: jpg
+      },
+      s3 : {                                // [Optional]: define s3 options
+        Metadata: {                         // http://docs.aws.amazon.com/AmazonS3/latest/API/RESTObjectPUT.html
+          'customkey': 'data'               // "x-amz-meta-customkey","value":"data"
+        }
+      }
+    })
+  }).single('file');
+
+app.post('/api/avatars', jsonParser, function(req, res, next){ 
+
+    console.log('Resize:');
+    req.file = gm(req.file).resize(53, 57);
+
+
+    uploadAvatar(req,res,function(err){
+
+
+            // gm.convert(body, {
+            //     srcFormat: null,
+            //     width: null,
+            //     height: 500,
+            //     quality: 90,
+            //     format: 'JPEG'
+            //   }, function(image) {
+            //     require('fs').writeFile(out, image, function(err) {
+            //       console.log(err ? err : 'Success!');
+            //     });
+            //   });
 
         if(err){
             console.log('not able to post image.');
@@ -219,16 +266,145 @@ app.post('/api/avatars', jsonParser, function(req,res,next) {
                 res.json({error_code:1,err_desc:err});
                 return;
         }
-        res.setHeader('Access-Control-Allow-Origin', origin );
-        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", 
-        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-        res.setHeader("Access-Control-Allow-Credentials", true);
-        res.writeHead(200, { 'Content-Type': 'plain/text' });
+
         res.end();
     });
-});
+  });
 
+/* -------------------------------------------------------------
+*
+*   Avatar STuff
+*
+*
+*/
+
+
+// var storeAvatarImage = multerS3( {
+//     s3: s3,
+//     bucket: 'recloom',
+//     metadata: function (req, file, cb) {
+//         cb(null, {fieldName: file.fieldname});
+//       },
+//     acl: 'public-read-write',
+//     key: function (req, file, cb) {
+//         // cb(null, Date.now().toString())
+//         cb(null, 'avatars/' + req.query.id + '/' + file.originalname); 
+//     }
+// });
+
+// var storeAvatarImage = multerS3( {
+//     s3: s3,
+//     bucket: 'recloom',
+//     metadata: function (req, file, cb) {
+//         cb(null, {fieldName: file.fieldname});
+//       },
+//     acl: 'public-read-write',
+//     key: function (req, file, cb) {
+//         // cb(null, Date.now().toString())
+//         cb(null, 'avatars/' + req.query.id + '/' + file.originalname); 
+//     }
+// });
+
+
+// var uploadAvatarImage = multer({ //multer settings
+//     storage: storeAvatarImage
+// }).single('file');
+
+
+
+var uploadMaterialImage = multer({ //multer settings
+    storage: storeMaterialImage
+}).single('file');
+
+// var uploadAvatarImage = multer({
+//     storage: multerS3({
+//       s3: s3,
+//       bucket: 'recloom',
+//       directory: 'avatars',
+//       filename: function (req, file, cb) {  // [Optional]: define filename (default: random)
+//                 cb(null, req.query.id + '/' + file.originalname )                // i.e. with a timestamp
+//               },   
+       
+//         id: 'thumbnail',
+//         key: function (req, file, cb) {
+//           cb(null, 'image-thumbnail.jpg')
+//         },
+//         transform: function (req, file, cb) {
+//           cb(null, sharp().resize(100, 100).jpg())
+//         }
+//       }]
+//     })
+//   }).single('file');
+
+
+//     "aws_access_key_id" : "AKIAIE52WOYO3ZPCPT3Q",
+//     "aws_secret_acces_key" : "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"
+
+
+// var uploadAvatarImage = multer({ //multer settings
+//     storage: storeAvatarImage
+// }).single('file');
+
+// var imageProcess = function(req, res ) {
+//     console.log('About to process: ' + JSON.stringify(req));
+// }
+// Cf.: https://github.com/expressjs/multer/blob/master/README.md
+
+
+
+
+
+// app.post('/api/avatars', jsonParser, function(req, res, next){ 
+//     uploadAvatarImage(req,res,function(err){
+
+//         // var dest = req.file.destination;
+//         // console.log('got post request: ' + dest);
+//         console.log('uploading material file');
+        
+//         if(err){
+//             console.log('suffered error');
+//              res.json({error_code:1,err_desc:err});
+//              return;
+//         } else {
+//             console.log('uploaded without error');
+//         }
+//         res.json({error_code:0,err_desc:null});
+//        // returnSuccess( req, res, next );
+//        // returnSuccess();
+// //         res.json({error_code:0,err_desc:null});
+//     });
+
+//  });
+
+// app.post('/api/avatars', jsonParser, function(req, res, next) {
+
+//     console.log('Resize:');
+//     req.file = gm(req.file).resize(53, 57);
+
+//     gm.convert(body, {
+//         srcFormat: null,
+//         width: null,
+//         height: 500,
+//         quality: 90,
+//         format: 'JPEG'
+//       }, function(image) {
+//         require('fs').writeFile(out, image, function(err) {
+//           console.log(err ? err : 'Success!');
+//         });
+//       });
+
+//     // uploadAvatarImage(req,res,function(err){
+
+//     //     if(err){
+//     //         console.log('not able to post image.');
+//     //         console.log( JSON.stringify(err));
+
+//     //             res.json({error_code:1,err_desc:err});
+//     //             return;
+//     //     }
+//     //         res.json({error_code:0,err_desc:null});
+//     // });
+// });
 
 
 
@@ -246,14 +422,10 @@ app.post('/api/materialfiles', jsonParser, function(req,res,next) {
         } else {
             console.log('uploaded without error');
         }
-       // res.json({error_code:0,err_desc:null});
-        res.setHeader('Access-Control-Allow-Origin', origin );
-        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", 
-        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-        res.setHeader("Access-Control-Allow-Credentials", true);
-        res.writeHead(200, { 'Content-Type': 'plain/text' });
-        res.end();
+        res.json({error_code:0,err_desc:null});
+       // returnSuccess( req, res, next );
+       // returnSuccess();
+//         res.json({error_code:0,err_desc:null});
     });
 });
 
@@ -379,31 +551,6 @@ var storeMaterialImage = multerS3( {
     }
 });
 
-
-var storeAvatarImage = multerS3( {
-    s3: s3,
-    bucket: 'recloom',
-    metadata: function (req, file, cb) {
-        cb(null, {fieldName: file.fieldname});
-      },
-    acl: 'public-read-write',
-    key: function (req, file, cb) {
-        // cb(null, Date.now().toString())
-        cb(null, 'avatars/' + req.query.id + '/' + file.originalname); 
-    }
-});
-
-
-
-
-
-var uploadMaterialImage = multer({ //multer settings
-    storage: storeMaterialImage
-}).single('file');
-
-var uploadAvatarImage = multer({ //multer settings
-    storage: storeAvatarImage
-}).single('file');
 
 
 

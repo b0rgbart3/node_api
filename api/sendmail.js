@@ -20,6 +20,73 @@ var buildHTML= function( contentObject ) {
     }
     return output;
 }
+var sendCFMessage = function( resObj ) {
+    
+  var headline = "A message from the Contact Form on the Reclaiming Loom:<br>";
+  var paragraph = "From: " + resObj.firstname + ' ' + resObj.lastname + "<br>";
+  var paragraph2 = "Their message: " + resObj.message;
+  paragraph2 += "-end of message.<br>";
+  var paragraph3 = resObj.firstname + ' ' + resObj.lastname +"<br>";
+  paragraph3 += resObj.email + "<br>";
+  paragraph3 += resObj.phone + "<br><br>";
+
+  var welcomeEmail = [
+    {
+      "headline": headline,
+      "paragraph": paragraph,
+      }, 
+      {
+         "headline": null,
+         "paragraph": paragraph2 
+      },
+      {
+          "headline": null,
+          "paragraph": paragraph3
+      }
+  ];
+  var textBody = buildPlain( welcomeEmail );
+  var htmlBody = buildHTML( welcomeEmail );
+
+  var myMailBody = {
+      "personalizations": [
+        {
+          "to": [
+            {
+              "email": "b0rgBart3@gmail.com"
+            }
+          ],
+          "subject": "A message from the Contact Form of the Reclaiming Loom"
+        }
+      ],
+      "from": {
+        "email": "info@reclaimingloom.org"
+      },
+      "content": [
+        {
+          "type": "text/plain",
+          "value": textBody
+        },
+        {
+            "type": "text/html",
+            "value": htmlBody
+        }
+      ]
+    };
+
+  var request = sg.emptyRequest({
+      method: 'POST',
+      path: '/v3/mail/send',
+      body: myMailBody,
+    });
+    
+  console.log("Sending Contact Form Message");
+  
+  sg.API(request, function(error, response) {
+  console.log(response.statusCode);
+  console.log(response.body);
+  console.log(response.headers);
+  });
+}
 
 var sendWelcome = function( resourceObject ) {
     
@@ -219,6 +286,7 @@ var buildBody = function( toEmail, subjectLine, text, html ) {
 module.exports.sendMail = sendMail;
 module.exports.sendWelcome = sendWelcome;
 module.exports.sendReset = sendReset;
+module.exports.sendCFMessage = sendCFMessage;
 
 
 

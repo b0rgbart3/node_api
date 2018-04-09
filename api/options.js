@@ -10,22 +10,22 @@ module.exports = function(app, basepath) {
         res.end();
     };
 
-    app.options('/api/studentenrollments', function(req, res, next){
-        returnSuccess( req, res, next ); });
-    app.options('/api/instructorassignments', function(req, res, next){
-            returnSuccess( req, res, next ); });
-    app.options('/api/allmaterialsbytype', function(req, res, next){
-                returnSuccess( req, res, next ); });    
+    // app.options('/api/studentenrollments', function(req, res, next){
+    //     returnSuccess( req, res, next ); });
+    // app.options('/api/instructorassignments', function(req, res, next){
+    //         returnSuccess( req, res, next ); });
+    // app.options('/api/allmaterialsbytype', function(req, res, next){
+    //             returnSuccess( req, res, next ); });    
     app.options('/api/materialimages', function(req, res, next){
         returnSuccess( req, res, next ); });
     app.options('/api/materialfiles', function(req, res, next){
         returnSuccess( req, res, next );  });
     app.options('/api/docfiles', function(req, res, next){
         returnSuccess( req, res, next );   });
-    app.options('/api/discussion/settings*', function(req, res, next){
-        returnSuccess( req, res, next ); });
-    app.options('/api/notes/settings', function(req, res, next){
-        returnSuccess( req, res, next ); });
+    // app.options('/api/discussion/settings*', function(req, res, next){
+    //     returnSuccess( req, res, next ); });
+    // app.options('/api/notes/settings', function(req, res, next){
+    //     returnSuccess( req, res, next ); });
     app.options('/api/requestreset', function( req, res, next) {
         returnSuccess( req, res, next ); });
     app.options('/api/reset', function( req, res, next) {
