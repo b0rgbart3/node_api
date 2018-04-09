@@ -2,6 +2,7 @@
 var sortBy = require('../node_modules/lodash').sortBy;
 var jwt = require('jsonwebtoken');
 var fs = require('fs');
+var origin = "https://thawing-reaches-29763.herokuapp.com";
 
 var makeid = function() {
     var text = "";
@@ -44,7 +45,7 @@ var docrepo = function() {
         // console.log("Putting resource: "+ resource);
         console.log("Putting object: "+ JSON.stringify( resourceObject ) );
         console.log("Into " + type + " collection.");
-        response.setHeader('Access-Control-Allow-Origin', '*' );
+        response.setHeader('Access-Control-Allow-Origin', origin );
         response.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
         response.setHeader("Access-Control-Allow-Headers", 
         "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
@@ -186,7 +187,7 @@ var docrepo = function() {
                     }
                     
                    // console.log('Returning: ' + JSON.stringify(docs));
-                    response.setHeader('Access-Control-Allow-Origin', '*');
+                    response.setHeader('Access-Control-Allow-Origin', origin );
                     response.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
                     response.setHeader("Access-Control-Allow-Headers", 
                     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
@@ -204,7 +205,7 @@ var docrepo = function() {
         let resourceId = request.query.id;
         
         console.log('Removing ' + type + ', with id of of: ' + resourceId);
-         response.setHeader('Access-Control-Allow-Origin', '*');
+         response.setHeader('Access-Control-Allow-Origin', origin );
          response.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
          response.setHeader("Access-Control-Allow-Headers", 
          "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
@@ -277,7 +278,7 @@ var docrepo = function() {
                         // success!
                         console.log("success!");
                         // generate a real response to authenticate this user
-                        response.header('Access-Control-Allow-Origin',  '*' );
+                        response.header('Access-Control-Allow-Origin',  origin );
                         response.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
                         response.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
                         response.writeHead(200, { 'Content-Type': 'plain/text' });
@@ -286,7 +287,7 @@ var docrepo = function() {
                     else
                     {
                         console.log('decoded JWT doesn\'t match');
-                        response.header('Access-Control-Allow-Origin',  '*' );
+                        response.header('Access-Control-Allow-Origin',  origin );
                         response.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
                         response.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 
@@ -297,7 +298,7 @@ var docrepo = function() {
                 }
                 else
                 {
-                    response.header('Access-Control-Allow-Origin',  '*' );
+                    response.header('Access-Control-Allow-Origin',  origin );
                     response.header('Access-Control-Allow-Methods', 'GET,PUT,POST,UPDATE,DELETE,OPTIONS');
                     response.header('Access-Control-Allow-Headers', 'Content-Type, Authorization, Content-Length, X-Requested-With');
 
