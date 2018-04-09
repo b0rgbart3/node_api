@@ -13,7 +13,7 @@ let ssl_options = {};
 var origin = '';
 var avatar_path = '';
 var upload_path = '';
-var local = false;
+var local = true;
 var fs = require('fs');
 
 var jwt = require('jsonwebtoken');
