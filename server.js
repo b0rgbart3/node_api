@@ -27,8 +27,8 @@ var Datum = require('./api/datum.js');
 
 var multer  = require('multer');
 var multerS3 = require('multer-s3');
-var easyimg = require('easyimage');
-var im = require('imagemagick');
+// var easyimg = require('easyimage');
+// var im = require('imagemagick');
 
 // var S3_CREDS = {
 //     "aws_access_key_id" : "AKIAIE52WOYO3ZPCPT3Q",
