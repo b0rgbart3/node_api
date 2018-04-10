@@ -117,6 +117,7 @@ if (local) {
 else {
    server = http.createServer(app);
    origin= "https://thawing-reaches-29763.herokuapp.com";
+   origin = "http://localhost:4200"; 
 
     let ssl_options = {
         key:fs.readFileSync('./ssl/privkey.pem'),
