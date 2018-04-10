@@ -22,6 +22,7 @@ var docrepo = function() {
     var db = {};
     var db;
     var origin = "https://thawing-reaches-29763.herokuapp.com";
+    origin = "*";
     
     var ObjectID = mongodb.ObjectID;
     // this should be set to: process.env.MONGODB_URI

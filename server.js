@@ -151,297 +151,301 @@ var optionsCB = function( req, res, next) {
     res.end();
 }
 
-var datums = [];
-for (var i =0; i < dataTypes.length; i++) {
-    datum = new Datum(dataTypes[i]);
-    datums[dataTypes[i]] = datum;
-    app.options('/api/' + dataTypes[i], optionsCB);
-    app.get('/api/' + dataTypes[i], datums[dataTypes[i]].getCB);
-    app.put('/api/' + dataTypes[i], jsonParser, datums[dataTypes[i]].putCB);
-    app.delete('/api/' + dataTypes[i], jsonParser, datums[dataTypes[i]].deleteCB);
+
+app.get('/api/users', function(request, response) {
+    response.json('success');
+})
+// var datums = [];
+// for (var i =0; i < dataTypes.length; i++) {
+//     datum = new Datum(dataTypes[i]);
+//     datums[dataTypes[i]] = datum;
+//     app.options('/api/' + dataTypes[i], optionsCB);
+//     app.get('/api/' + dataTypes[i], datums[dataTypes[i]].getCB);
+//     app.put('/api/' + dataTypes[i], jsonParser, datums[dataTypes[i]].putCB);
+//     app.delete('/api/' + dataTypes[i], jsonParser, datums[dataTypes[i]].deleteCB);
   
-}
+// }
 
-app.post('/api/authenticate', jsonParser, function(req,res,next) {
-    processAuthentication( req, res, next); 
-});
+// app.post('/api/authenticate', jsonParser, function(req,res,next) {
+//     processAuthentication( req, res, next); 
+// });
 
-app.options('/api/discussion/enter', function(req, res, next){
-         returnSuccess( req, res, next ); });
-app.options('/api/sendCFMsg', function(req, res, next){
-        returnSuccess( req, res, next ); });
-app.options('/api/avatars', function(req, res, next){
-    console.log('Sent OPTIONS for Avatars');
-            returnSuccess( req, res, next ); });
+// app.options('/api/discussion/enter', function(req, res, next){
+//          returnSuccess( req, res, next ); });
+// app.options('/api/sendCFMsg', function(req, res, next){
+//         returnSuccess( req, res, next ); });
+// app.options('/api/avatars', function(req, res, next){
+//     console.log('Sent OPTIONS for Avatars');
+//             returnSuccess( req, res, next ); });
    
-app.put('/api/sendCFMsg', jsonParser, function(req,res,next) {
-    sendCFMsg(req,res,next);
-});
+// app.put('/api/sendCFMsg', jsonParser, function(req,res,next) {
+//     sendCFMsg(req,res,next);
+// });
   
-app.put('/api/discussion/enter', jsonParser, function(req,res,next) {
-       console.log('Got a discussion entry request');
-      discussionLogin( req, res, next);
-    });
+// app.put('/api/discussion/enter', jsonParser, function(req,res,next) {
+//        console.log('Got a discussion entry request');
+//       discussionLogin( req, res, next);
+//     });
 
-app.options('/api/materialimages', function(req, res, next){
-        returnSuccess( req, res, next ); });
+// app.options('/api/materialimages', function(req, res, next){
+//         returnSuccess( req, res, next ); });
 
-app.options('/api/materialfiles', function(req, res, next){
-    returnSuccess( req, res, next ); });  
+// app.options('/api/materialfiles', function(req, res, next){
+//     returnSuccess( req, res, next ); });  
 
-app.post('/api/materialimages', jsonParser, function(req,res,next) {
-    uploadMaterialImage(req,res,function(err){
+// app.post('/api/materialimages', jsonParser, function(req,res,next) {
+//     uploadMaterialImage(req,res,function(err){
 
-        if(err){
-            console.log('not able to post image.');
-            console.log( JSON.stringify(err));
+//         if(err){
+//             console.log('not able to post image.');
+//             console.log( JSON.stringify(err));
 
-                res.json({error_code:1,err_desc:err});
-                return;
-        }
-        res.setHeader('Access-Control-Allow-Origin', origin );
-        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", 
-        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-        res.setHeader("Access-Control-Allow-Credentials", true);
-        res.writeHead(200, { 'Content-Type': 'plain/text' });
-        res.end();
-    });
-});
+//                 res.json({error_code:1,err_desc:err});
+//                 return;
+//         }
+//         res.setHeader('Access-Control-Allow-Origin', origin );
+//         res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+//         res.setHeader("Access-Control-Allow-Headers", 
+//         "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+//         res.setHeader("Access-Control-Allow-Credentials", true);
+//         res.writeHead(200, { 'Content-Type': 'plain/text' });
+//         res.end();
+//     });
+// });
 
-app.post('/api/avatars', jsonParser, function(req,res,next) {
-    console.log('posting avatar image: ' + req.query);
-    uploadAvatarImage(req,res,function(err){
+// app.post('/api/avatars', jsonParser, function(req,res,next) {
+//     console.log('posting avatar image: ' + req.query);
+//     uploadAvatarImage(req,res,function(err){
 
-        if(err){
-            console.log('not able to post image.');
-            console.log( JSON.stringify(err));
+//         if(err){
+//             console.log('not able to post image.');
+//             console.log( JSON.stringify(err));
 
-                res.json({error_code:1,err_desc:err});
-                return;
-        }
-        res.setHeader('Access-Control-Allow-Origin', origin );
-        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", 
-        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-        res.setHeader("Access-Control-Allow-Credentials", true);
-        res.writeHead(200, { 'Content-Type': 'plain/text' });
-        res.end();
-    });
-});
-
-
+//                 res.json({error_code:1,err_desc:err});
+//                 return;
+//         }
+//         res.setHeader('Access-Control-Allow-Origin', origin );
+//         res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+//         res.setHeader("Access-Control-Allow-Headers", 
+//         "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+//         res.setHeader("Access-Control-Allow-Credentials", true);
+//         res.writeHead(200, { 'Content-Type': 'plain/text' });
+//         res.end();
+//     });
+// });
 
 
-app.post('/api/materialfiles', jsonParser, function(req,res,next) {
-    uploadMaterialFile(req,res,function(err){
 
-        // var dest = req.file.destination;
-        // console.log('got post request: ' + dest);
-        console.log('uploading material file');
+
+// app.post('/api/materialfiles', jsonParser, function(req,res,next) {
+//     uploadMaterialFile(req,res,function(err){
+
+//         // var dest = req.file.destination;
+//         // console.log('got post request: ' + dest);
+//         console.log('uploading material file');
         
-        if(err){
-            console.log('suffered error');
-             res.json({error_code:1,err_desc:err});
-             return;
-        } else {
-            console.log('uploaded without error');
-        }
-       // res.json({error_code:0,err_desc:null});
-        res.setHeader('Access-Control-Allow-Origin', origin );
-        res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-        res.setHeader("Access-Control-Allow-Headers", 
-        "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-        res.setHeader("Access-Control-Allow-Credentials", true);
-        res.writeHead(200, { 'Content-Type': 'plain/text' });
-        res.end();
-    });
-});
+//         if(err){
+//             console.log('suffered error');
+//              res.json({error_code:1,err_desc:err});
+//              return;
+//         } else {
+//             console.log('uploaded without error');
+//         }
+//        // res.json({error_code:0,err_desc:null});
+//         res.setHeader('Access-Control-Allow-Origin', origin );
+//         res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+//         res.setHeader("Access-Control-Allow-Headers", 
+//         "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+//         res.setHeader("Access-Control-Allow-Credentials", true);
+//         res.writeHead(200, { 'Content-Type': 'plain/text' });
+//         res.end();
+//     });
+// });
 
 
  
 
-var processAuthentication = function(req, res, next) {
+// var processAuthentication = function(req, res, next) {
 
-     var cert = fs.readFileSync('.bsx');
-     var certString = cert.toString();
-    DocRepo.authenticate(jwt, certString, req, res, next);
-}
+//      var cert = fs.readFileSync('.bsx');
+//      var certString = cert.toString();
+//     DocRepo.authenticate(jwt, certString, req, res, next);
+// }
 
-var discussionLogin = function( req,res,next) {
-    let user_id = req.body.user_id;
-    let class_id = req.body.class_id;
-    let section = req.body.section;
+// var discussionLogin = function( req,res,next) {
+//     let user_id = req.body.user_id;
+//     let class_id = req.body.class_id;
+//     let section = req.body.section;
   
-    console.log('In discussionLogin(), user_id:' + user_id + ', class_id: ' + class_id +
-      ', section: ' + section);
+//     console.log('In discussionLogin(), user_id:' + user_id + ', class_id: ' + class_id +
+//       ', section: ' + section);
   
-    let discussion = findDiscussion(class_id, section);
-    if (!discussion) {
-        discussion = new Discussion( class_id, section);
-        discussions.push(discussion);
-        discussion.currentUsers.push(user_id);
-    } else {
-        if (discussion.currentUsers) {
-            foundUser = findUserInDiscussion(user_id, discussion);
-            if (!foundUser) {
-                discussion.currentUsers.push(user_id);
-            }
-        }
-    }
+//     let discussion = findDiscussion(class_id, section);
+//     if (!discussion) {
+//         discussion = new Discussion( class_id, section);
+//         discussions.push(discussion);
+//         discussion.currentUsers.push(user_id);
+//     } else {
+//         if (discussion.currentUsers) {
+//             foundUser = findUserInDiscussion(user_id, discussion);
+//             if (!foundUser) {
+//                 discussion.currentUsers.push(user_id);
+//             }
+//         }
+//     }
     
-    res.setHeader('Access-Control-Allow-Origin', origin);
-    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", 
-    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-    res.sendStatus(200);
-    res.end();
-  };
+//     res.setHeader('Access-Control-Allow-Origin', origin);
+//     res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+//     res.setHeader("Access-Control-Allow-Headers", 
+//     "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+//     res.sendStatus(200);
+//     res.end();
+//   };
 
-  var findDiscussion = function( class_id, section) {
-    let found = false;
-    let foundDiscussion = null;
+//   var findDiscussion = function( class_id, section) {
+//     let found = false;
+//     let foundDiscussion = null;
 
-  if (discussions) {
-      console.log('Discussions: ' + JSON.stringify(discussions));
-  }
-  for (var i = 0; i < discussions.length; i++) {
-      if (discussions[i].class_id == class_id && discussions[i].section == section) {
-          console.log('found the discussion in memory: ' + i);
-          found = true;
-          foundDiscussion = discussions[i];
-      }
-  }
+//   if (discussions) {
+//       console.log('Discussions: ' + JSON.stringify(discussions));
+//   }
+//   for (var i = 0; i < discussions.length; i++) {
+//       if (discussions[i].class_id == class_id && discussions[i].section == section) {
+//           console.log('found the discussion in memory: ' + i);
+//           found = true;
+//           foundDiscussion = discussions[i];
+//       }
+//   }
 
-  if (!found) {
-      console.log('Didnt find the discussion, so creating it.');
-      let newDiscussion = new Discussion( class_id, section);
-      discussions.push(newDiscussion);
-      foundDiscussion = newDiscussion;
-  }
-  return foundDiscussion;
-}
+//   if (!found) {
+//       console.log('Didnt find the discussion, so creating it.');
+//       let newDiscussion = new Discussion( class_id, section);
+//       discussions.push(newDiscussion);
+//       foundDiscussion = newDiscussion;
+//   }
+//   return foundDiscussion;
+// }
 
-var findUserInDiscussion = function( user, discussion ) {
-  for (var i = 0; i < discussion.currentUsers.length; i++) {
-      if (user.id == discussion.currentUsers[i].id) {
-          console.log('found user in discussion.');
-          return true;
-      }
-  }
-  console.log('Did NOT find user in discussion.');
-  return false;
-}
+// var findUserInDiscussion = function( user, discussion ) {
+//   for (var i = 0; i < discussion.currentUsers.length; i++) {
+//       if (user.id == discussion.currentUsers[i].id) {
+//           console.log('found user in discussion.');
+//           return true;
+//       }
+//   }
+//   console.log('Did NOT find user in discussion.');
+//   return false;
+// }
 
-var discussionLogin = function( req,res,next) {
-  let user_id = req.body.user_id;
-  let class_id = req.body.class_id;
-  let section = req.body.section;
+// var discussionLogin = function( req,res,next) {
+//   let user_id = req.body.user_id;
+//   let class_id = req.body.class_id;
+//   let section = req.body.section;
 
-  console.log('In discussionLogin(), user_id:' + user_id + ', class_id: ' + class_id +
-    ', section: ' + section);
+//   console.log('In discussionLogin(), user_id:' + user_id + ', class_id: ' + class_id +
+//     ', section: ' + section);
 
-  let discussion = findDiscussion(class_id, section);
-  if (!discussion) {
-      discussion = new Discussion( class_id, section);
-      discussions.push(discussion);
-      discussion.currentUsers.push(user_id);
-  } else {
-      if (discussion.currentUsers) {
-          foundUser = findUserInDiscussion(user_id, discussion);
-          if (!foundUser) {
-              discussion.currentUsers.push(user_id);
-          }
-      }
-  }
+//   let discussion = findDiscussion(class_id, section);
+//   if (!discussion) {
+//       discussion = new Discussion( class_id, section);
+//       discussions.push(discussion);
+//       discussion.currentUsers.push(user_id);
+//   } else {
+//       if (discussion.currentUsers) {
+//           foundUser = findUserInDiscussion(user_id, discussion);
+//           if (!foundUser) {
+//               discussion.currentUsers.push(user_id);
+//           }
+//       }
+//   }
   
-  res.setHeader('Access-Control-Allow-Origin', origin);
-  res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
-  res.setHeader("Access-Control-Allow-Headers", 
-  "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
-  res.sendStatus(200);
-  res.end();
- // next();
-};
+//   res.setHeader('Access-Control-Allow-Origin', origin);
+//   res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+//   res.setHeader("Access-Control-Allow-Headers", 
+//   "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+//   res.sendStatus(200);
+//   res.end();
+//  // next();
+// };
 
 
-// Image stuff ---------------------------------
+// // Image stuff ---------------------------------
 
-var storeMaterialImage = multerS3( {
-    s3: s3,
-    bucket: 'recloom',
-    metadata: function (req, file, cb) {
-        cb(null, {fieldName: file.fieldname});
-      },
-    acl: 'public-read-write',
-    key: function (req, file, cb) {
-        // cb(null, Date.now().toString())
-        cb(null, 'materialimages/' + req.query.id + '/' + file.originalname); 
-    }
-});
-
-
-var storeAvatarImage = multerS3( {
-    s3: s3,
-    bucket: 'recloom',
-    metadata: function (req, file, cb) {
-        cb(null, {fieldName: file.fieldname});
-      },
-    acl: 'public-read-write',
-    key: function (req, file, cb) {
-        // cb(null, Date.now().toString())
-        cb(null, 'avatars/' + req.query.id + '/' + file.originalname); 
-    }
-});
+// var storeMaterialImage = multerS3( {
+//     s3: s3,
+//     bucket: 'recloom',
+//     metadata: function (req, file, cb) {
+//         cb(null, {fieldName: file.fieldname});
+//       },
+//     acl: 'public-read-write',
+//     key: function (req, file, cb) {
+//         // cb(null, Date.now().toString())
+//         cb(null, 'materialimages/' + req.query.id + '/' + file.originalname); 
+//     }
+// });
 
 
-
-
-
-var uploadMaterialImage = multer({ //multer settings
-    storage: storeMaterialImage
-}).single('file');
-
-var uploadAvatarImage = multer({ //multer settings
-    storage: storeAvatarImage
-}).single('file');
+// var storeAvatarImage = multerS3( {
+//     s3: s3,
+//     bucket: 'recloom',
+//     metadata: function (req, file, cb) {
+//         cb(null, {fieldName: file.fieldname});
+//       },
+//     acl: 'public-read-write',
+//     key: function (req, file, cb) {
+//         // cb(null, Date.now().toString())
+//         cb(null, 'avatars/' + req.query.id + '/' + file.originalname); 
+//     }
+// });
 
 
 
 
 
-// ----------------
+// var uploadMaterialImage = multer({ //multer settings
+//     storage: storeMaterialImage
+// }).single('file');
 
-var sendCFMsg = function(req,res,next) {
-
-    mailer.sendCFMessage(req.body);
-    res.writeHead(200, { 'Content-Type': 'plain/text' });
-    res.end(JSON.stringify('sent') );
-}
+// var uploadAvatarImage = multer({ //multer settings
+//     storage: storeAvatarImage
+// }).single('file');
 
 
-// ------------- Material File stuff ---------------
 
-    //contentType: multerS3.AUTO_CONTENT_TYPE, // staticValue('application/pdf'),
 
-var storeMaterialFile = multerS3( {
-    s3: s3,
-    bucket: 'recloom',
-    contentType: staticValue('application/pdf'),
-    contentDisposition: staticValue('inline'),
-    metadata: function (req, file, cb) {
-        cb(null, {fieldName: file.fieldname });
-      },
-    acl: 'public-read-write',
-    key: function (req, file, cb) {
-        // cb(null, Date.now().toString())
-        cb(null, 'materialfiles/' + req.query.id + '/' + file.originalname); 
-    }
-});
 
-var uploadMaterialFile = multer({ //multer settings
-    storage: storeMaterialFile
-}).single('file');
+// // ----------------
+
+// var sendCFMsg = function(req,res,next) {
+
+//     mailer.sendCFMessage(req.body);
+//     res.writeHead(200, { 'Content-Type': 'plain/text' });
+//     res.end(JSON.stringify('sent') );
+// }
+
+
+// // ------------- Material File stuff ---------------
+
+//     //contentType: multerS3.AUTO_CONTENT_TYPE, // staticValue('application/pdf'),
+
+// var storeMaterialFile = multerS3( {
+//     s3: s3,
+//     bucket: 'recloom',
+//     contentType: staticValue('application/pdf'),
+//     contentDisposition: staticValue('inline'),
+//     metadata: function (req, file, cb) {
+//         cb(null, {fieldName: file.fieldname });
+//       },
+//     acl: 'public-read-write',
+//     key: function (req, file, cb) {
+//         // cb(null, Date.now().toString())
+//         cb(null, 'materialfiles/' + req.query.id + '/' + file.originalname); 
+//     }
+// });
+
+// var uploadMaterialFile = multer({ //multer settings
+//     storage: storeMaterialFile
+// }).single('file');
 
 
 
