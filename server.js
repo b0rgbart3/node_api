@@ -115,7 +115,7 @@ if (local) {
     
 }
 else {
-   server = https.createServer(app);
+   server = http.createServer(app);
    origin= "https://thawing-reaches-29763.herokuapp.com";
 
     let ssl_options = {
