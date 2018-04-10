@@ -152,10 +152,20 @@ var optionsCB = function( req, res, next) {
     res.end();
 }
 
+app.options('/api/users', function(request, response) {
+    res.setHeader('Access-Control-Allow-Origin', origin );
+    res.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
+    res.setHeader("Access-Control-Allow-Headers", 
+    "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
+    res.setHeader("Access-Control-Allow-Credentials", true);
+    res.writeHead(200, { 'Content-Type': 'plain/text' });
+    res.end();
+});
 
 app.get('/api/users', function(request, response) {
     response.json('success');
-})
+    response.end();
+});
 // var datums = [];
 // for (var i =0; i < dataTypes.length; i++) {
 //     datum = new Datum(dataTypes[i]);
