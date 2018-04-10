@@ -172,7 +172,7 @@ var docrepo = function() {
                       return null;
                     }
                   else{
-                    //console.log('Mongo returned: ' + JSON.stringify(docs));
+                     console.log('Mongo returned: ' + JSON.stringify(docs));
 
                     // I'm not crazy about putting this code block here - but I want to
                     // sort the data on the server side before sending it back to the client,
@@ -188,7 +188,7 @@ var docrepo = function() {
                         default: break;
                     }
                     
-                   // console.log('Returning: ' + JSON.stringify(docs));
+                    console.log('Returning: ' + JSON.stringify(docs));
                     response.setHeader('Access-Control-Allow-Origin', origin );
                     response.setHeader('Access-Control-Allow-Methods', "POST, GET, PUT, UPDATE, DELETE, OPTIONS");
                     response.setHeader("Access-Control-Allow-Headers", 
