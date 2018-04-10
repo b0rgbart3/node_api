@@ -1,3 +1,4 @@
+var request_host = 'http://thawing-reaches-29763.herokuapp.com';
 
 module.exports = {
 
@@ -153,9 +154,9 @@ module.exports = {
             else{
                 console.log("Succeeded in entering user in DB");
               
-                let activationLink = "localhost:4200/users/activation";
+                let activationLink = request_host + "/users/activation";
                
-                let htmlString = "Welcome to the Reclaiming Loom.<br><br>Verify your <a href='localhost:4200/verify'>account</a> with this verification code: "+userObject.verificationID;
+                let htmlString = "Welcome to the Reclaiming Loom.<br><br>Verify your <a href='" + request_host + "/verify'>account</a> with this verification code: "+userObject.verificationID;
 
                 const msg= {
                         to: 'bartdority@gmail.com',
