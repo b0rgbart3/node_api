@@ -189,6 +189,7 @@ app.post('/api/authenticate', jsonParser, function(req,res,next) {
 app.options('/api/discussion/enter', function(req, res, next){
          returnSuccess( req, res, next ); });
 app.options('/api/sendCFMsg', function(req, res, next){
+    console.log('Sent OPTIONS for CFMsg');
         returnSuccess( req, res, next ); });
 app.options('/api/avatars', function(req, res, next){
     console.log('Sent OPTIONS for Avatars');
@@ -434,15 +435,15 @@ var uploadAvatarImage = multer({ //multer settings
 // Send the Contact Form Message
 
 var sendCFMsg = function(req,res,next) {
-
+    console.log('In sendCFMsg.');
    // mailer.sendCFMessage(req.body);
-   const msg= {
-    to: 'bartdority@gmail.com',
-    from: 'b0rgBart3@gmail.com',
-    subject: 'A message from the contact form on the loom',
-    text: 'The message content will go here.',
-    html: '<h1>Contact Form Message.</h1><p>The message will go here.</p>'
-};
+    const msg= {
+        to: 'bartdority@gmail.com',
+        from: 'b0rgBart3@gmail.com',
+        subject: 'A message from the contact form on the loom',
+        text: 'The message content will go here.',
+        html: '<h1>Contact Form Message.</h1><p>The message will go here.</p>'
+        };
 
    sgMail.send(msg);
 
