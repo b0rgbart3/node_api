@@ -2,7 +2,7 @@
 var sortBy = require('../node_modules/lodash').sortBy;
 var jwt = require('jsonwebtoken');
 var fs = require('fs');
-var origin = "http://thawing-reaches-29763.herokuapp.com";
+var origin = "https://thawing-reaches-29763.herokuapp.com";
 
 var makeid = function() {
     var text = "";
@@ -21,7 +21,7 @@ var docrepo = function() {
     var mongodb = require("mongodb");
     var db = {};
     var db;
-    var origin = "http://thawing-reaches-29763.herokuapp.com";
+    var origin = "https://thawing-reaches-29763.herokuapp.com";
     origin = "*";
     
     var ObjectID = mongodb.ObjectID;
