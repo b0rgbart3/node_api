@@ -177,7 +177,7 @@ for (var i =0; i < dataTypes.length; i++) {
     datums[dataTypes[i]] = datum;
     app.options('/api/' + dataTypes[i], optionsCB);
     app.get('/api/' + dataTypes[i], datums[dataTypes[i]].getCB);
-    app.put('/api/' + dataTypes[i], jsonParser, datums[dataTypes[i]].putCB, sgMail);
+    app.put('/api/' + dataTypes[i], jsonParser, datums[dataTypes[i]].putCB );
     app.delete('/api/' + dataTypes[i], jsonParser, datums[dataTypes[i]].deleteCB);
   
 }
