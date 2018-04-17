@@ -82,16 +82,17 @@ var docrepo = function() {
                 resourceObject.token = userJWT;
                 resourceObject.verified = 'false';
                 
+                resourceObject.token = userJWT;
                 let verificationID = makeid();
                 resourceObject.verificationID = verificationID;
 
-                    const msg= {
-                        to: 'bartdority@gmail.com',
-                        from: 'b0rgBart3@gmail.com',
-                        subject: 'Welcome to the Reclaiming Loom',
-                        text: 'Thank you for joining the Reclaiming Loom.',
-                        html: '<h1>Thank you.</h1><p>You have successfully joined the reclaiming loom.</p>'
-                    };
+                const msg= {
+                    to: 'bartdority@gmail.com',
+                    from: 'b0rgBart3@gmail.com',
+                    subject: 'Welcome to the Reclaiming Loom',
+                    text: 'Thank you for joining the Reclaiming Loom.',
+                    html: '<h1>Thank you.</h1><p>You have successfully joined the reclaiming loom.</p>'
+                };
     
                     sgMail.send(msg);
             }
