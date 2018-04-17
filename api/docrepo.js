@@ -94,6 +94,9 @@ var docrepo = function() {
                     html: '<h1>Thank you.</h1><p>You have successfully joined the reclaiming loom.</p>'
                 };
     
+                const sgMail = require('@sendgrid/mail');
+                sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
                 // we're sending this email before the callback - because I don't know how to pass
                 // the sgMail object to the callback function
                 sgMail.send(msg);
