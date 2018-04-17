@@ -94,7 +94,9 @@ var docrepo = function() {
                     html: '<h1>Thank you.</h1><p>You have successfully joined the reclaiming loom.</p>'
                 };
     
-                   
+                // we're sending this email before the callback - because I don't know how to pass
+                // the sgMail object to the callback function
+                sgMail.send(msg);
             }
             db.collection(type).insert(resourceObject, function(err,data) {
                 if (err) {
@@ -106,7 +108,7 @@ var docrepo = function() {
                 }
                 else{
                     // Let's send an email to the new user to welcome them to the Loom!
-                    sgMail.send(msg);
+                    
                     // mailer.sendWelcome(resourceObject);
                     console.log('added object to DB: ' + JSON.stringify(data));
                     response.writeHead(200, { 'Content-Type': 'plain/text' });
