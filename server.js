@@ -105,7 +105,7 @@ var returnSuccess = function( req,res,next) {
    // res.setHeader("Access-Control-Allow-Headers", 
   //  "Origin, X-Requested-With, Content-Type, Accept, x-auth-token");
   //  res.setHeader("Access-Control-Allow-Credentials", true);
-   // res.writeHead(200, { 'Content-Type': 'plain/text' });
+    res.setHeader( 'Content-Type', 'plain/text' );
     res.json('success');
     res.end();
 };
