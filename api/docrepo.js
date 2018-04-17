@@ -41,7 +41,7 @@ var docrepo = function() {
         });
 
 
-    var put = function(type, request, response, next, certString) {
+    var put = function(type, request, response, next, certString, sgMail) {
         let resourceObject = request.body;
     
         // console.log("Putting resource: "+ resource);
