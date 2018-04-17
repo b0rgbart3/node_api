@@ -46,6 +46,11 @@ region: 'us-west-1'
 
 
 
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+
+
 var staticValue = function(value) {
     return function (req, file, cb) {
       cb(null, value)
