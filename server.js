@@ -431,10 +431,21 @@ var uploadAvatarImage = multer({ //multer settings
 
 
 // ----------------
+// Send the Contact Form Message
 
 var sendCFMsg = function(req,res,next) {
 
-    mailer.sendCFMessage(req.body);
+   // mailer.sendCFMessage(req.body);
+   const msg= {
+    to: 'bartdority@gmail.com',
+    from: 'b0rgBart3@gmail.com',
+    subject: 'A message from the contact form on the loom',
+    text: 'The message content will go here.',
+    html: '<h1>Contact Form Message.</h1><p>The message will go here.</p>'
+};
+
+   sgMail.send(msg);
+
     res.writeHead(200, { 'Content-Type': 'plain/text' });
     res.end(JSON.stringify('sent') );
 }
