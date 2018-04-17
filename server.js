@@ -286,7 +286,7 @@ var processAuthentication = function(req, res, next) {
 
      var cert = fs.readFileSync('.bsx');
      var certString = cert.toString();
-    DocRepo.authenticate(jwt, certString, req, res, next);
+    DocRepo.authenticate(jwt, certString, sgMail, req, res, next);
 }
 
 var discussionLogin = function( req,res,next) {
