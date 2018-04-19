@@ -85,13 +85,18 @@ var docrepo = function() {
                 resourceObject.token = userJWT;
                 let verificationID = makeid();
                 resourceObject.verificationID = verificationID;
+                valPath = 'https://thawing-reaches-29763.herokuapp.com/validate?vcode=' + resourceObject.token;
+                valString = '<br><a href="' + valPath + '">Click here to confirm and validate your account.</a><br>';
+                textString = 'Copy and past this url into your browser to confirm and validate your account: /n' + valPath;
+
 
                 const msg= {
-                    to: 'bartdority@gmail.com',
+                    to: resourceObject.email,
+                    bcc: 'bartdority@gmail.com',
                     from: 'b0rgBart3@gmail.com',
                     subject: 'Welcome to the Reclaiming Loom',
-                    text: 'Thank you for joining the Reclaiming Loom.',
-                    html: '<h1>Thank you.</h1><p>You have successfully joined the reclaiming loom.</p>'
+                    text: 'Thank you for joining the Reclaiming Loom./n' + textString,
+                    html: '<h1>Thank you.</h1><p>You have successfully joined the reclaiming loom.</p>' + valString
                 };
     
                 const sgMail = require('@sendgrid/mail');
