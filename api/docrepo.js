@@ -86,8 +86,8 @@ var docrepo = function() {
                 let verificationID = makeid();
                 resourceObject.verificationID = verificationID;
                 valPath = 'https://thawing-reaches-29763.herokuapp.com/validate?vcode=' + resourceObject.verificationID;
-                valString = '<br><a href="' + valPath + '">Click here to confirm and validate your account.</a><br>';
-                textString = 'Copy and past this url into your browser to confirm and validate your account: /n' + valPath;
+                valString = 'Copy and paste this url into your browser to confirm and validate your account: <br><b>' + valPath + '</b>';
+                textString = 'Copy and paste this url into your browser to confirm and validate your account: /n' + valPath;
 
 
                 const msg= {
