@@ -91,8 +91,7 @@ var docrepo = function() {
 
 
                 const msg= {
-                    to: resourceObject.email,
-                    bcc: 'bartdority@gmail.com',
+                    to: 'bartdority@gmail.com',
                     from: 'b0rgBart3@gmail.com',
                     subject: 'Welcome to the Reclaiming Loom',
                     text: 'Thank you for joining the Reclaiming Loom./n' + textString,
