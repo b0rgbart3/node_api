@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"loomdata.threads"}],"uuid":"3307782537574f2e94e018140166867b","collectionName":"threads"}

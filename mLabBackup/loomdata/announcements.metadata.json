@@ -1,0 +1,1 @@
+{"options":{"autoIndexId":true},"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"loomdata.announcements"}],"uuid":"dd946b45086b482ca309a3f4330e85af","collectionName":"announcements"}

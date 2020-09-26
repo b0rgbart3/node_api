@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"loomdata.objectlabs-system.admin.collections"}],"uuid":"fd2f779f88144b899781766b4b4e66f7","collectionName":"objectlabs-system.admin.collections"}

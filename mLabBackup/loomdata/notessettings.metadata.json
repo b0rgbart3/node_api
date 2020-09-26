@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"loomdata.notessettings"}],"uuid":"5a094c8e61294a77b2c05c637f5a0066","collectionName":"notessettings"}

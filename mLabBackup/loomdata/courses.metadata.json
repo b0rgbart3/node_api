@@ -1,0 +1,1 @@
+{"indexes":[{"v":{"$numberInt":"2"},"key":{"_id":{"$numberInt":"1"}},"name":"_id_","ns":"loomdata.courses"}],"uuid":"fc585caff5b4445fa4e2cc45fc7b4690","collectionName":"courses"}

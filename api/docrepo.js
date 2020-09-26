@@ -26,7 +26,11 @@ var docrepo = function() {
     
     var ObjectID = mongodb.ObjectID;
     // this should be set to: process.env.MONGODB_URI
-    const MONGODB_URI = 'mongodb://bart:givemedata@ds163360.mlab.com:63360/loomdata';
+    const MONGODB_URI = process.env.MONGODB_URI;
+    
+    
+    
+    
 
     mongodb.MongoClient.connect(MONGODB_URI, function (err, database) {
 
