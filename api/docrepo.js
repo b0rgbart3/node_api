@@ -40,7 +40,7 @@ var docrepo = function() {
             }
             // Save database object from the callback for reuse.
             db = database;
-            console.log("Connected to MLAB");
+            console.log("Connected to Atlas");
 
         });
 
