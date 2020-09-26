@@ -109,6 +109,11 @@ var docrepo = function() {
                 // the sgMail object to the callback function
                 sgMail.send(msg);
             }
+            if (!db) {
+                console.log("No database connection.");
+            } else {
+                console.log("Database connection established.", type);
+            }
             db.collection(type).insert(resourceObject, function(err,data) {
                 if (err) {
                     console.log("Error entering resource into the DB");
@@ -149,7 +154,7 @@ var docrepo = function() {
     } // close filter function
 
     var get = function( type, request, response ) {
-       // console.log('In Doc Repo get method, for type: ' + type);
+        console.log('In Doc Repo get method, for type: ' + type);
         if (request.query) {
             request.query = filter(request.query);
 
@@ -190,6 +195,11 @@ var docrepo = function() {
             }
         console.log('Query = ' + JSON.stringify( request.query ));
     
+        if (db) {
+            console.log("DB Connected.", type);
+        } else {
+            console.log("no DB connection.");
+        }
         db.collection(type).find(request.query).toArray(function(err,docs) {
                   if ( err ) {
                       handleError(err);
